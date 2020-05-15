@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">FaceRecognition</string>
+    <string name="have_you_been_here">Hello! Have you already been here?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="ok">OK</string>
+    <string name="oops">Oops&#8230;</string>
+    <string name="not_recognised">Unfortunately, I cannot recognise you. Are you one of these people?</string>
+    <string name="field_required">Please, fill in the %s</string>
+    <string name="pp_required">Please, accept the privacy policy</string>
+    <string name="not_in_the_list">I\'m not in the list</string>
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
+    <string name="full_name">%s %s</string>
+    <string name="company_name">Company</string>
+    <string name="signature">Signature</string>
+    <string name="greeting">Welcome, %s!</string>
+    <string name="privacy_policy">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</string>
+
+    <string name="microsoft_subscription_key">***REMOVED***</string>
+    <string name="microsoft_endpoint">https://eastus.api.cognitive.microsoft.com/face/v1.0</string>
+</resources>
