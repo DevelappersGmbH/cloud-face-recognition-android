@@ -3,6 +3,7 @@ package de.develappers.facerecognition.utils
 import android.Manifest
 import android.hardware.camera2.CameraCharacteristics
 
+const val VISITORS_GROUP_ID: String = "1"
 
 const val LOGBOOK_EXTRA: String = "extra_logbook"
 const val VISITOR_EXTRA: String = "extra_visitor"
@@ -13,7 +14,7 @@ const val TYPE_SIGNATURE: String = "image_type_signature"
 
 const val APP_MODE_REALTIME: String = "realtime"
 const val APP_MODE_DATABASE: String = "database_testing"
-const val APP_MODE: String = APP_MODE_DATABASE
+const val APP_MODE: String = APP_MODE_REALTIME
 
 const val CONFIDENCE_MATCH: Double = 0.9
 const val CONFIDENCE_CANDIDATE: Double = 0.0

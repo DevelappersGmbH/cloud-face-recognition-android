@@ -1,21 +1,16 @@
 package de.develappers.facerecognition
 
-import android.content.Context
 import android.content.Intent
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.widget.ImageView
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
-import com.microsoft.projectoxford.face.contract.Candidate
 import com.microsoft.projectoxford.face.contract.IdentifyResult
 import de.develappers.facerecognition.database.FRdb
 import de.develappers.facerecognition.database.VisitorViewModel
@@ -28,11 +23,7 @@ import de.develappers.facerecognition.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.io.Serializable
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.random.Random.Default.nextBoolean
 
 class MainActivity : CameraActivity() {
@@ -98,8 +89,8 @@ class MainActivity : CameraActivity() {
 
     }
 
-    fun getRandomVisitor() {
-        randomVisitor = visitorViewModel.allVisitors.value!!.random()
+    suspend fun getRandomVisitor(): Visitor {
+        return visitorDao.getRandomVisitor()
     }
 
     private fun getAssetsPhotoUri(lastName: String, databaseFolder: String): String {
@@ -111,9 +102,11 @@ class MainActivity : CameraActivity() {
         var newImageUri = ""
         var resFolder = "database"
         //randomly decide between testing a person from the prepopulated database or a person from testbase
-        if (false) {
+        if (nextBoolean()) {
             //only familiar
-            getRandomVisitor()
+            runBlocking {
+                randomVisitor = getRandomVisitor()
+            }
             newImageUri = getAssetsPhotoUri(randomVisitor.lastName!!, resFolder)
 
         } else {
@@ -137,7 +130,7 @@ class MainActivity : CameraActivity() {
     private fun sendPhotoToMicrosoftServicesAndEvaluate(newImageUri: String) {
         //wait until we get recognition result from microsoft
         lifecycleScope.launch {
-            val results = microsoftServiceAI.identifyVisitor("1", newImageUri)
+            val results = microsoftServiceAI.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
             findIdentifiedVisitors(results)
         }
         //amazon
