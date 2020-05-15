@@ -31,9 +31,9 @@ class VisitorRepository(private val visitorDao: VisitorDao) {
         visitorDao.updateVisitor(visitor)
     }
 
-    fun getRandomVisitor() : LiveData<Visitor> {
-        return visitorDao.getRandomVisitor()
-    }
+//    fun getRandomVisitor() : LiveData<Visitor> {
+//        return visitorDao.getRandomVisitor()
+//    }
 
     suspend fun findVisitorByMicrosoftId(personId: String): Visitor {
         return visitorDao.findByMicrosoftId(personId)

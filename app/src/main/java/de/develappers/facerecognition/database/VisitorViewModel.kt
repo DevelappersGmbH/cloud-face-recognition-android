@@ -38,9 +38,9 @@ class VisitorViewModel(application: Application) : AndroidViewModel(application)
         repository.insert(visitor)
     }
 
-    fun getRandomVisitor() : LiveData<Visitor> {
+    /*fun getRandomVisitor() : LiveData<Visitor> {
         return repository.getRandomVisitor()
-    }
+    }*/
 
     //this has nothing to do with database and can be moved from view model and repository somewhere else
     suspend fun addCandidatesToSelection(results: Array<IdentifyResult>) : List<RecognisedCandidate> {

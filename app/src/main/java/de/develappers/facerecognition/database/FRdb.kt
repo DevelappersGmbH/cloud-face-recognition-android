@@ -16,6 +16,7 @@ import de.develappers.facerecognition.database.model.LogEntry
 import de.develappers.facerecognition.database.model.Visitor
 import de.develappers.facerecognition.serviceAI.ImageHelper
 import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
+import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -72,7 +73,7 @@ abstract class FRdb : RoomDatabase() {
 
             //access microsoftAI Interface
             val microsoftServiceAI = MicrosoftServiceAI(context)
-            microsoftServiceAI.microsoftDeletePersonGroup("1")
+            microsoftServiceAI.microsoftDeletePersonGroup(VISITORS_GROUP_ID)
             microsoftServiceAI.addPersonGroup()
 
             val databaseFolder = "database"
@@ -83,7 +84,7 @@ abstract class FRdb : RoomDatabase() {
                 //wait, because only 20TPM in free tier
                 TimeUnit.SECONDS.sleep(2L)
                 Log.d("IMG to retrieve", file.path)
-                val servicePersonId = microsoftServiceAI.addNewVisitorToDatabase("1", file.path)
+                val servicePersonId = microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, file.path)
                 Log.d("ServicePersonId", servicePersonId)
                 val visitor = Visitor(
                     "Visitor",
@@ -96,7 +97,7 @@ abstract class FRdb : RoomDatabase() {
                 visitorDao.insert(visitor)
             }
             Log.d("Database", "populated")
-            microsoftServiceAI.microsoftTrainPersonGroup("1")
+            microsoftServiceAI.microsoftTrainPersonGroup(VISITORS_GROUP_ID)
             Log.d("Training", "completed")
 
         }

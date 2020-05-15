@@ -16,6 +16,7 @@ import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.listeners.OnSignedCaptureListener
 import de.develappers.facerecognition.database.model.Visitor
 import de.develappers.facerecognition.database.model.Company
+import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
 import de.develappers.facerecognition.utils.*
 import de.develappers.facerecognition.view.SignatureView
 import kotlinx.android.synthetic.main.activity_registration.*
@@ -29,9 +30,11 @@ import java.util.*
 
 class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, OnSignedCaptureListener {
 
+    private var signed: Boolean = false
     private lateinit var  visitor: Visitor
     private lateinit var currentPhotoPath: String
     private lateinit var visitorDao: VisitorDao
+    private lateinit var microsoftServiceAI: MicrosoftServiceAI
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +43,7 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
         lifecycleScope.launch {
             visitorDao = FRdb.getDatabase(application, this).visitorDao()
         }
-
+        microsoftServiceAI = MicrosoftServiceAI(this)
         textureView = findViewById(R.id.cameraSurface)
         visitor = Visitor(null, null, null, false)
         val company = Company(null)
@@ -73,11 +76,17 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
                 result: TotalCaptureResult
             ) {
                 unlockFocus()
-                //TODO: save new visitor in database, get visitor id, set visitor id to visitor
-                //TODO: also send visitor data to AI services to register
+
                 lifecycleScope.launch {
+                    //save new visitor in database, get visitor id, set visitor id to visitor
                     val newVisitorId = visitorDao.insert(visitor)
                     visitor.visitorId = newVisitorId
+
+                    //also send visitor data to AI services to register
+                    val microsoftId = microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, currentPhotoPath)
+                    visitor.microsoftId = microsoftId
+                    visitorDao.updateVisitor(visitor)
+
                     navigateToGreeting()
                 }
             }
@@ -121,9 +130,12 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
     }
 
     override fun onSigned() {
+        //TODO: think of a better way to signal if the signature was set
+        signed = true
     }
 
     override fun onClear() {
+        signed = false
     }
 
 
@@ -177,6 +189,13 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
             showAlertDialog(R.string.company_name)
             return false
         }
+
+        if(!signed){
+            val dirty = signatureView.isDirty
+            showAlertDialog(R.string.signature)
+            return false
+        }
+
         if (!visitor.privacyAccepted){
             showAlertDialog(R.string.privacy_policy)
             return false

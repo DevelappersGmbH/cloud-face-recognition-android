@@ -7,6 +7,7 @@ import android.util.Log
 import com.microsoft.projectoxford.face.contract.*
 import com.microsoft.projectoxford.face.rest.ClientException
 import de.develappers.facerecognition.FaceApp
+import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
@@ -20,7 +21,7 @@ class MicrosoftServiceAI(val context: Context) {
     // Get an instance of face service client.
     val faceServiceClient = FaceApp.faceServiceClient
     //personGroupId = 1 for visitors
-    val personGroupId = "1"
+    val personGroupId = VISITORS_GROUP_ID
     val personGroupName = "visitors"
     val personGroupDescription = "all visitors"
 
@@ -62,7 +63,7 @@ class MicrosoftServiceAI(val context: Context) {
         }
         faces.forEach { faceIds.add(it.faceId) }
         val faceIdsArray = faceIds.toTypedArray()
-        return microsoftIdentifyFace(personGroupId, faceIdsArray, 0.0f,3)
+        return microsoftIdentifyFace(personGroupId, faceIdsArray, 0.0f,10)
     }
 
 
