@@ -7,7 +7,6 @@ import android.util.Log
 import com.microsoft.projectoxford.face.contract.*
 import com.microsoft.projectoxford.face.rest.ClientException
 import de.develappers.facerecognition.FaceApp
-import de.develappers.facerecognition.database.model.Visitor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
@@ -25,25 +24,32 @@ class MicrosoftServiceAI(val context: Context) {
     val personGroupName = "visitors"
     val personGroupDescription = "all visitors"
 
+    //step 1
+    suspend fun addPersonGroup() {
+        microsoftAddGroup(personGroupId, personGroupName, personGroupDescription)
+    }
 
     suspend fun addNewVisitorToDatabase(personGroupId: String, imgUri: String): String {
         val userData = "user data"
+        //step 2
         val createPersonResult = addPersonToGroup(personGroupId, imgUri)
         Log.d("Retrieving", imgUri)
         var imageUri = Uri.parse(imgUri)
         val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(imageUri, context)
         var faces = arrayOf<Face>()
         if (imgBitmap!=null){
+            //step 3
             faces = detectFacesInImage(imgBitmap)
         }
         faces.forEach {
             val stream = ByteArrayOutputStream()
             imgBitmap?.compress(Bitmap.CompressFormat.JPEG, 100, stream)
             val imageInputStream: InputStream = ByteArrayInputStream(stream.toByteArray())
-            addFaceToPerson(personGroupId, createPersonResult.personId, imageInputStream, userData, it.faceRectangle)
+            //step 4 (given there is only one person/face in the captured photo and we can add all detected faces to this person)
+            microsoftAddFaceToPerson(personGroupId, createPersonResult.personId, imageInputStream, userData, it.faceRectangle)
         }
 
-        return  createPersonResult.personId.toString()
+        return createPersonResult.personId.toString()
     }
 
     suspend fun identifyVisitor(personGroupId: String, imgUri: String) : Array<IdentifyResult>{
@@ -56,30 +62,27 @@ class MicrosoftServiceAI(val context: Context) {
         }
         faces.forEach { faceIds.add(it.faceId) }
         val faceIdsArray = faceIds.toTypedArray()
-        return identifyFace(personGroupId, faceIdsArray, 0.0f,3)
+        return microsoftIdentifyFace(personGroupId, faceIdsArray, 0.0f,3)
     }
 
-    suspend fun addPersonGroup() {
-        addGroup(personGroupId, personGroupName, personGroupDescription)
-    }
 
     suspend fun addPersonToGroup(personGroupId: String, imgUri: String): CreatePersonResult {
-        return addPerson(personGroupId, personGroupName, personGroupDescription)
+        return microsoftAddPersonToGroup(personGroupId, personGroupName, personGroupDescription)
     }
 
     suspend fun detectFacesInImage(imgBitmap: Bitmap) : Array<Face> {
         val stream = ByteArrayOutputStream()
         imgBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
         val imageInputStream: InputStream = ByteArrayInputStream(stream.toByteArray())
-        return detectFaces(imageInputStream)
+        return microsoftDetectFaces(imageInputStream)
     }
 
-    suspend fun trainPersonGroup (personGroupId: String) =
+    suspend fun microsoftTrainPersonGroup (personGroupId: String) =
         withContext(Dispatchers.IO) {
         faceServiceClient!!.trainLargePersonGroup(personGroupId)
     }
 
-    suspend fun addGroup(personGroupId: String, personGroupName: String, personGroupDescription: String) =
+    suspend fun microsoftAddGroup(personGroupId: String, personGroupName: String, personGroupDescription: String) =
         withContext(Dispatchers.IO) {
             try{
                 faceServiceClient!!.createLargePersonGroup(personGroupId, personGroupName, personGroupDescription)
@@ -88,7 +91,7 @@ class MicrosoftServiceAI(val context: Context) {
             }
         }
 
-    suspend fun addPerson(personGroupId: String, personName: String, personUserData: String): CreatePersonResult =
+    suspend fun microsoftAddPersonToGroup(personGroupId: String, personName: String, personUserData: String): CreatePersonResult =
         withContext(Dispatchers.IO) {
             TimeUnit.SECONDS.sleep(2L)
             // Start the request to creating person.
@@ -96,7 +99,7 @@ class MicrosoftServiceAI(val context: Context) {
         }
 
 
-    suspend fun detectFaces(inputStream: InputStream): Array<Face> =
+    suspend fun microsoftDetectFaces(inputStream: InputStream): Array<Face> =
         withContext(Dispatchers.IO) {
             TimeUnit.SECONDS.sleep(2L)
             faceServiceClient!!.detect(
@@ -109,27 +112,27 @@ class MicrosoftServiceAI(val context: Context) {
             )
         }
 
-    suspend fun addFaceToPerson(personGroupId: String, personId: UUID, imageInputStream: InputStream, userData: String, faceRect: FaceRectangle): AddPersistedFaceResult =
+    suspend fun microsoftAddFaceToPerson(personGroupId: String, personId: UUID, imageInputStream: InputStream, userData: String, faceRect: FaceRectangle): AddPersistedFaceResult =
         withContext(Dispatchers.IO) {
             TimeUnit.SECONDS.sleep(2L)
             faceServiceClient!!.addPersonFaceInLargePersonGroup(personGroupId, personId, imageInputStream, userData, faceRect)
         }
 
-    suspend fun getPersons(personGroupId: String): Array<Person> =
+    suspend fun microsoftGetPersons(personGroupId: String): Array<Person> =
         withContext(Dispatchers.IO) {
             faceServiceClient!!.listPersons(personGroupId)
         }
 
-    suspend fun deletePersonGroup(personGroupId: String) =
+    suspend fun microsoftDeletePersonGroup(personGroupId: String) =
         withContext(Dispatchers.IO) {
             try{
                 faceServiceClient!!.deleteLargePersonGroup(personGroupId)
             } catch (e: ClientException){
-                Log.d("Oxford", e.error.message)
+                Log.d("Microsoft: ", e.error.message)
             }
         }
 
-    suspend fun identifyFace(personGroupId: String, faceIds: Array<UUID>, confidenceThreshold: Float, maxNumOfCandidatesReturned: Int): Array<IdentifyResult> =
+    suspend fun microsoftIdentifyFace(personGroupId: String, faceIds: Array<UUID>, confidenceThreshold: Float, maxNumOfCandidatesReturned: Int): Array<IdentifyResult> =
         withContext(Dispatchers.IO) {
             faceServiceClient!!.identityInLargePersonGroup(
                 personGroupId,   /* personGroupId */

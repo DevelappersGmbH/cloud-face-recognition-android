@@ -16,6 +16,9 @@ interface VisitorDao {
     @Query("SELECT * FROM visitor")
     fun getAllVis(): List<Visitor>
 
+    @Query("SELECT * FROM visitor ORDER BY RANDOM() LIMIT 1")
+    fun getRandomVisitor(): LiveData<Visitor>
+
     @Query("SELECT * FROM visitor WHERE microsoft_id IN (:visitorIds)")
     suspend fun findAllMicrosoftByIds(visitorIds: MutableList<String>): List<Visitor>
 
