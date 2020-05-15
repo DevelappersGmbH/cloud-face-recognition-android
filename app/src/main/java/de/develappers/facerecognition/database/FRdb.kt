@@ -1,8 +1,6 @@
 package de.develappers.facerecognition.database
 
 import android.content.Context
-import android.os.Environment
-import android.provider.Settings.Global.getString
 import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
@@ -10,7 +8,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import de.develappers.facerecognition.FaceApp
-import de.develappers.facerecognition.R
 import de.develappers.facerecognition.database.dao.CompanyDao
 import de.develappers.facerecognition.database.dao.LogDao
 import de.develappers.facerecognition.database.dao.VisitorDao
@@ -19,16 +16,10 @@ import de.develappers.facerecognition.database.model.LogEntry
 import de.develappers.facerecognition.database.model.Visitor
 import de.develappers.facerecognition.serviceAI.ImageHelper
 import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
-import de.develappers.facerecognition.utils.ImageSaver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
 
 @Database(entities = arrayOf(Visitor::class, Company::class, LogEntry::class), version = 1)
 @TypeConverters(Converters::class)
@@ -81,7 +72,7 @@ abstract class FRdb : RoomDatabase() {
 
             //access microsoftAI Interface
             val microsoftServiceAI = MicrosoftServiceAI(context)
-            microsoftServiceAI.deletePersonGroup("1")
+            microsoftServiceAI.microsoftDeletePersonGroup("1")
             microsoftServiceAI.addPersonGroup()
 
             val databaseFolder = "database"
@@ -105,7 +96,7 @@ abstract class FRdb : RoomDatabase() {
                 visitorDao.insert(visitor)
             }
             Log.d("Database", "populated")
-            microsoftServiceAI.trainPersonGroup("1")
+            microsoftServiceAI.microsoftTrainPersonGroup("1")
             Log.d("Training", "completed")
 
         }

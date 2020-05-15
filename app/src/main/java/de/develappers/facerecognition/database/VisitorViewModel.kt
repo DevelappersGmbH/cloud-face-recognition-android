@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.microsoft.projectoxford.face.contract.Candidate
 import com.microsoft.projectoxford.face.contract.IdentifyResult
+import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.database.model.Visitor
 import de.develappers.facerecognition.database.repository.VisitorRepository
 import kotlinx.coroutines.Dispatchers
@@ -21,13 +22,13 @@ class VisitorViewModel(application: Application) : AndroidViewModel(application)
     //   the UI when the data actually changes.
     // - Repository is completely separated from the UI through the ViewModel.
     val allVisitors: LiveData<List<Visitor>>
-    val selectedVisitors: LiveData<List<Visitor>>
+    val candidates: LiveData<List<RecognisedCandidate>>
 
     init {
         val visitorDao = FRdb.getDatabase(application, viewModelScope).visitorDao()
         repository = VisitorRepository(visitorDao)
         allVisitors = repository.allVisitors
-        selectedVisitors = repository.selectedVisitors
+        candidates = repository.candidates
     }
 
     /**
@@ -37,14 +38,33 @@ class VisitorViewModel(application: Application) : AndroidViewModel(application)
         repository.insert(visitor)
     }
 
-
-    fun addCandidateToSelection(candidate: Candidate) = viewModelScope.launch(Dispatchers.IO) {
-        val personId = candidate.personId
-        val visitor = repository.findVisitorByMicrosoftId(personId.toString())
-        repository.addCandidateToSelection(visitor)
+    fun getRandomVisitor() : LiveData<Visitor> {
+        return repository.getRandomVisitor()
     }
 
-    fun findCandidate(candidate: Candidate) = viewModelScope.launch(Dispatchers.IO) {
+    suspend fun addCandidatesToSelection(results: Array<IdentifyResult>) = viewModelScope.launch(Dispatchers.IO) {
+        results.forEach { result ->
+            result.candidates.forEach { serviceCandidate ->
+                //find the corresponding candidate in local database
+                val recognisedVisitor = repository.findVisitorByMicrosoftId(serviceCandidate.personId.toString())
+                //check if we've added him to the list already
+                val candidateFromList = candidates.value?.find { it.visitor == recognisedVisitor }
+                if (candidateFromList != null) {
+                    //if already in the list, modify the confidence level of certain service
+                    candidateFromList.microsoft_conf = serviceCandidate.confidence
+                } else {
+                    //if not in the list, add to the recognised candidates
+                    val newCandidate = RecognisedCandidate().apply {
+                        this.visitor = recognisedVisitor
+                        this.microsoft_conf = serviceCandidate.confidence
+                    }
+                    repository.addCandidateToSelection(newCandidate)
+                }
+            }
+        }
+    }
+
+    fun findVisitorByMicrosoftId(candidate: Candidate) = viewModelScope.launch(Dispatchers.IO) {
         repository.findVisitorByMicrosoftId(candidate.personId.toString())
     }
 }
