@@ -56,16 +56,16 @@ class MainActivity : CameraActivity() {
 
         visitorViewModel = ViewModelProvider(this).get(VisitorViewModel::class.java)
         visitorViewModel.allVisitors.observe(this, Observer { visitors ->
-            // Update the cached copy of the words in the adapter.
-            Log.d("New visitor in db : ", visitors.last().lastName!!)
-        })
+                // Update the cached copy of the words in the adapter.
+                Log.d("New visitor in db : ", visitors.last().lastName!!)
+            })
 
         btnNo.setOnClickListener {
             navigateToRegistration()
         }
 
         btnYes.setOnClickListener {
-            when (APP_MODE) {
+            when (APP_MODE){
                 APP_MODE_REALTIME -> {
                     //TODO: take a picture and send to AI services
                     fromCameraPath = createImageFile()
@@ -93,38 +93,39 @@ class MainActivity : CameraActivity() {
 
     }
 
+    fun getRandomVisitor() {
+        randomVisitor = visitorViewModel.allVisitors.value!!.random()
+    }
+
     private fun getAssetsPhotoUri(lastName: String, databaseFolder: String): String {
         val file: File = ImageHelper.saveVisitorPhotoLocally(this, lastName, galleryFolder, databaseFolder)
         return file.path
     }
 
-    private fun chooseTrialPerson() {
+    private fun chooseTrialPerson(){
         var newImageUri = ""
         var resFolder = "database"
         //randomly decide between testing a person from the prepopulated database or a person from testbase
-        if (false) {
-            //only familiar
-            visitorViewModel.getRandomVisitor().observe(this, Observer {
-                randomVisitor = it
-                newImageUri = getAssetsPhotoUri(randomVisitor.lastName!!, resFolder)
-                sendPhotoToMicrosoftServicesAndEvaluate(newImageUri)
-            })
+            if (false){
+                //only familiar
+                    getRandomVisitor()
+                    newImageUri = getAssetsPhotoUri(randomVisitor.lastName!!, resFolder)
 
-        } else {
-            //unfamiliar faces
-            resFolder = "testbase"
-            newImageUri = getAssetsPhotoUri(assets.list(resFolder)!!.random().toString(), resFolder)
+            } else {
+                //unfamiliar faces
+                    resFolder = "testbase"
+                    newImageUri = getAssetsPhotoUri(assets.list(resFolder)!!.random().toString(), resFolder)
+
+            }
+            Log.d("Random visitor", newImageUri)
+
             sendPhotoToMicrosoftServicesAndEvaluate(newImageUri)
-
-        }
-        Log.d("Random visitor", newImageUri)
-
         //TODO: place for other coroutine AI services?
     }
 
-    private fun sendPhotoToMicrosoftServicesAndEvaluate(newImageUri: String) {
+    private fun sendPhotoToMicrosoftServicesAndEvaluate(newImageUri: String){
         //wait until we get recognition result from microsoft
-        lifecycleScope.launch {
+        lifecycleScope.launch{
             val results = microsoftServiceAI.identifyVisitor("1", newImageUri)
             findIdentifiedVisitors(results)
         }
@@ -134,10 +135,10 @@ class MainActivity : CameraActivity() {
         //luxand
     }
 
-    fun findIdentifiedVisitors(results: Array<IdentifyResult>) {
+    fun findIdentifiedVisitors(results: Array<IdentifyResult>){
         // if a confident match is found, find the corresponding visitor in the local db and then go to Greeting
         lifecycleScope.launch {
-            if (results[0].candidates[0].confidence > CONFIDENCE_MATCH) {
+            if (results[0].candidates[0].confidence > CONFIDENCE_MATCH){
                 val match = visitorDao.findByMicrosoftId(results[0].candidates[0].personId.toString())
                 navigateToGreeting(match)
             } else { // otherwise show all candidates in visitor list
