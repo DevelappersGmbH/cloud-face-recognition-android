@@ -29,9 +29,9 @@ class VisitorRepository(private val visitorDao: VisitorDao) {
         return visitorDao.findByMicrosoftId(personId)
     }
 
-    fun addCandidateToSelection(visitor: Visitor) {
-        selectedVisitorsList.add(visitor)
-        selectedVisitors.value = selectedVisitorsList
+    fun addCandidateToSelection(candidate: Candidate) {
+        candidatesList.add(candidate)
+       candidates.value = candidatesList
     }
 
 
