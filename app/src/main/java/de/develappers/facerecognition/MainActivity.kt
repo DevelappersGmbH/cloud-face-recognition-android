@@ -5,9 +5,11 @@ import android.content.Intent
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.widget.ImageView
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -40,6 +42,7 @@ class MainActivity : CameraActivity() {
     private lateinit var randomVisitor: Visitor
     private lateinit var microsoftServiceAI: MicrosoftServiceAI
     private lateinit var visitorDao: VisitorDao
+    private lateinit var ivNewVisitor: ImageView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +50,8 @@ class MainActivity : CameraActivity() {
         setContentView(R.layout.activity_main)
         microsoftServiceAI = MicrosoftServiceAI(this)
         textureView = findViewById(R.id.textureView)
+        ivNewVisitor = findViewById(R.id.ivNewVisitor)
+
 
         lifecycleScope.launch {
             visitorDao = FRdb.getDatabase(application, this).visitorDao()
@@ -56,16 +61,16 @@ class MainActivity : CameraActivity() {
 
         visitorViewModel = ViewModelProvider(this).get(VisitorViewModel::class.java)
         visitorViewModel.allVisitors.observe(this, Observer { visitors ->
-                // Update the cached copy of the words in the adapter.
-                Log.d("New visitor in db : ", visitors.last().lastName!!)
-            })
+            // Update the cached copy of the words in the adapter.
+            Log.d("New visitor in db : ", visitors.last().lastName!!)
+        })
 
         btnNo.setOnClickListener {
             navigateToRegistration()
         }
 
         btnYes.setOnClickListener {
-            when (APP_MODE){
+            when (APP_MODE) {
                 APP_MODE_REALTIME -> {
                     //TODO: take a picture and send to AI services
                     fromCameraPath = createImageFile()
@@ -102,30 +107,36 @@ class MainActivity : CameraActivity() {
         return file.path
     }
 
-    private fun chooseTrialPerson(){
+    private fun chooseTrialPerson() {
         var newImageUri = ""
         var resFolder = "database"
         //randomly decide between testing a person from the prepopulated database or a person from testbase
-            if (false){
-                //only familiar
-                    getRandomVisitor()
-                    newImageUri = getAssetsPhotoUri(randomVisitor.lastName!!, resFolder)
+        if (false) {
+            //only familiar
+            getRandomVisitor()
+            newImageUri = getAssetsPhotoUri(randomVisitor.lastName!!, resFolder)
 
-            } else {
-                //unfamiliar faces
-                    resFolder = "testbase"
-                    newImageUri = getAssetsPhotoUri(assets.list(resFolder)!!.random().toString(), resFolder)
+        } else {
+            //unfamiliar faces
+            resFolder = "testbase"
+            newImageUri = getAssetsPhotoUri(assets.list(resFolder)!!.random().toString(), resFolder)
 
-            }
-            Log.d("Random visitor", newImageUri)
+        }
+        Log.d("Random visitor", newImageUri)
 
-            sendPhotoToMicrosoftServicesAndEvaluate(newImageUri)
+        setNewVisitorToPreview(newImageUri)
+        sendPhotoToMicrosoftServicesAndEvaluate(newImageUri)
         //TODO: place for other coroutine AI services?
     }
 
-    private fun sendPhotoToMicrosoftServicesAndEvaluate(newImageUri: String){
+    private fun setNewVisitorToPreview(newImageUri: String) {
+        val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(Uri.parse(newImageUri), this)
+        ivNewVisitor.setImageBitmap(imgBitmap)
+    }
+
+    private fun sendPhotoToMicrosoftServicesAndEvaluate(newImageUri: String) {
         //wait until we get recognition result from microsoft
-        lifecycleScope.launch{
+        lifecycleScope.launch {
             val results = microsoftServiceAI.identifyVisitor("1", newImageUri)
             findIdentifiedVisitors(results)
         }
@@ -135,10 +146,10 @@ class MainActivity : CameraActivity() {
         //luxand
     }
 
-    fun findIdentifiedVisitors(results: Array<IdentifyResult>){
+    fun findIdentifiedVisitors(results: Array<IdentifyResult>) {
         // if a confident match is found, find the corresponding visitor in the local db and then go to Greeting
         lifecycleScope.launch {
-            if (results[0].candidates[0].confidence > CONFIDENCE_MATCH){
+            if (results[0].candidates[0].confidence > CONFIDENCE_MATCH) {
                 val match = visitorDao.findByMicrosoftId(results[0].candidates[0].personId.toString())
                 navigateToGreeting(match)
             } else { // otherwise show all candidates in visitor list
