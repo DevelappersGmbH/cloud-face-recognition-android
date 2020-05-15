@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+    <ImageView
+            android:id="@+id/photoView"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/icon_default"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            tools:srcCompat="@tools:sample/avatars"/>
+    <TextView
+            android:id="@+id/fullNameView"
+            android:text="@string/last_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignBottom="@id/photoView"
+            android:textSize="@dimen/text_large"
+            android:autoSizeTextType="uniform"
+            android:layout_toRightOf="@id/photoView"
+            android:layout_toEndOf="@id/photoView"
+            android:layout_toLeftOf="@id/probabilityView"
+            android:layout_toStartOf="@id/probabilityView"
+    android:padding="@dimen/padding_default"/>
+    <TextView
+            android:id="@+id/probabilityView"
+            android:text="93%"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignBottom="@id/photoView"
+            android:textSize="@dimen/text_large"
+            android:autoSizeTextType="uniform"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+    android:padding="@dimen/padding_default"/>
+</RelativeLayout>
