@@ -27,6 +27,10 @@ class VisitorRepository(private val visitorDao: VisitorDao) {
         visitorDao.insert(visitor)
     }
 
+    suspend fun updateVisitor(visitor: Visitor) {
+        visitorDao.updateVisitor(visitor)
+    }
+
     fun getRandomVisitor() : LiveData<Visitor> {
         return visitorDao.getRandomVisitor()
     }

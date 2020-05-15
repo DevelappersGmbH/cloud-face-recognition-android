@@ -142,8 +142,8 @@ class MainActivity : CameraActivity() {
                 val match = visitorDao.findByMicrosoftId(results[0].candidates[0].personId.toString())
                 navigateToGreeting(match)
             } else { // otherwise show all candidates in visitor list
-                visitorViewModel.addCandidatesToSelection(results)
-                navigateToVisitorList()
+                val possibleVisitors = visitorViewModel.addCandidatesToSelection(results)
+                navigateToVisitorList(possibleVisitors)
             }
         }
 
@@ -161,8 +161,7 @@ class MainActivity : CameraActivity() {
         startActivity(intent)
     }
 
-    private fun navigateToVisitorList() {
-        val possibleVisitors = visitorViewModel.candidates.value
+    private fun navigateToVisitorList(possibleVisitors: List<RecognisedCandidate>) {
         intent = Intent(this@MainActivity, VisitorListActivity::class.java)
         intent.putExtra(CANDIDATES_EXTRA, possibleVisitors as Serializable)
         startActivity(intent)

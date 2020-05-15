@@ -1,10 +1,7 @@
 package de.develappers.facerecognition.database.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import de.develappers.facerecognition.database.model.Visitor
 import java.util.*
 
@@ -34,6 +31,9 @@ interface VisitorDao {
 
     @Insert
     suspend fun insert(visitor: Visitor): Long
+
+    @Update
+    suspend fun updateVisitor(visitor: Visitor)
 
     @Delete
     suspend fun delete(visitor: Visitor)
