@@ -7,6 +7,7 @@ const val VISITORS_GROUP_ID: String = "1"
 
 const val LOGBOOK_EXTRA: String = "extra_logbook"
 const val VISITOR_EXTRA: String = "extra_visitor"
+const val VISITOR_FIRST_TIME: String = "extra_first_time_visitor"
 const val CANDIDATES_EXTRA: String = "extra_candidates"
 
 const val TYPE_PHOTO: String = "image_type_photo"
