@@ -7,7 +7,9 @@ import android.hardware.camera2.*
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
@@ -19,7 +21,9 @@ import de.develappers.facerecognition.database.model.Company
 import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
 import de.develappers.facerecognition.utils.*
 import de.develappers.facerecognition.view.SignatureView
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_registration.*
+import kotlinx.android.synthetic.main.activity_registration.progressBar
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -62,6 +66,7 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
             currentPhotoPath = createImageFile()
             saveVisitorData()
             if (verifyForm()){
+                setProgressBar()
                 lockFocus()
             }
         }
@@ -193,7 +198,6 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
         }
 
         if(!signed){
-            val dirty = signatureView.isDirty
             showAlertDialog(R.string.signature)
             return false
         }
@@ -227,6 +231,12 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
         alert.setTitle(getString(R.string.oops))
         // show alert dialog
         alert.show()
+    }
+
+
+    private fun setProgressBar(){
+        btnOk.isClickable = false
+        progressBar.visibility = VISIBLE
     }
 
     private fun navigateToGreeting(){

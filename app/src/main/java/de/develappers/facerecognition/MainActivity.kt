@@ -7,6 +7,8 @@ import android.hardware.camera2.TotalCaptureResult
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.View.VISIBLE
 import android.widget.ImageView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +23,8 @@ import de.develappers.facerecognition.serviceAI.ImageHelper
 import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
 import de.develappers.facerecognition.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.progressBar
+import kotlinx.android.synthetic.main.activity_registration.*
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.Serializable
@@ -50,16 +54,22 @@ class MainActivity : CameraActivity() {
         }
 
         visitorViewModel = ViewModelProvider(this).get(VisitorViewModel::class.java)
+
+
+        // debugging the database population
         visitorViewModel.allVisitors.observe(this, Observer { visitors ->
-            // Update the cached copy of the words in the adapter.
-            Log.d("New visitor in db : ", visitors.last().lastName!!)
+            if (visitors.isNotEmpty()){
+                Log.d("New visitor in db : ", visitors.last().lastName!!)
+            }
         })
 
         btnNo.setOnClickListener {
+            setProgressBar()
             navigateToRegistration()
         }
 
         btnYes.setOnClickListener {
+            setProgressBar()
             when (APP_MODE) {
                 APP_MODE_REALTIME -> {
                     //TODO: take a picture and send to AI services
@@ -148,6 +158,13 @@ class MainActivity : CameraActivity() {
                 navigateToVisitorList(possibleVisitors)
             }
         }
+
+    }
+
+    private fun setProgressBar(){
+        progressBar.visibility = VISIBLE
+        btnYes.isClickable = false
+        btnNo.isClickable = false
 
     }
 
