@@ -87,13 +87,6 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
                     val newVisitorId = visitorDao.insert(visitor)
                     visitor.visitorId = newVisitorId
 
-                    //also send visitor data to AI services to register
-                    val microsoftId = microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, currentPhotoPath)
-                    visitor.microsoftId = microsoftId
-                    visitorDao.updateVisitor(visitor)
-
-                    microsoftServiceAI.microsoftTrainPersonGroup(VISITORS_GROUP_ID)
-
                     navigateToGreeting()
                 }
             }
@@ -242,6 +235,7 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
     private fun navigateToGreeting(){
         intent = Intent(this@RegistrationActivity, GreetingActivity::class.java)
         intent.putExtra(VISITOR_EXTRA, visitor)
+        intent.putExtra(VISITOR_FIRST_TIME, true)
         startActivity(intent)
     }
 
