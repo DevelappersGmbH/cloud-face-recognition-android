@@ -44,9 +44,7 @@ class VisitorViewModel(application: Application) : AndroidViewModel(application)
 
     //this has nothing to do with database and can be moved from view model and repository somewhere else
     suspend fun addCandidatesToSelection(results: Array<IdentifyResult>) : List<RecognisedCandidate> {
-        val possibleVisitors = mutableListOf<RecognisedCandidate>()
-
-        viewModelScope.launch(Dispatchers.IO) {
+            val possibleVisitors = mutableListOf<RecognisedCandidate>()
             results.forEach { result ->
                 result.candidates.forEach { serviceCandidate ->
                     //find the corresponding candidate in local database
@@ -68,8 +66,6 @@ class VisitorViewModel(application: Application) : AndroidViewModel(application)
                     }
                 }
             }
-        }
-
         return possibleVisitors
     }
 

@@ -98,7 +98,6 @@ abstract class FRdb : RoomDatabase() {
             }
             Log.d("Database", "populated")
             microsoftServiceAI.microsoftTrainPersonGroup(VISITORS_GROUP_ID)
-            Log.d("Training", "completed")
 
         }
 

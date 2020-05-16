@@ -38,7 +38,7 @@ class MicrosoftServiceAI(val context: Context) {
         var imageUri = Uri.parse(imgUri)
         val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(imageUri, context)
         var faces = arrayOf<Face>()
-        if (imgBitmap!=null){
+        if (imgBitmap != null) {
             //step 3
             faces = detectFacesInImage(imgBitmap)
         }
@@ -47,23 +47,29 @@ class MicrosoftServiceAI(val context: Context) {
             imgBitmap?.compress(Bitmap.CompressFormat.JPEG, 100, stream)
             val imageInputStream: InputStream = ByteArrayInputStream(stream.toByteArray())
             //step 4 (given there is only one person/face in the captured photo and we can add all detected faces to this person)
-            microsoftAddFaceToPerson(personGroupId, createPersonResult.personId, imageInputStream, userData, it.faceRectangle)
+            microsoftAddFaceToPerson(
+                personGroupId,
+                createPersonResult.personId,
+                imageInputStream,
+                userData,
+                it.faceRectangle
+            )
         }
 
         return createPersonResult.personId.toString()
     }
 
-    suspend fun identifyVisitor(personGroupId: String, imgUri: String) : Array<IdentifyResult>{
+    suspend fun identifyVisitor(personGroupId: String, imgUri: String): Array<IdentifyResult> {
         val faceIds: MutableList<UUID> = mutableListOf()
         val imageUri = Uri.parse(imgUri)
         val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(imageUri, context)
         var faces = arrayOf<Face>()
-        if (imgBitmap!=null){
+        if (imgBitmap != null) {
             faces = detectFacesInImage(imgBitmap)
         }
         faces.forEach { faceIds.add(it.faceId) }
         val faceIdsArray = faceIds.toTypedArray()
-        return microsoftIdentifyFace(personGroupId, faceIdsArray, 0.0f,10)
+        return microsoftIdentifyFace(personGroupId, faceIdsArray, 0.0f, 10)
     }
 
 
@@ -71,28 +77,33 @@ class MicrosoftServiceAI(val context: Context) {
         return microsoftAddPersonToGroup(personGroupId, personGroupName, personGroupDescription)
     }
 
-    suspend fun detectFacesInImage(imgBitmap: Bitmap) : Array<Face> {
+    suspend fun detectFacesInImage(imgBitmap: Bitmap): Array<Face> {
         val stream = ByteArrayOutputStream()
         imgBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
         val imageInputStream: InputStream = ByteArrayInputStream(stream.toByteArray())
         return microsoftDetectFaces(imageInputStream)
     }
 
-    suspend fun microsoftTrainPersonGroup (personGroupId: String) =
+    suspend fun microsoftTrainPersonGroup(personGroupId: String) =
         withContext(Dispatchers.IO) {
-        faceServiceClient!!.trainLargePersonGroup(personGroupId)
-    }
+            faceServiceClient!!.trainLargePersonGroup(personGroupId)
+            Log.d("Microsoft", "training completed")
+        }
 
     suspend fun microsoftAddGroup(personGroupId: String, personGroupName: String, personGroupDescription: String) =
         withContext(Dispatchers.IO) {
-            try{
+            try {
                 faceServiceClient!!.createLargePersonGroup(personGroupId, personGroupName, personGroupDescription)
-            } catch (e: ClientException){
-                Log.d("Oxford", e.error.message)
+            } catch (e: ClientException) {
+                Log.d("Microsoft", e.error.message)
             }
         }
 
-    suspend fun microsoftAddPersonToGroup(personGroupId: String, personName: String, personUserData: String): CreatePersonResult =
+    suspend fun microsoftAddPersonToGroup(
+        personGroupId: String,
+        personName: String,
+        personUserData: String
+    ): CreatePersonResult =
         withContext(Dispatchers.IO) {
             TimeUnit.SECONDS.sleep(2L)
             // Start the request to creating person.
@@ -113,10 +124,22 @@ class MicrosoftServiceAI(val context: Context) {
             )
         }
 
-    suspend fun microsoftAddFaceToPerson(personGroupId: String, personId: UUID, imageInputStream: InputStream, userData: String, faceRect: FaceRectangle): AddPersistedFaceResult =
+    suspend fun microsoftAddFaceToPerson(
+        personGroupId: String,
+        personId: UUID,
+        imageInputStream: InputStream,
+        userData: String,
+        faceRect: FaceRectangle
+    ): AddPersistedFaceResult =
         withContext(Dispatchers.IO) {
             TimeUnit.SECONDS.sleep(2L)
-            faceServiceClient!!.addPersonFaceInLargePersonGroup(personGroupId, personId, imageInputStream, userData, faceRect)
+            faceServiceClient!!.addPersonFaceInLargePersonGroup(
+                personGroupId,
+                personId,
+                imageInputStream,
+                userData,
+                faceRect
+            )
         }
 
     suspend fun microsoftGetPersons(personGroupId: String): Array<Person> =
@@ -126,20 +149,26 @@ class MicrosoftServiceAI(val context: Context) {
 
     suspend fun microsoftDeletePersonGroup(personGroupId: String) =
         withContext(Dispatchers.IO) {
-            try{
+            try {
                 faceServiceClient!!.deleteLargePersonGroup(personGroupId)
-            } catch (e: ClientException){
+            } catch (e: ClientException) {
                 Log.d("Microsoft: ", e.error.message)
             }
         }
 
-    suspend fun microsoftIdentifyFace(personGroupId: String, faceIds: Array<UUID>, confidenceThreshold: Float, maxNumOfCandidatesReturned: Int): Array<IdentifyResult> =
+    suspend fun microsoftIdentifyFace(
+        personGroupId: String,
+        faceIds: Array<UUID>,
+        confidenceThreshold: Float,
+        maxNumOfCandidatesReturned: Int
+    ): Array<IdentifyResult> =
         withContext(Dispatchers.IO) {
             faceServiceClient!!.identityInLargePersonGroup(
                 personGroupId,   /* personGroupId */
                 faceIds,                  /* faceIds */
                 confidenceThreshold,
-                maxNumOfCandidatesReturned)
+                maxNumOfCandidatesReturned
+            )
         }
 
 
