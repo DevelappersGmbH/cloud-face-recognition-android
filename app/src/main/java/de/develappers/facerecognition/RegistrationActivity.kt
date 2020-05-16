@@ -87,6 +87,8 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
                     visitor.microsoftId = microsoftId
                     visitorDao.updateVisitor(visitor)
 
+                    microsoftServiceAI.microsoftTrainPersonGroup(VISITORS_GROUP_ID)
+
                     navigateToGreeting()
                 }
             }
