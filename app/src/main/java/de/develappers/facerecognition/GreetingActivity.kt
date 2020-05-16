@@ -12,9 +12,10 @@ import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
 import de.develappers.facerecognition.utils.VISITOR_EXTRA
 import de.develappers.facerecognition.utils.VISITOR_FIRST_TIME
 import kotlinx.android.synthetic.main.activity_greeting.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.system.measureTimeMillis
 
 class GreetingActivity : AppCompatActivity() {
 
@@ -24,23 +25,24 @@ class GreetingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_greeting)
-        microsoftServiceAI = MicrosoftServiceAI(this)
         val visitor = intent.getSerializableExtra(VISITOR_EXTRA) as Visitor
         val firstTime = intent.getBooleanExtra(VISITOR_FIRST_TIME, false)
+
+        microsoftServiceAI = MicrosoftServiceAI(this)
+
         tvGreeting.text = getString(R.string.greeting, visitor.lastName)
 
         lifecycleScope.launch {
             visitorDao = FRdb.getDatabase(application, this).visitorDao()
             if (firstTime) {
-                //send visitor data to AI services to register
-                val microsoftId = microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, visitor.imgPaths.last())
-                visitor.microsoftId = microsoftId
+                registerVisitorInAIServices(visitor)
                 //save new visitor in database, get visitor id
                 val newVisitorId = visitorDao.insert(visitor)
-            }
             //train the database with the new image
             microsoftServiceAI.microsoftTrainPersonGroup(VISITORS_GROUP_ID)
         }
+        }
+
 
 
         var log = LogEntry()
@@ -51,4 +53,15 @@ class GreetingActivity : AppCompatActivity() {
 
 
     }
+
+    suspend fun registerVisitorInAIServices(visitor: Visitor) = withContext(Dispatchers.IO) {
+        // withContext waits for all children coroutines
+        launch {
+            val microsoftId = microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, visitor.imgPaths.last())
+            visitor.microsoftId = microsoftId
+        }
+        launch { println("Second launch") }
+        //launch {  }
+    }
+
 }

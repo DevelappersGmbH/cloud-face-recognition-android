@@ -42,9 +42,11 @@ class MainActivity : CameraActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        microsoftServiceAI = MicrosoftServiceAI(this)
         textureView = findViewById(R.id.textureView)
         ivNewVisitor = findViewById(R.id.ivNewVisitor)
+
+
+        microsoftServiceAI = MicrosoftServiceAI(this)
 
 
         lifecycleScope.launch {
@@ -54,8 +56,6 @@ class MainActivity : CameraActivity() {
         }
 
         visitorViewModel = ViewModelProvider(this).get(VisitorViewModel::class.java)
-
-
         // debugging the database population
         visitorViewModel.allVisitors.observe(this, Observer { visitors ->
             if (visitors.isNotEmpty()){
@@ -152,6 +152,7 @@ class MainActivity : CameraActivity() {
         lifecycleScope.launch {
             if (results[0].candidates[0].confidence > CONFIDENCE_MATCH) {
                 val match = visitorDao.findByMicrosoftId(results[0].candidates[0].personId.toString())
+                //return the match
                 navigateToGreeting(match)
             } else { // otherwise show all candidates in visitor list
                 val possibleVisitors = visitorViewModel.addCandidatesToSelection(results)

@@ -30,7 +30,7 @@ class VisitorListActivity : AppCompatActivity(), OnVisitorItemClickedListener {
         var adapter = VisitorListAdapter(this, this)
         rvVisitorList.adapter = adapter
         rvVisitorList.layoutManager = LinearLayoutManager(this)
-        
+
         val recognisedCandidates = intent.extras?.get(CANDIDATES_EXTRA) as List<RecognisedCandidate>
         adapter.setVisitors(recognisedCandidates)
 
