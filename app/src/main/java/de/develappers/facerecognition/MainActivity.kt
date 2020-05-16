@@ -30,7 +30,6 @@ class MainActivity : CameraActivity() {
 
     private lateinit var fromCameraPath: String
     private lateinit var visitorViewModel: VisitorViewModel
-    private lateinit var randomVisitor: Visitor
     private lateinit var microsoftServiceAI: MicrosoftServiceAI
     private lateinit var visitorDao: VisitorDao
     private lateinit var ivNewVisitor: ImageView
@@ -102,13 +101,12 @@ class MainActivity : CameraActivity() {
         var newImageUri = ""
         var resFolder = "database"
         //randomly decide between testing a person from the prepopulated database or a person from testbase
-        if (nextBoolean()) {
+        if (true) {
             //only familiar
             runBlocking {
-                randomVisitor = getRandomVisitor()
+                val randomVisitor = getRandomVisitor()
+                newImageUri = getAssetsPhotoUri(randomVisitor.lastName!!, resFolder)
             }
-            newImageUri = getAssetsPhotoUri(randomVisitor.lastName!!, resFolder)
-
         } else {
             //unfamiliar faces
             resFolder = "testbase"
