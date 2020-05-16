@@ -30,15 +30,10 @@ class VisitorListActivity : AppCompatActivity(), OnVisitorItemClickedListener {
         var adapter = VisitorListAdapter(this, this)
         rvVisitorList.adapter = adapter
         rvVisitorList.layoutManager = LinearLayoutManager(this)
+        
         val recognisedCandidates = intent.extras?.get(CANDIDATES_EXTRA) as List<RecognisedCandidate>
         adapter.setVisitors(recognisedCandidates)
 
-        /*visitorViewModel = ViewModelProvider(this).get(VisitorViewModel::class.java)
-        visitorViewModel.selectedVisitors.observe(this, Observer { visitors ->
-            // Update the cached copy of the words in the adapter.
-            visitors?.let { adapter.setVisitors(it) }
-        })
-*/
 
         btnNoMatch.setOnClickListener {
             intent = Intent(this@VisitorListActivity, RegistrationActivity::class.java)
