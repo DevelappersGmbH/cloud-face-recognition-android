@@ -47,8 +47,13 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
         lifecycleScope.launch {
             visitorDao = FRdb.getDatabase(application, this).visitorDao()
         }
+
+
         microsoftServiceAI = MicrosoftServiceAI(this)
+
+
         textureView = findViewById(R.id.cameraSurface)
+
         visitor = Visitor(null, null, null, false)
         val company = Company(null)
         visitor.company = company
@@ -57,10 +62,11 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
         etLastName.addTextChangedListener(textWatcher)
         etCompany.addTextChangedListener(textWatcher)
 
-
         checkBoxPrivacy.setOnCheckedChangeListener{ _, isChecked ->
             visitor.privacyAccepted = isChecked
         }
+
+        signatureView.setOnSignedListener(this)
 
         btnOk.setOnClickListener {
             currentPhotoPath = createImageFile()
@@ -71,8 +77,6 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
             }
         }
 
-        signatureView.setOnSignedListener(this)
-
         finalCaptureCallback = object : CameraCaptureSession.CaptureCallback() {
 
             override fun onCaptureCompleted(
@@ -81,14 +85,7 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
                 result: TotalCaptureResult
             ) {
                 unlockFocus()
-
-                lifecycleScope.launch {
-                    //save new visitor in database, get visitor id, set visitor id to visitor
-                    val newVisitorId = visitorDao.insert(visitor)
-                    visitor.visitorId = newVisitorId
-
-                    navigateToGreeting()
-                }
+                navigateToGreeting()
             }
         }
 
