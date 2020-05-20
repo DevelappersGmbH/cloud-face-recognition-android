@@ -17,8 +17,8 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "MICROSOFT_KEY", apikeyProperties['MICROSOFT_KEY'])
-        buildConfigField("String", "AWS_KEY_ID", apikeyProperties['AWS_KEY_ID'])
-        buildConfigField("String", "AWS_ACCESS_KEY", apikeyProperties['AWS_ACCESS_KEY'])
+        buildConfigField("String", "AWS_SECRET_ACCESS_KEY", apikeyProperties['AWS_SECRET_ACCESS_KEY'])
+        buildConfigField("String", "AWS_ACCESS_KEY_ID", apikeyProperties['AWS_ACCESS_KEY_ID'])
     }
     buildTypes {
         release {

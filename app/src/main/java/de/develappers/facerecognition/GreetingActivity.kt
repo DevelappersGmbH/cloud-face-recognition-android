@@ -38,7 +38,8 @@ class GreetingActivity : AppCompatActivity() {
                 registerVisitorInAIServices(visitor)
                 //save new visitor in database, get visitor id
                 val newVisitorId = visitorDao.insert(visitor)
-            //train the database with the new image
+
+            //train the database with the new image, if needed
             microsoftServiceAI.microsoftTrainPersonGroup(VISITORS_GROUP_ID)
         }
         }

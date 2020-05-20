@@ -26,6 +26,9 @@ interface VisitorDao {
     @Query("SELECT * FROM visitor WHERE microsoft_id = :id")
     suspend fun findByMicrosoftId(id: String): Visitor
 
+    @Query("SELECT * FROM visitor WHERE img_path LIKE '%' || :id || '%' ")
+    suspend fun findByAmazonFaceId(id: String): Visitor
+
     @Insert
     suspend fun insertAll(vararg visitors: Visitor)
 
