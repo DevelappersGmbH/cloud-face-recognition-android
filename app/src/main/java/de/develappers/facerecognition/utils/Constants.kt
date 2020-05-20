@@ -4,6 +4,8 @@ import android.Manifest
 import android.hardware.camera2.CameraCharacteristics
 
 const val VISITORS_GROUP_ID: String = "1"
+const val VISITORS_GROUP_DESCRIPTION: String = "all visitors"
+const val VISITORS_GROUP_NAME: String = "visitors"
 
 const val LOGBOOK_EXTRA: String = "extra_logbook"
 const val VISITOR_EXTRA: String = "extra_visitor"
