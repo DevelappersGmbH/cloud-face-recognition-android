@@ -12,7 +12,7 @@ class FaceApp : Application() {
     override fun onCreate() {
         super.onCreate()
         MicrosoftServiceClient =
-            FaceServiceRestClient(getString(R.string.microsoft_endpoint), getString(R.string.microsoft_subscription_key))
+            FaceServiceRestClient(getString(R.string.microsoft_endpoint), BuildConfig.MICROSOFT_KEY)
 
 
         storageDirectory = applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)

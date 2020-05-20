@@ -19,4 +19,7 @@
 
     <string name="microsoft_subscription_key">***REMOVED***</string>
     <string name="microsoft_endpoint">https://eastus.api.cognitive.microsoft.com/face/v1.0</string>
+
+    <string name="region">us-east-1</string>
+
 </resources>
