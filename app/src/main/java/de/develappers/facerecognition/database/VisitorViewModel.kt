@@ -42,33 +42,6 @@ class VisitorViewModel(application: Application) : AndroidViewModel(application)
         return repository.getRandomVisitor()
     }*/
 
-    //this has nothing to do with database and can be moved from view model and repository somewhere else
-    suspend fun addCandidatesToSelection(results: Array<IdentifyResult>) : List<RecognisedCandidate> {
-            val possibleVisitors = mutableListOf<RecognisedCandidate>()
-            results.forEach { result ->
-                result.candidates.forEach { serviceCandidate ->
-                    //find the corresponding candidate in local database
-                    val recognisedVisitor = repository.findVisitorByMicrosoftId(serviceCandidate.personId.toString())
-                    //check if we've added him to the list already
-                    //val candidateFromList = candidates.value?.find { it.visitor == recognisedVisitor }
-                    val candidateFromList = possibleVisitors.find { it.visitor == recognisedVisitor }
-                    if (candidateFromList != null) {
-                        //if already in the list, modify the confidence level of certain service
-                        candidateFromList.microsoft_conf = serviceCandidate.confidence
-                    } else {
-                        //if not in the list, add to the recognised candidates
-                        val newCandidate = RecognisedCandidate().apply {
-                            this.visitor = recognisedVisitor
-                            this.microsoft_conf = serviceCandidate.confidence
-                        }
-                        //repository.addCandidateToSelection(newCandidate)
-                        possibleVisitors.add(newCandidate)
-                    }
-                }
-            }
-        return possibleVisitors
-    }
-
 
     fun findVisitorByMicrosoftId(candidate: Candidate) = viewModelScope.launch(Dispatchers.IO) {
         repository.findVisitorByMicrosoftId(candidate.personId.toString())

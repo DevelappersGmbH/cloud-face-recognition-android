@@ -9,6 +9,7 @@ import com.amazonaws.services.rekognition.model.*
 import com.amazonaws.util.IOUtils
 import com.microsoft.projectoxford.face.rest.ClientException
 import de.develappers.facerecognition.FaceApp
+import de.develappers.facerecognition.R
 import de.develappers.facerecognition.utils.VISITORS_GROUP_DESCRIPTION
 import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
 import de.develappers.facerecognition.utils.VISITORS_GROUP_NAME
@@ -19,7 +20,6 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.Serializable
 import java.nio.ByteBuffer
-import kotlin.math.max
 
 
 class AmazonServiceAI(val context: Context) {
@@ -46,8 +46,8 @@ class AmazonServiceAI(val context: Context) {
 
     suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<FaceMatch> {
         val imageInputStream: InputStream = convertBitmapToStream(imgUri)
-        val faceMatches = amazonIdentifyVisitor(imageInputStream, 0.0f) as List<FaceMatch>
-        return faceMatches;
+        val faceSearchResult = amazonIdentifyVisitor(imageInputStream, 0.0f) as SearchFacesByImageResult
+        return faceSearchResult.faceMatches;
 
     }
 
@@ -86,18 +86,30 @@ class AmazonServiceAI(val context: Context) {
                 val image = Image().withBytes(imgBytes)
 
                 val indexFacesRequest = IndexFacesRequest()
-                    .withImage(image).withCollectionId(personGroupId).withExternalImageId(imgUri)
+                    .withImage(image).withCollectionId(personGroupId).withExternalImageId(imgUri.substringAfter("${context.getString(
+                        R.string.app_name)}/"))
                 val indexFacesResult = amazonServiceClient?.indexFaces(indexFacesRequest)
-                val unindexedFaces = indexFacesResult?.getUnindexedFaces();
-                println("Faces not indexed:");
+                val unindexedFaces = indexFacesResult?.getUnindexedFaces()
+                println("Faces not indexed:")
                 unindexedFaces?.forEach {face->
-                    println("  Location:" + face.faceDetail.boundingBox.toString());
-                    println("  Reasons:");
+                    println("  Location:" + face.faceDetail.boundingBox.toString())
+                    println("  Reasons:")
                     face.reasons.forEach {reason->
                         println(reason)
                     }
                 }
                 indexFacesResult
+            } catch (e: AmazonClientException) {
+                Log.d("Amazon", e.message!!)
+            }
+        }
+
+    suspend fun amazonDeletePersonGroup(personGroupId: String) =
+        withContext(Dispatchers.IO) {
+            try {
+                val request = DeleteCollectionRequest()
+                    .withCollectionId(personGroupId)
+                amazonServiceClient?.deleteCollection(request)
             } catch (e: AmazonClientException) {
                 Log.d("Amazon", e.message!!)
             }

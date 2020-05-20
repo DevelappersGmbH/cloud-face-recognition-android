@@ -13,12 +13,14 @@ import android.widget.ImageView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.amazonaws.services.rekognition.model.FaceMatch
 import com.microsoft.projectoxford.face.contract.IdentifyResult
 import de.develappers.facerecognition.database.FRdb
 import de.develappers.facerecognition.database.VisitorViewModel
 import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.database.model.Visitor
+import de.develappers.facerecognition.serviceAI.AmazonServiceAI
 import de.develappers.facerecognition.serviceAI.ImageHelper
 import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
 import de.develappers.facerecognition.utils.*
@@ -35,6 +37,7 @@ class MainActivity : CameraActivity() {
     private lateinit var fromCameraPath: String
     private lateinit var visitorViewModel: VisitorViewModel
     private lateinit var microsoftServiceAI: MicrosoftServiceAI
+    private lateinit var amazonServiceAI: AmazonServiceAI
     private lateinit var visitorDao: VisitorDao
     private lateinit var ivNewVisitor: ImageView
 
@@ -45,8 +48,9 @@ class MainActivity : CameraActivity() {
         textureView = findViewById(R.id.textureView)
         ivNewVisitor = findViewById(R.id.ivNewVisitor)
 
-
+        //AI services
         microsoftServiceAI = MicrosoftServiceAI(this)
+        amazonServiceAI = AmazonServiceAI(this)
 
 
         lifecycleScope.launch {
@@ -91,7 +95,7 @@ class MainActivity : CameraActivity() {
                 result: TotalCaptureResult
             ) {
                 unlockFocus()
-                sendPhotoToMicrosoftServicesAndEvaluate(fromCameraPath)
+                sendPhotoToServicesAndEvaluate(fromCameraPath)
             }
         }
 
@@ -111,7 +115,7 @@ class MainActivity : CameraActivity() {
         var newImageUri = ""
         var resFolder = "database"
         //randomly decide between testing a person from the prepopulated database or a person from testbase
-        if (true) {
+        if (false) {
             //only familiar
             runBlocking {
                 val randomVisitor = getRandomVisitor()
@@ -126,7 +130,7 @@ class MainActivity : CameraActivity() {
         Log.d("Random visitor", newImageUri)
 
         setNewVisitorToPreview(newImageUri)
-        sendPhotoToMicrosoftServicesAndEvaluate(newImageUri)
+        sendPhotoToServicesAndEvaluate(newImageUri)
         //TODO: place for other coroutine AI services?
     }
 
@@ -135,19 +139,50 @@ class MainActivity : CameraActivity() {
         ivNewVisitor.setImageBitmap(imgBitmap)
     }
 
-    private fun sendPhotoToMicrosoftServicesAndEvaluate(newImageUri: String) {
-        //wait until we get recognition result from microsoft
+    private fun sendPhotoToServicesAndEvaluate(newImageUri: String) {
+        /*//microsoft
         lifecycleScope.launch {
             val results = microsoftServiceAI.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
-            findIdentifiedVisitors(results)
-        }
+            findMicrosoftIdentifiedVisitors(results)
+        }*/
         //amazon
+        lifecycleScope.launch {
+            val results = amazonServiceAI.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
+            //a list of face matches, each containing similarity, face id and external id (img path)
+            findAmazonIdentifiedVisitors(results)
+        }
         //kairos
         //face
         //luxand
     }
 
-    fun findIdentifiedVisitors(results: Array<IdentifyResult>) {
+    fun findAmazonIdentifiedVisitors(results: List<FaceMatch>){
+        lifecycleScope.launch {
+            if (results[0].similarity/100.0 > CONFIDENCE_MATCH) {
+                val imgPath = "${FaceApp.galleryFolder}/${results[0].face.externalImageId}"
+                val match = visitorDao.findByAmazonFaceId(imgPath)
+                //return the match
+                navigateToGreeting(match)
+            } else {
+                val possibleVisitors = mutableListOf<RecognisedCandidate>() // otherwise show all candidates in visitor list
+                results.forEach{result ->
+                    val imgPath = "${FaceApp.galleryFolder}/${result.face.externalImageId}"
+                    val recognisedVisitor = visitorDao.findByAmazonFaceId(imgPath)
+                    if (possibleVisitors.find {it.visitor == recognisedVisitor} == null){
+                        val newCandidate = RecognisedCandidate().apply {
+                            this.visitor = recognisedVisitor
+                            this.amazon_conf = result.similarity.toDouble()/100.0
+                        }
+                        possibleVisitors.add(newCandidate)
+                    }
+
+                }
+                navigateToVisitorList(possibleVisitors)
+            }
+        }
+    }
+
+    fun findMicrosoftIdentifiedVisitors(results: Array<IdentifyResult>) {
         // if a confident match is found, find the corresponding visitor in the local db and then go to Greeting
         lifecycleScope.launch {
             if (results[0].candidates[0].confidence > CONFIDENCE_MATCH) {
@@ -155,7 +190,28 @@ class MainActivity : CameraActivity() {
                 //return the match
                 navigateToGreeting(match)
             } else { // otherwise show all candidates in visitor list
-                val possibleVisitors = visitorViewModel.addCandidatesToSelection(results)
+                val possibleVisitors = mutableListOf<RecognisedCandidate>()
+                results.forEach { result ->
+                    result.candidates.forEach { serviceCandidate ->
+                        //find the corresponding candidate in local database
+                        val recognisedVisitor = visitorDao.findByMicrosoftId(serviceCandidate.personId.toString())
+                        //check if we've added him to the list already
+                        //val candidateFromList = candidates.value?.find { it.visitor == recognisedVisitor }
+                        val candidateFromList = possibleVisitors.find { it.visitor == recognisedVisitor }
+                        if (candidateFromList != null) {
+                            //if already in the list, modify the confidence level of certain service
+                            candidateFromList.microsoft_conf = serviceCandidate.confidence
+                        } else {
+                            //if not in the list, add to the recognised candidates
+                            val newCandidate = RecognisedCandidate().apply {
+                                this.visitor = recognisedVisitor
+                                this.microsoft_conf = serviceCandidate.confidence
+                            }
+                            //repository.addCandidateToSelection(newCandidate)
+                            possibleVisitors.add(newCandidate)
+                        }
+                    }
+                }
                 navigateToVisitorList(possibleVisitors)
             }
         }

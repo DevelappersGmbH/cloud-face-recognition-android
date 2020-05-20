@@ -18,7 +18,7 @@ class FaceApp : Application() {
             FaceServiceRestClient(getString(R.string.microsoft_endpoint), BuildConfig.MICROSOFT_KEY)
 
         AmazonServiceClient =
-            AmazonRekognitionClient(BasicAWSCredentials(BuildConfig.AWS_KEY_ID, BuildConfig.AWS_ACCESS_KEY))
+            AmazonRekognitionClient(BasicAWSCredentials(BuildConfig.AWS_ACCESS_KEY_ID, BuildConfig.AWS_SECRET_ACCESS_KEY))
 
         storageDirectory = applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         galleryFolder = File(storageDirectory, applicationContext.getString(R.string.app_name))
