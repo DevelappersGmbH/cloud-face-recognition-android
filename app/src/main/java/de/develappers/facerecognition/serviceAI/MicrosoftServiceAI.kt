@@ -7,7 +7,9 @@ import android.util.Log
 import com.microsoft.projectoxford.face.contract.*
 import com.microsoft.projectoxford.face.rest.ClientException
 import de.develappers.facerecognition.FaceApp
+import de.develappers.facerecognition.utils.VISITORS_GROUP_DESCRIPTION
 import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
+import de.develappers.facerecognition.utils.VISITORS_GROUP_NAME
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
@@ -19,11 +21,11 @@ import java.util.concurrent.TimeUnit
 class MicrosoftServiceAI(val context: Context) {
 
     // Get an instance of face service client.
-    val faceServiceClient = FaceApp.faceServiceClient
+    val faceServiceClient = FaceApp.microsoftServiceClient
     //personGroupId = 1 for visitors
     val personGroupId = VISITORS_GROUP_ID
-    val personGroupName = "visitors"
-    val personGroupDescription = "all visitors"
+    val personGroupName = VISITORS_GROUP_NAME
+    val personGroupDescription = VISITORS_GROUP_DESCRIPTION
 
     //step 1
     suspend fun addPersonGroup() {
@@ -93,7 +95,7 @@ class MicrosoftServiceAI(val context: Context) {
     suspend fun microsoftAddGroup(personGroupId: String, personGroupName: String, personGroupDescription: String) =
         withContext(Dispatchers.IO) {
             try {
-                faceServiceClient!!.createLargePersonGroup(personGroupId, personGroupName, personGroupDescription)
+                faceServiceClient?.createLargePersonGroup(personGroupId, personGroupName, personGroupDescription)
             } catch (e: ClientException) {
                 Log.d("Microsoft", e.error.message)
             }

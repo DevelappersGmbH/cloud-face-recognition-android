@@ -71,5 +71,7 @@ dependencies {
 
     //Microsoft
     implementation 'com.microsoft.projectoxford:face:1.4.4'
+    //Amazon
+    implementation 'com.amazonaws:aws-android-sdk-rekognition:2.16.10'
 
 }
