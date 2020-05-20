@@ -3,6 +3,10 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 
+def apikeyPropertiesFile = rootProject.file("apikey.properties")
+def apikeyProperties = new Properties()
+apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
+
 android {
     compileSdkVersion 29
     defaultConfig {
@@ -12,6 +16,9 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "MICROSOFT_KEY", apikeyProperties['MICROSOFT_KEY'])
+        buildConfigField("String", "AWS_KEY_ID", apikeyProperties['AWS_KEY_ID'])
+        buildConfigField("String", "AWS_ACCESS_KEY", apikeyProperties['AWS_ACCESS_KEY'])
     }
     buildTypes {
         release {
