@@ -7,9 +7,13 @@ import android.util.Log
 import com.amazonaws.AmazonClientException
 import com.amazonaws.services.rekognition.model.*
 import com.amazonaws.util.IOUtils
+import com.microsoft.projectoxford.face.contract.Candidate
+import com.microsoft.projectoxford.face.contract.CreatePersonResult
 import com.microsoft.projectoxford.face.rest.ClientException
 import de.develappers.facerecognition.FaceApp
 import de.develappers.facerecognition.R
+import de.develappers.facerecognition.database.model.RecognisedCandidate
+import de.develappers.facerecognition.database.model.Visitor
 import de.develappers.facerecognition.utils.VISITORS_GROUP_DESCRIPTION
 import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
 import de.develappers.facerecognition.utils.VISITORS_GROUP_NAME
@@ -22,7 +26,7 @@ import java.io.Serializable
 import java.nio.ByteBuffer
 
 
-class AmazonServiceAI(val context: Context) {
+class AmazonServiceAI(val context: Context): RecognitionService {
     val amazonServiceClient = FaceApp.amazonServiceClient
     val personGroupId = VISITORS_GROUP_ID
     val personGroupName = VISITORS_GROUP_NAME
@@ -33,7 +37,7 @@ class AmazonServiceAI(val context: Context) {
         amazonAddGroup(personGroupId)
     }
 
-    suspend fun addNewVisitorToDatabase(personGroupId: String, imgUri: String): List<String> {
+    override suspend fun addNewVisitorToDatabase(personGroupId: String, imgUri: String, visitor: Visitor) {
         //step 2
         val imageInputStream: InputStream = convertBitmapToStream(imgUri)
         val indexFacesResult = amazonIndexFaces(imageInputStream, imgUri) as IndexFacesResult
@@ -41,7 +45,7 @@ class AmazonServiceAI(val context: Context) {
         indexFacesResult.faceRecords.forEach{
             faceIds.add(it.face.faceId)
         }
-        return faceIds
+        //add faceIds to amazonIds
     }
 
     suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<FaceMatch> {
@@ -49,6 +53,10 @@ class AmazonServiceAI(val context: Context) {
         val faceSearchResult = amazonIdentifyVisitor(imageInputStream, 0.0f) as SearchFacesByImageResult
         return faceSearchResult.faceMatches;
 
+    }
+
+    suspend fun addPersonToGroup(personGroupId: String, imgUri: String): CreatePersonResult {
+        TODO("not used")
     }
 
     suspend fun amazonIdentifyVisitor(imageInputStream: InputStream, confidenceThreshold: Float): Serializable? =
@@ -121,5 +129,24 @@ class AmazonServiceAI(val context: Context) {
         val stream = ByteArrayOutputStream()
         imgBitmap?.compress(Bitmap.CompressFormat.JPEG, 100, stream)
         return ByteArrayInputStream(stream.toByteArray())
+    }
+
+    override fun setServiceId(visitor: Visitor, id: String){
+        visitor.amazonId = id
+    }
+
+    override fun setConfidenceLevel(candidate: Any, recognisedCandidate: RecognisedCandidate) {
+        candidate as FaceMatch
+        recognisedCandidate.amazon_conf = candidate.similarity / 100.0
+    }
+
+    override fun defineLocalIdPath(candidate: Any): String {
+        candidate as FaceMatch
+        return "${FaceApp.galleryFolder}/${candidate.face.externalImageId}"
+    }
+
+    override fun defineConfidenceLevel(candidate: Any): Double {
+        candidate as FaceMatch
+        return candidate.similarity / 100.0
     }
 }

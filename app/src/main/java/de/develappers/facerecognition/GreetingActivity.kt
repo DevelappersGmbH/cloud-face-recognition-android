@@ -61,8 +61,7 @@ class GreetingActivity : AppCompatActivity() {
     suspend fun registerVisitorInAIServices(visitor: Visitor) = withContext(Dispatchers.IO) {
         // withContext waits for all children coroutines
         launch {
-            val microsoftId = microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, visitor.imgPaths.last())
-            visitor.microsoftId = microsoftId
+            microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, visitor.imgPaths.last(), visitor)
         }
         /*launch {
             val amazonIdList = amazonServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, visitor.imgPaths.last())

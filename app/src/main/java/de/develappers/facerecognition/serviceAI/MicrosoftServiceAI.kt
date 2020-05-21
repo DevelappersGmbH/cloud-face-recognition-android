@@ -4,13 +4,20 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
+import com.amazonaws.services.rekognition.model.FaceMatch
 import com.microsoft.projectoxford.face.contract.*
 import com.microsoft.projectoxford.face.rest.ClientException
 import de.develappers.facerecognition.FaceApp
+import de.develappers.facerecognition.database.FRdb
+import de.develappers.facerecognition.database.model.RecognisedCandidate
+import de.develappers.facerecognition.database.model.Visitor
+import de.develappers.facerecognition.utils.CONFIDENCE_MATCH
 import de.develappers.facerecognition.utils.VISITORS_GROUP_DESCRIPTION
 import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
 import de.develappers.facerecognition.utils.VISITORS_GROUP_NAME
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -18,7 +25,7 @@ import java.io.InputStream
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class MicrosoftServiceAI(val context: Context) {
+class MicrosoftServiceAI(val context: Context) : RecognitionService {
 
     // Get an instance of face service client.
     val faceServiceClient = FaceApp.microsoftServiceClient
@@ -32,7 +39,7 @@ class MicrosoftServiceAI(val context: Context) {
         microsoftAddGroup(personGroupId, personGroupName, personGroupDescription)
     }
 
-    suspend fun addNewVisitorToDatabase(personGroupId: String, imgUri: String): String {
+    override suspend fun addNewVisitorToDatabase(personGroupId: String, imgUri: String, visitor: Visitor) {
         val userData = "user data"
         //step 2
         val createPersonResult = addPersonToGroup(personGroupId, imgUri)
@@ -58,7 +65,7 @@ class MicrosoftServiceAI(val context: Context) {
             )
         }
 
-        return createPersonResult.personId.toString()
+        visitor.microsoftId = createPersonResult.personId.toString()
     }
 
     suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Candidate> {
@@ -178,5 +185,24 @@ class MicrosoftServiceAI(val context: Context) {
             )
         }
 
+    override fun setServiceId(visitor: Visitor, id: String){
+        visitor.microsoftId = id
+    }
+
+
+    override fun setConfidenceLevel(candidate: Any, recognisedCandidate: RecognisedCandidate) {
+        candidate as Candidate
+        recognisedCandidate.microsoft_conf = candidate.confidence
+    }
+
+    override fun defineLocalIdPath(candidate: Any): String {
+        candidate as Candidate
+        return candidate.personId.toString()
+    }
+
+    override fun defineConfidenceLevel(candidate: Any): Double {
+        candidate as Candidate
+        return candidate.confidence
+    }
 
 }
