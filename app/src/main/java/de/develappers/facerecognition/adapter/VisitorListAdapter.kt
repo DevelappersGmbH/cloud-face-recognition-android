@@ -31,7 +31,8 @@ class VisitorListAdapter internal constructor(
     override fun onBindViewHolder(holder: VisitorViewHolder, position: Int) {
         val candidate: RecognisedCandidate = items[position]
         holder.fullNameView?.text = context.resources.getString(R.string.full_name, candidate.visitor?.firstName, candidate.visitor?.lastName);
-        holder.probabilityView.text = candidate.microsoft_conf.toString()
+        holder.probabilityViewMicrosoft.text = candidate.microsoft_conf.toString()
+        holder.probabilityViewAmazon.text = candidate.amazon_conf.toString()
         val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(Uri.parse(candidate.visitor.imgPaths[0]), context)
         holder.photoView.setImageBitmap(imgBitmap)
         holder.mView.setOnClickListener { listener.onVisitorItemClicked(candidate.visitor) }
@@ -42,7 +43,11 @@ class VisitorListAdapter internal constructor(
         val mView = view
         val photoView = view.photoView
         val fullNameView = view.fullNameView
-        val probabilityView = view.probabilityView
+        val probabilityViewMicrosoft = view.probabilityViewMicrosoft
+        val probabilityViewAmazon = view.probabilityViewAmazon
+        val probabilityViewFace = view.probabilityViewFace
+        val probabilityViewKairos = view.probabilityViewKairos
+        val probabilityViewLuxand = view.probabilityViewLuxand
     }
 
     internal fun setVisitors(candidates: List<RecognisedCandidate>) {
