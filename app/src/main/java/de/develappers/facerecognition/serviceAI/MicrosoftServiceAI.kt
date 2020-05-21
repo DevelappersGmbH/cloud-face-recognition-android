@@ -61,7 +61,7 @@ class MicrosoftServiceAI(val context: Context) {
         return createPersonResult.personId.toString()
     }
 
-    suspend fun identifyVisitor(personGroupId: String, imgUri: String): Array<IdentifyResult> {
+    suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Candidate> {
         val faceIds: MutableList<UUID> = mutableListOf()
         val imageUri = Uri.parse(imgUri)
         val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(imageUri, context)
@@ -71,7 +71,12 @@ class MicrosoftServiceAI(val context: Context) {
         }
         faces.forEach { faceIds.add(it.faceId) }
         val faceIdsArray = faceIds.toTypedArray()
-        return microsoftIdentifyFace(personGroupId, faceIdsArray, 0.0f, 10)
+        val identifyResults =  microsoftIdentifyFace(personGroupId, faceIdsArray, 0.0f, 10)
+        return mutableListOf<Candidate>().apply {
+            identifyResults.forEach {
+                this.addAll(it.candidates)
+            }
+        }
     }
 
 

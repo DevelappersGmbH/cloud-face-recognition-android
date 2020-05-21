@@ -45,6 +45,7 @@ class VisitorListActivity : AppCompatActivity(), OnVisitorItemClickedListener {
 
     override fun onVisitorItemClicked(visitor:Visitor){
         intent = Intent(this@VisitorListActivity, GreetingActivity::class.java)
+        //TODO: if the visitor is not new, but from here, add new photo to his entity in database in the next actiivty
         intent.putExtra(VISITOR_EXTRA, visitor);
         startActivity(intent)
     }

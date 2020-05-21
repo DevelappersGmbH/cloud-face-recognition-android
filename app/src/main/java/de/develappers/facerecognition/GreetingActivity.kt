@@ -7,6 +7,7 @@ import de.develappers.facerecognition.database.FRdb
 import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.database.model.LogEntry
 import de.develappers.facerecognition.database.model.Visitor
+import de.develappers.facerecognition.serviceAI.AmazonServiceAI
 import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
 import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
 import de.develappers.facerecognition.utils.VISITOR_EXTRA
@@ -20,6 +21,7 @@ import kotlin.system.measureTimeMillis
 class GreetingActivity : AppCompatActivity() {
 
     private lateinit var microsoftServiceAI: MicrosoftServiceAI
+    private lateinit var amazonServiceAI: AmazonServiceAI
     private lateinit var visitorDao: VisitorDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,6 +31,7 @@ class GreetingActivity : AppCompatActivity() {
         val firstTime = intent.getBooleanExtra(VISITOR_FIRST_TIME, false)
 
         microsoftServiceAI = MicrosoftServiceAI(this)
+        amazonServiceAI = AmazonServiceAI(this)
 
         tvGreeting.text = getString(R.string.greeting, visitor.lastName)
 
@@ -61,7 +64,10 @@ class GreetingActivity : AppCompatActivity() {
             val microsoftId = microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, visitor.imgPaths.last())
             visitor.microsoftId = microsoftId
         }
-        launch { println("Second launch") }
+        launch {
+            val amazonIdList = amazonServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, visitor.imgPaths.last())
+            //visitor.amazonIds.addAll(amazonIdList)
+        }
         //launch {  }
     }
 
