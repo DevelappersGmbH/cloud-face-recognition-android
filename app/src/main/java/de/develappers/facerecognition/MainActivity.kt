@@ -24,6 +24,7 @@ import de.develappers.facerecognition.database.model.Visitor
 import de.develappers.facerecognition.serviceAI.AmazonServiceAI
 import de.develappers.facerecognition.serviceAI.ImageHelper
 import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
+import de.develappers.facerecognition.serviceAI.RecognitionService
 import de.develappers.facerecognition.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.progressBar
@@ -58,7 +59,7 @@ class MainActivity : CameraActivity() {
         lifecycleScope.launch {
             visitorDao = FRdb.getDatabase(application, this).visitorDao()
             //fake call to database to trigger population on first time launch
-            val visitor = visitorDao.findByName("efe", "gfk")
+            //val visitor = visitorDao.findByName("efe", "gfk")
         }
 
         visitorViewModel = ViewModelProvider(this).get(VisitorViewModel::class.java)
@@ -145,7 +146,7 @@ class MainActivity : CameraActivity() {
         //microsoft
         lifecycleScope.launch {
             val results = microsoftServiceAI.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
-            findIdentifiedVisitors(results)
+            findIdentifiedVisitors(results, microsoftServiceAI)
         }
         /*//amazon
         lifecycleScope.launch {
@@ -157,11 +158,11 @@ class MainActivity : CameraActivity() {
         //face
         //luxand
     }
-    inline fun <reified T> findIdentifiedVisitors (candidates: List<T>) {
+     fun findIdentifiedVisitors (candidates: List<Any>, service: RecognitionService) {
         lifecycleScope.launch {
             candidates.forEach { candidate ->
-                if (defineConfidenceLevel(candidate) > CONFIDENCE_MATCH) {
-                    val match = findVisitor(candidate)
+                if (service.defineConfidenceLevel(candidate) > CONFIDENCE_MATCH) {
+                    val match = findVisitor(candidate, service)
                     //return the match
                     navigateToGreeting(match)
                     return@launch
@@ -170,11 +171,11 @@ class MainActivity : CameraActivity() {
             val possibleVisitors = mutableListOf<RecognisedCandidate>()
             // otherwise show all candidates in visitor list
             candidates.forEach { candidate ->
-                val recognisedVisitor = findVisitor(candidate)
+                val recognisedVisitor = findVisitor(candidate, service)
                 if (possibleVisitors.find { it.visitor == recognisedVisitor } == null) {
                     val newCandidate = RecognisedCandidate().apply {
                         this.visitor = recognisedVisitor
-                        setConfidenceLevel(candidate).invoke(this)
+                        service.setConfidenceLevel(candidate, this)
                     }
                     possibleVisitors.add(newCandidate)
                 }
@@ -184,39 +185,12 @@ class MainActivity : CameraActivity() {
     }
 
 
-
-    suspend inline fun <reified T> findVisitor(candidate: T): Visitor {
-        val localIdPath = defineLocalIdPath(candidate)
-        return when (candidate){
-            is FaceMatch -> visitorDao.findByAmazonFaceId(localIdPath)
-            is Candidate -> visitorDao.findByMicrosoftId(localIdPath)
+    suspend fun findVisitor(candidate: Any, service: RecognitionService): Visitor {
+        val localIdPath = service.defineLocalIdPath(candidate)
+        return when (service){
+            is AmazonServiceAI -> visitorDao.findByAmazonFaceId(localIdPath)
+            is MicrosoftServiceAI -> visitorDao.findByMicrosoftId(localIdPath)
             else -> Visitor(null, null, null)
-        }
-    }
-
-
-    inline fun <reified T> setConfidenceLevel(candidate: T): (RecognisedCandidate) -> Unit  = {
-        val confidenceLevel = defineConfidenceLevel(candidate)
-        when (candidate){
-            is FaceMatch -> {it.amazon_conf = confidenceLevel}
-            is Candidate -> {it.microsoft_conf = confidenceLevel}
-            else ->  {}
-        }
-    }
-
-    inline fun <reified T> defineLocalIdPath(candidate: T): String {
-        when (candidate){
-            is FaceMatch -> return "${FaceApp.galleryFolder}/${candidate.face.externalImageId}"
-            is Candidate -> return candidate.personId.toString()
-            else -> return ""
-        }
-    }
-
-    inline fun <reified T> defineConfidenceLevel(candidate: T): Double {
-        when (candidate){
-            is FaceMatch -> return candidate.similarity / 100.0
-            is Candidate -> return candidate.confidence
-            else -> return 0.0
         }
     }
 

@@ -57,14 +57,15 @@ abstract class FRdb : RoomDatabase() {
         }
     }
 
-    private class FRdbCallback(private val scope: CoroutineScope, private val context: Context) : RoomDatabase.Callback() {
+    private class FRdbCallback(private val scope: CoroutineScope, private val context: Context) :
+        RoomDatabase.Callback() {
 
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
             INSTANCE?.let { database ->
-                scope.launch { populateDatabase(database.visitorDao())}
-                }
+                scope.launch { populateDatabase(database.visitorDao()) }
             }
+        }
 
         suspend fun populateDatabase(visitorDao: VisitorDao) {
             val innerClient = OkHttpClient.Builder()
@@ -92,30 +93,28 @@ abstract class FRdb : RoomDatabase() {
 
             val databaseFolder = "database"
             //for every person in database get the first image and store the path in local database
-            context.assets.list(databaseFolder)?.forEachIndexed {index, element ->
+            context.assets.list(databaseFolder)?.forEachIndexed { index, element ->
                 val file: File = ImageHelper.saveVisitorPhotoLocally(context, element, galleryFolder, databaseFolder)
                 println(element.toString())
                 //wait, because only 20TPM in free tier
                 TimeUnit.SECONDS.sleep(2L)
                 Log.d("IMG to retrieve", file.path)
+
                 //register face in the services database
-                //microsoft
-                val microsoftServicePersonId = microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, file.path)
-                Log.d("MicrosoftServiceId", microsoftServicePersonId)
-
-                /*//amazon returns List<String> with faceIds
-                val amazonServiceFaceIds = amazonServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, file.path)
-                Log.d("AmazonServiceId", amazonServiceFaceIds.toString())*/
-
                 val visitor = Visitor(
                     "Visitor",
                     element.toString(),
                     company,
                     true
                 )
+                //microsoft
+                val microsoftServicePersonId = microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, file.path, visitor)
+
+                /*//amazon returns List<String> with faceIds
+                val amazonServiceFaceIds = amazonServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, file.path)
+                Log.d("AmazonServiceId", amazonServiceFaceIds.toString())*/
                 visitor.imgPaths.add(file.path)
                 //set service ids
-                visitor.microsoftId = microsoftServicePersonId
                 visitorDao.insert(visitor)
             }
             Log.d("Database", "populated")
@@ -125,5 +124,5 @@ abstract class FRdb : RoomDatabase() {
 
         }
 
-        }
     }
+}
