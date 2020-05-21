@@ -68,7 +68,7 @@ class MicrosoftServiceAI(val context: Context) : RecognitionService {
         visitor.microsoftId = createPersonResult.personId.toString()
     }
 
-    suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Candidate> {
+    override suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Any> {
         val faceIds: MutableList<UUID> = mutableListOf()
         val imageUri = Uri.parse(imgUri)
         val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(imageUri, context)

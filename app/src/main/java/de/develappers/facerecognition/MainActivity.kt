@@ -7,15 +7,11 @@ import android.hardware.camera2.TotalCaptureResult
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.view.View.VISIBLE
 import android.widget.ImageView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.amazonaws.services.rekognition.model.FaceMatch
-import com.microsoft.projectoxford.face.contract.Candidate
-import com.microsoft.projectoxford.face.contract.IdentifyResult
 import de.develappers.facerecognition.database.FRdb
 import de.develappers.facerecognition.database.VisitorViewModel
 import de.develappers.facerecognition.database.dao.VisitorDao
@@ -27,12 +23,12 @@ import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
 import de.develappers.facerecognition.serviceAI.RecognitionService
 import de.develappers.facerecognition.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.progressBar
-import kotlinx.android.synthetic.main.activity_registration.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.Serializable
-import kotlin.random.Random.Default.nextBoolean
 
 class MainActivity : CameraActivity() {
 
@@ -43,6 +39,7 @@ class MainActivity : CameraActivity() {
     @PublishedApi
     internal lateinit var visitorDao: VisitorDao
     private lateinit var ivNewVisitor: ImageView
+    private var serviceProviders = mutableListOf<RecognitionService>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,6 +51,9 @@ class MainActivity : CameraActivity() {
         //AI services
         microsoftServiceAI = MicrosoftServiceAI(this)
         amazonServiceAI = AmazonServiceAI(this)
+
+        serviceProviders.add(microsoftServiceAI)
+        //serviceProviders.add(amazonServiceAI)
 
 
         lifecycleScope.launch {
@@ -98,7 +98,9 @@ class MainActivity : CameraActivity() {
                 result: TotalCaptureResult
             ) {
                 unlockFocus()
-                sendPhotoToServicesAndEvaluate(fromCameraPath)
+                lifecycleScope.launch {
+                    sendPhotoToServicesAndEvaluate(fromCameraPath)
+                }
             }
         }
 
@@ -133,8 +135,9 @@ class MainActivity : CameraActivity() {
         Log.d("Random visitor", newImageUri)
 
         setNewVisitorToPreview(newImageUri)
-        sendPhotoToServicesAndEvaluate(newImageUri)
-        //TODO: place for other coroutine AI services?
+        lifecycleScope.launch {
+            sendPhotoToServicesAndEvaluate(newImageUri)
+        }
     }
 
     private fun setNewVisitorToPreview(newImageUri: String) {
@@ -142,11 +145,12 @@ class MainActivity : CameraActivity() {
         ivNewVisitor.setImageBitmap(imgBitmap)
     }
 
-    private fun sendPhotoToServicesAndEvaluate(newImageUri: String) {
-        //microsoft
-        lifecycleScope.launch {
-            val results = microsoftServiceAI.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
-            findIdentifiedVisitors(results, microsoftServiceAI)
+    suspend fun sendPhotoToServicesAndEvaluate(newImageUri: String) = withContext(Dispatchers.IO){
+
+        serviceProviders.forEach{
+            launch {
+                findIdentifiedVisitors(newImageUri, it)
+            }
         }
         /*//amazon
         lifecycleScope.launch {
@@ -158,8 +162,9 @@ class MainActivity : CameraActivity() {
         //face
         //luxand
     }
-     fun findIdentifiedVisitors (candidates: List<Any>, service: RecognitionService) {
+     fun findIdentifiedVisitors (newImageUri: String, service: RecognitionService) {
         lifecycleScope.launch {
+            val candidates = service.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
             candidates.forEach { candidate ->
                 if (service.defineConfidenceLevel(candidate) > CONFIDENCE_MATCH) {
                     val match = findVisitor(candidate, service)

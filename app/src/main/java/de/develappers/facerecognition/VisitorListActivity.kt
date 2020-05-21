@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -17,6 +18,7 @@ import de.develappers.facerecognition.database.model.Visitor
 import de.develappers.facerecognition.utils.CANDIDATES_EXTRA
 import de.develappers.facerecognition.utils.VISITOR_EXTRA
 import kotlinx.android.synthetic.main.activity_visitor_list.*
+import kotlinx.android.synthetic.main.item_visitor.view.*
 
 class VisitorListActivity : AppCompatActivity(), OnVisitorItemClickedListener {
 

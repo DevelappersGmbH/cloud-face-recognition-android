@@ -48,7 +48,7 @@ class AmazonServiceAI(val context: Context): RecognitionService {
         //add faceIds to amazonIds
     }
 
-    suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<FaceMatch> {
+    override suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Any> {
         val imageInputStream: InputStream = convertBitmapToStream(imgUri)
         val faceSearchResult = amazonIdentifyVisitor(imageInputStream, 0.0f) as SearchFacesByImageResult
         return faceSearchResult.faceMatches;
