@@ -4,9 +4,9 @@ import java.io.Serializable
 
 class RecognisedCandidate(): Serializable {
     lateinit var visitor: Visitor
-    var microsoft_conf: Double? = null
-    var amazon_conf: Double? = null
-    var kairos_conf: Double? = null
-    var face_conf: Double? = null
-    var luxand_conf: Double? = null
+    var microsoft_conf: Double? = 0.0
+    var amazon_conf: Double? = 0.0
+    var kairos_conf: Double? = 0.0
+    var face_conf: Double? = 0.0
+    var luxand_conf: Double? = 0.0
 }

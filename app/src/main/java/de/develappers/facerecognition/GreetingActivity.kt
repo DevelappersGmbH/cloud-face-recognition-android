@@ -64,10 +64,10 @@ class GreetingActivity : AppCompatActivity() {
             val microsoftId = microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, visitor.imgPaths.last())
             visitor.microsoftId = microsoftId
         }
-        launch {
+        /*launch {
             val amazonIdList = amazonServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, visitor.imgPaths.last())
             //visitor.amazonIds.addAll(amazonIdList)
-        }
+        }*/
         //launch {  }
     }
 

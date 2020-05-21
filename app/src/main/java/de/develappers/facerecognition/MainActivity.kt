@@ -39,7 +39,8 @@ class MainActivity : CameraActivity() {
     private lateinit var visitorViewModel: VisitorViewModel
     private lateinit var microsoftServiceAI: MicrosoftServiceAI
     private lateinit var amazonServiceAI: AmazonServiceAI
-    private lateinit var visitorDao: VisitorDao
+    @PublishedApi
+    internal lateinit var visitorDao: VisitorDao
     private lateinit var ivNewVisitor: ImageView
 
 
@@ -141,32 +142,26 @@ class MainActivity : CameraActivity() {
     }
 
     private fun sendPhotoToServicesAndEvaluate(newImageUri: String) {
-        /*//microsoft
+        //microsoft
         lifecycleScope.launch {
             val results = microsoftServiceAI.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
-            findMicrosoftIdentifiedVisitors(results)
-        }*/
-        //amazon
+            findIdentifiedVisitors(results)
+        }
+        /*//amazon
         lifecycleScope.launch {
             val results = amazonServiceAI.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
             //a list of face matches, each containing similarity, face id and external id (img path)
-            findAmazonIdentifiedVisitors(results)
-        }
+            findIdentifiedVisitors(results)
+        }*/
         //kairos
         //face
         //luxand
     }
-
-    fun findIdentifiedVisitors(candidates: List<MatchInterface>){
-
-    }
-
-    fun findAmazonIdentifiedVisitors(candidates: List<FaceMatch>) {
+    inline fun <reified T> findIdentifiedVisitors (candidates: List<T>) {
         lifecycleScope.launch {
             candidates.forEach { candidate ->
-                if (candidate.similarity / 100.0 > CONFIDENCE_MATCH) {
-                    val imgPath = "${FaceApp.galleryFolder}/${candidate.face.externalImageId}"
-                    val match = visitorDao.findByAmazonFaceId(imgPath)
+                if (defineConfidenceLevel(candidate) > CONFIDENCE_MATCH) {
+                    val match = findVisitor(candidate)
                     //return the match
                     navigateToGreeting(match)
                     return@launch
@@ -175,47 +170,11 @@ class MainActivity : CameraActivity() {
             val possibleVisitors = mutableListOf<RecognisedCandidate>()
             // otherwise show all candidates in visitor list
             candidates.forEach { candidate ->
-                val imgPath = "${FaceApp.galleryFolder}/${candidate.face.externalImageId}"
-                val recognisedVisitor = visitorDao.findByAmazonFaceId(imgPath)
+                val recognisedVisitor = findVisitor(candidate)
                 if (possibleVisitors.find { it.visitor == recognisedVisitor } == null) {
                     val newCandidate = RecognisedCandidate().apply {
                         this.visitor = recognisedVisitor
-                        this.amazon_conf = candidate.similarity.toDouble() / 100.0
-                    }
-                    possibleVisitors.add(newCandidate)
-                }
-
-            }
-            navigateToVisitorList(possibleVisitors)
-        }
-    }
-
-    fun findMicrosoftIdentifiedVisitors(candidates: List<Candidate>) {
-        // if a confident match is found, find the corresponding visitor in the local db and then go to Greeting
-        lifecycleScope.launch {
-            candidates.forEach { candidate ->
-                if (candidate.confidence > CONFIDENCE_MATCH) {
-                    val match = visitorDao.findByMicrosoftId(candidate.personId.toString())
-                    //return the match
-                    navigateToGreeting(match)
-                    return@launch
-                }
-            }
-            // otherwise show all candidates in visitor list
-            val possibleVisitors = mutableListOf<RecognisedCandidate>()
-            candidates.forEach { serviceCandidate ->
-                //find the corresponding candidate in local database
-                val recognisedVisitor = visitorDao.findByMicrosoftId(serviceCandidate.personId.toString())
-                //check if we've added him to the list already
-                val candidateFromList = possibleVisitors.find { it.visitor == recognisedVisitor }
-                if (candidateFromList != null) {
-                    //if already in the list, modify the confidence level of certain service
-                    candidateFromList.microsoft_conf = serviceCandidate.confidence
-                } else {
-                    //if not in the list, add to the recognised candidates
-                    val newCandidate = RecognisedCandidate().apply {
-                        this.visitor = recognisedVisitor
-                        this.microsoft_conf = serviceCandidate.confidence
+                        setConfidenceLevel(candidate).invoke(this)
                     }
                     possibleVisitors.add(newCandidate)
                 }
@@ -223,6 +182,44 @@ class MainActivity : CameraActivity() {
             navigateToVisitorList(possibleVisitors)
         }
     }
+
+
+
+    suspend inline fun <reified T> findVisitor(candidate: T): Visitor {
+        val localIdPath = defineLocalIdPath(candidate)
+        return when (candidate){
+            is FaceMatch -> visitorDao.findByAmazonFaceId(localIdPath)
+            is Candidate -> visitorDao.findByMicrosoftId(localIdPath)
+            else -> Visitor(null, null, null)
+        }
+    }
+
+
+    inline fun <reified T> setConfidenceLevel(candidate: T): (RecognisedCandidate) -> Unit  = {
+        val confidenceLevel = defineConfidenceLevel(candidate)
+        when (candidate){
+            is FaceMatch -> {it.amazon_conf = confidenceLevel}
+            is Candidate -> {it.microsoft_conf = confidenceLevel}
+            else ->  {}
+        }
+    }
+
+    inline fun <reified T> defineLocalIdPath(candidate: T): String {
+        when (candidate){
+            is FaceMatch -> return "${FaceApp.galleryFolder}/${candidate.face.externalImageId}"
+            is Candidate -> return candidate.personId.toString()
+            else -> return ""
+        }
+    }
+
+    inline fun <reified T> defineConfidenceLevel(candidate: T): Double {
+        when (candidate){
+            is FaceMatch -> return candidate.similarity / 100.0
+            is Candidate -> return candidate.confidence
+            else -> return 0.0
+        }
+    }
+
 
     private fun setProgressBar() {
         progressBar.visibility = VISIBLE
@@ -237,13 +234,15 @@ class MainActivity : CameraActivity() {
     }
 
 
-    private fun navigateToGreeting(match: Visitor) {
+    @PublishedApi
+    internal fun navigateToGreeting(match: Visitor) {
         intent = Intent(this@MainActivity, GreetingActivity::class.java)
         intent.putExtra(VISITOR_EXTRA, match)
         startActivity(intent)
     }
 
-    private fun navigateToVisitorList(possibleVisitors: List<RecognisedCandidate>) {
+    @PublishedApi
+    internal fun navigateToVisitorList(possibleVisitors: List<RecognisedCandidate>) {
         intent = Intent(this@MainActivity, VisitorListActivity::class.java)
         intent.putExtra(CANDIDATES_EXTRA, possibleVisitors as Serializable)
         startActivity(intent)
