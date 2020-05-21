@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.amazonaws.services.rekognition.model.FaceMatch
+import com.microsoft.projectoxford.face.contract.Candidate
 import com.microsoft.projectoxford.face.contract.IdentifyResult
 import de.develappers.facerecognition.database.FRdb
 import de.develappers.facerecognition.database.VisitorViewModel
@@ -62,7 +63,7 @@ class MainActivity : CameraActivity() {
         visitorViewModel = ViewModelProvider(this).get(VisitorViewModel::class.java)
         // debugging the database population
         visitorViewModel.allVisitors.observe(this, Observer { visitors ->
-            if (visitors.isNotEmpty()){
+            if (visitors.isNotEmpty()) {
                 Log.d("New visitor in db : ", visitors.last().lastName!!)
             }
         })
@@ -156,69 +157,74 @@ class MainActivity : CameraActivity() {
         //luxand
     }
 
-    fun findAmazonIdentifiedVisitors(results: List<FaceMatch>){
-        lifecycleScope.launch {
-            if (results[0].similarity/100.0 > CONFIDENCE_MATCH) {
-                val imgPath = "${FaceApp.galleryFolder}/${results[0].face.externalImageId}"
-                val match = visitorDao.findByAmazonFaceId(imgPath)
-                //return the match
-                navigateToGreeting(match)
-            } else {
-                val possibleVisitors = mutableListOf<RecognisedCandidate>() // otherwise show all candidates in visitor list
-                results.forEach{result ->
-                    val imgPath = "${FaceApp.galleryFolder}/${result.face.externalImageId}"
-                    val recognisedVisitor = visitorDao.findByAmazonFaceId(imgPath)
-                    if (possibleVisitors.find {it.visitor == recognisedVisitor} == null){
-                        val newCandidate = RecognisedCandidate().apply {
-                            this.visitor = recognisedVisitor
-                            this.amazon_conf = result.similarity.toDouble()/100.0
-                        }
-                        possibleVisitors.add(newCandidate)
-                    }
+    fun findIdentifiedVisitors(candidates: List<MatchInterface>){
 
+    }
+
+    fun findAmazonIdentifiedVisitors(candidates: List<FaceMatch>) {
+        lifecycleScope.launch {
+            candidates.forEach { candidate ->
+                if (candidate.similarity / 100.0 > CONFIDENCE_MATCH) {
+                    val imgPath = "${FaceApp.galleryFolder}/${candidate.face.externalImageId}"
+                    val match = visitorDao.findByAmazonFaceId(imgPath)
+                    //return the match
+                    navigateToGreeting(match)
+                    return@launch
                 }
-                navigateToVisitorList(possibleVisitors)
             }
+            val possibleVisitors = mutableListOf<RecognisedCandidate>()
+            // otherwise show all candidates in visitor list
+            candidates.forEach { candidate ->
+                val imgPath = "${FaceApp.galleryFolder}/${candidate.face.externalImageId}"
+                val recognisedVisitor = visitorDao.findByAmazonFaceId(imgPath)
+                if (possibleVisitors.find { it.visitor == recognisedVisitor } == null) {
+                    val newCandidate = RecognisedCandidate().apply {
+                        this.visitor = recognisedVisitor
+                        this.amazon_conf = candidate.similarity.toDouble() / 100.0
+                    }
+                    possibleVisitors.add(newCandidate)
+                }
+
+            }
+            navigateToVisitorList(possibleVisitors)
         }
     }
 
-    fun findMicrosoftIdentifiedVisitors(results: Array<IdentifyResult>) {
+    fun findMicrosoftIdentifiedVisitors(candidates: List<Candidate>) {
         // if a confident match is found, find the corresponding visitor in the local db and then go to Greeting
         lifecycleScope.launch {
-            if (results[0].candidates[0].confidence > CONFIDENCE_MATCH) {
-                val match = visitorDao.findByMicrosoftId(results[0].candidates[0].personId.toString())
-                //return the match
-                navigateToGreeting(match)
-            } else { // otherwise show all candidates in visitor list
-                val possibleVisitors = mutableListOf<RecognisedCandidate>()
-                results.forEach { result ->
-                    result.candidates.forEach { serviceCandidate ->
-                        //find the corresponding candidate in local database
-                        val recognisedVisitor = visitorDao.findByMicrosoftId(serviceCandidate.personId.toString())
-                        //check if we've added him to the list already
-                        //val candidateFromList = candidates.value?.find { it.visitor == recognisedVisitor }
-                        val candidateFromList = possibleVisitors.find { it.visitor == recognisedVisitor }
-                        if (candidateFromList != null) {
-                            //if already in the list, modify the confidence level of certain service
-                            candidateFromList.microsoft_conf = serviceCandidate.confidence
-                        } else {
-                            //if not in the list, add to the recognised candidates
-                            val newCandidate = RecognisedCandidate().apply {
-                                this.visitor = recognisedVisitor
-                                this.microsoft_conf = serviceCandidate.confidence
-                            }
-                            //repository.addCandidateToSelection(newCandidate)
-                            possibleVisitors.add(newCandidate)
-                        }
-                    }
+            candidates.forEach { candidate ->
+                if (candidate.confidence > CONFIDENCE_MATCH) {
+                    val match = visitorDao.findByMicrosoftId(candidate.personId.toString())
+                    //return the match
+                    navigateToGreeting(match)
+                    return@launch
                 }
-                navigateToVisitorList(possibleVisitors)
             }
+            // otherwise show all candidates in visitor list
+            val possibleVisitors = mutableListOf<RecognisedCandidate>()
+            candidates.forEach { serviceCandidate ->
+                //find the corresponding candidate in local database
+                val recognisedVisitor = visitorDao.findByMicrosoftId(serviceCandidate.personId.toString())
+                //check if we've added him to the list already
+                val candidateFromList = possibleVisitors.find { it.visitor == recognisedVisitor }
+                if (candidateFromList != null) {
+                    //if already in the list, modify the confidence level of certain service
+                    candidateFromList.microsoft_conf = serviceCandidate.confidence
+                } else {
+                    //if not in the list, add to the recognised candidates
+                    val newCandidate = RecognisedCandidate().apply {
+                        this.visitor = recognisedVisitor
+                        this.microsoft_conf = serviceCandidate.confidence
+                    }
+                    possibleVisitors.add(newCandidate)
+                }
+            }
+            navigateToVisitorList(possibleVisitors)
         }
-
     }
 
-    private fun setProgressBar(){
+    private fun setProgressBar() {
         progressBar.visibility = VISIBLE
         btnYes.isClickable = false
         btnNo.isClickable = false
