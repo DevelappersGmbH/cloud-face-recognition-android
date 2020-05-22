@@ -14,9 +14,7 @@ import de.develappers.facerecognition.FaceApp
 import de.develappers.facerecognition.R
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.database.model.Visitor
-import de.develappers.facerecognition.utils.VISITORS_GROUP_DESCRIPTION
-import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
-import de.develappers.facerecognition.utils.VISITORS_GROUP_NAME
+import de.develappers.facerecognition.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
@@ -31,9 +29,18 @@ class AmazonServiceAI(val context: Context): RecognitionService {
     val personGroupId = VISITORS_GROUP_ID
     val personGroupName = VISITORS_GROUP_NAME
     val personGroupDescription = VISITORS_GROUP_DESCRIPTION
+    override var isActive = AMAZON
+
+    override suspend fun train() {
+        // does not need to be trained manually
+    }
+
+    override suspend fun deletePersonGroup() {
+       amazonDeletePersonGroup(personGroupId)
+    }
 
     //step 1
-    suspend fun addPersonGroup() {
+    override suspend fun addPersonGroup() {
         amazonAddGroup(personGroupId)
     }
 
@@ -55,9 +62,6 @@ class AmazonServiceAI(val context: Context): RecognitionService {
 
     }
 
-    suspend fun addPersonToGroup(personGroupId: String, imgUri: String): CreatePersonResult {
-        TODO("not used")
-    }
 
     suspend fun amazonIdentifyVisitor(imageInputStream: InputStream, confidenceThreshold: Float): Serializable? =
         withContext(Dispatchers.IO) {

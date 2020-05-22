@@ -14,8 +14,12 @@ import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.database.model.Company
 import de.develappers.facerecognition.database.model.LogEntry
 import de.develappers.facerecognition.database.model.Visitor
+import de.develappers.facerecognition.serviceAI.AmazonServiceAI
 import de.develappers.facerecognition.serviceAI.ImageHelper
 import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
+import de.develappers.facerecognition.serviceAI.RecognitionService
+import de.develappers.facerecognition.utils.AMAZON
+import de.develappers.facerecognition.utils.MICROSOFT
 import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -74,22 +78,29 @@ abstract class FRdb : RoomDatabase() {
                 .readTimeout(5, TimeUnit.MINUTES) // read timeout
                 .build()
 
-            // Delete all content here.
+            // delete all content here
             visitorDao.deleteAll()
 
-            // Add sample company
+            // add sample company
             val company = Company("apple")
             val galleryFolder = FaceApp.galleryFolder
 
-            //access microsoftAI Interface
-            val microsoftServiceAI = MicrosoftServiceAI(context)
-            microsoftServiceAI.microsoftDeletePersonGroup(VISITORS_GROUP_ID)
-            microsoftServiceAI.addPersonGroup()
+            //a list of active AI services
+            var serviceProviders = mutableListOf<RecognitionService>()
 
-            /*//access amazonAI Interface
+            //access AI services
+            val microsoftServiceAI = MicrosoftServiceAI(context)
             val amazonServiceAI = AmazonServiceAI(context)
-            amazonServiceAI.amazonDeletePersonGroup(VISITORS_GROUP_ID)
-            amazonServiceAI.addPersonGroup()*/
+
+            serviceProviders.add(microsoftServiceAI)
+            serviceProviders.add(amazonServiceAI)
+
+            serviceProviders.forEach{
+                if (it.isActive){
+                    it.deletePersonGroup()
+                    it.addPersonGroup()
+                }
+            }
 
             val databaseFolder = "database"
             //for every person in database get the first image and store the path in local database
@@ -108,20 +119,24 @@ abstract class FRdb : RoomDatabase() {
                     true
                 )
                 //microsoft
-                val microsoftServicePersonId = microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, file.path, visitor)
 
-                /*//amazon returns List<String> with faceIds
-                val amazonServiceFaceIds = amazonServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, file.path)
-                Log.d("AmazonServiceId", amazonServiceFaceIds.toString())*/
+                serviceProviders.forEach{
+                    if (it.isActive){
+                        it.addNewVisitorToDatabase(VISITORS_GROUP_ID, file.path, visitor)
+                        it.addPersonGroup()
+                    }
+                }
+                microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, file.path, visitor)
+
                 visitor.imgPaths.add(file.path)
-                //set service ids
                 visitorDao.insert(visitor)
             }
             Log.d("Database", "populated")
 
             //train services
-            microsoftServiceAI.microsoftTrainPersonGroup(VISITORS_GROUP_ID)
-
+            serviceProviders.forEach{
+                it.train()
+            }
         }
 
     }

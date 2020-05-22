@@ -12,10 +12,7 @@ import de.develappers.facerecognition.FaceApp
 import de.develappers.facerecognition.database.FRdb
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.database.model.Visitor
-import de.develappers.facerecognition.utils.CONFIDENCE_MATCH
-import de.develappers.facerecognition.utils.VISITORS_GROUP_DESCRIPTION
-import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
-import de.develappers.facerecognition.utils.VISITORS_GROUP_NAME
+import de.develappers.facerecognition.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,9 +30,18 @@ class MicrosoftServiceAI(val context: Context) : RecognitionService {
     val personGroupId = VISITORS_GROUP_ID
     val personGroupName = VISITORS_GROUP_NAME
     val personGroupDescription = VISITORS_GROUP_DESCRIPTION
+    override var isActive = MICROSOFT
+
+    override suspend fun train() {
+        microsoftTrainPersonGroup(personGroupId)
+    }
+
+    override suspend fun deletePersonGroup() {
+        microsoftDeletePersonGroup(personGroupId)
+    }
 
     //step 1
-    suspend fun addPersonGroup() {
+    override suspend fun addPersonGroup() {
         microsoftAddGroup(personGroupId, personGroupName, personGroupDescription)
     }
 

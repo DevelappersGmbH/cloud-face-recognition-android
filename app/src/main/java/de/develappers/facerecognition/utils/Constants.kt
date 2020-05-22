@@ -12,6 +12,12 @@ const val VISITOR_EXTRA: String = "extra_visitor"
 const val VISITOR_FIRST_TIME: String = "extra_first_time_visitor"
 const val CANDIDATES_EXTRA: String = "extra_candidates"
 
+const val MICROSOFT: Boolean = true
+const val AMAZON: Boolean = false
+const val KAIROS: Boolean = false
+const val FACE: Boolean = false
+const val LUXAND: Boolean = false
+
 const val TYPE_PHOTO: String = "image_type_photo"
 const val TYPE_SIGNATURE: String = "image_type_signature"
 
