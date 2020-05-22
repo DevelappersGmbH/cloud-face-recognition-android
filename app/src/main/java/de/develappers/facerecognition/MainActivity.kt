@@ -39,7 +39,8 @@ class MainActivity : CameraActivity() {
     @PublishedApi
     internal lateinit var visitorDao: VisitorDao
     private lateinit var ivNewVisitor: ImageView
-    private var serviceProviders = mutableListOf<RecognitionService>()
+    private val serviceProviders = mutableListOf<RecognitionService>()
+    private val possibleVisitors = mutableListOf<RecognisedCandidate>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,6 +101,7 @@ class MainActivity : CameraActivity() {
                 unlockFocus()
                 lifecycleScope.launch {
                     sendPhotoToServicesAndEvaluate(fromCameraPath)
+                    findSingleMatchOrSuggestList()
                 }
             }
         }
@@ -137,6 +139,7 @@ class MainActivity : CameraActivity() {
         setNewVisitorToPreview(newImageUri)
         lifecycleScope.launch {
             sendPhotoToServicesAndEvaluate(newImageUri)
+            findSingleMatchOrSuggestList()
         }
     }
 
@@ -154,31 +157,12 @@ class MainActivity : CameraActivity() {
                 }
             }
         }
-        /*//amazon
-        lifecycleScope.launch {
-            val results = amazonServiceAI.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
-            //a list of face matches, each containing similarity, face id and external id (img path)
-            findIdentifiedVisitors(results)
-        }*/
-        //kairos
-        //face
-        //luxand
     }
-     fun findIdentifiedVisitors (newImageUri: String, service: RecognitionService) {
-         // if a sure match is found, greet him
+
+     suspend fun findIdentifiedVisitors (newImageUri: String, service: RecognitionService) {
         lifecycleScope.launch {
             val candidates = service.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
-            candidates.forEach { candidate ->
-                if (service.defineConfidenceLevel(candidate) > CONFIDENCE_MATCH) {
-                    val match = findVisitor(candidate, service)
-                    //return the match
-                    navigateToGreeting(match)
-                    return@launch
-                }
-            }
-
             // otherwise show all candidates in visitor list
-            val possibleVisitors = mutableListOf<RecognisedCandidate>()
             candidates.forEach { candidate ->
                 val recognisedVisitor = findVisitor(candidate, service)
                 if (possibleVisitors.find { it.visitor == recognisedVisitor } == null) {
@@ -189,12 +173,23 @@ class MainActivity : CameraActivity() {
                     possibleVisitors.add(newCandidate)
                 }
             }
-            navigateToVisitorList(possibleVisitors)
         }
     }
 
-    fun findSingleMatch (newImageUri: String, service: RecognitionService) {
+    fun findSingleMatchOrSuggestList () {
+        // if a sure match is found by all services, greet him
+        possibleVisitors.forEach { candidate ->
+            if (((candidate.microsoft_conf > CONFIDENCE_MATCH) || !MICROSOFT) &&
+                ((candidate.amazon_conf > CONFIDENCE_MATCH) || !AMAZON) &&
+                ((candidate.face_conf > CONFIDENCE_MATCH) || !FACE) &&
+                ((candidate.kairos_conf > CONFIDENCE_MATCH) || !KAIROS) &&
+                ((candidate.luxand_conf > CONFIDENCE_MATCH) || !LUXAND))
+                //return the match
+                navigateToGreeting(candidate)
+                return
+            }
 
+        navigateToVisitorList(possibleVisitors)
     }
 
 
@@ -222,9 +217,9 @@ class MainActivity : CameraActivity() {
 
 
     @PublishedApi
-    internal fun navigateToGreeting(match: Visitor) {
+    internal fun navigateToGreeting(match: RecognisedCandidate) {
         intent = Intent(this@MainActivity, GreetingActivity::class.java)
-        intent.putExtra(VISITOR_EXTRA, match)
+        intent.putExtra(RECOGNISED_CANDIDATE_EXTRA, match)
         startActivity(intent)
     }
 

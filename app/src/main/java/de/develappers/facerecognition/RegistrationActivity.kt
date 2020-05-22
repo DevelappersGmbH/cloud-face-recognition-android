@@ -232,7 +232,6 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
     private fun navigateToGreeting(){
         intent = Intent(this@RegistrationActivity, GreetingActivity::class.java)
         intent.putExtra(VISITOR_EXTRA, visitor)
-        intent.putExtra(VISITOR_FIRST_TIME, true)
         startActivity(intent)
     }
 

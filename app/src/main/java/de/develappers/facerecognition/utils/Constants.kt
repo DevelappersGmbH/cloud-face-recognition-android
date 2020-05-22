@@ -10,6 +10,7 @@ const val VISITORS_GROUP_NAME: String = "visitors"
 const val LOGBOOK_EXTRA: String = "extra_logbook"
 const val VISITOR_EXTRA: String = "extra_visitor"
 const val VISITOR_FIRST_TIME: String = "extra_first_time_visitor"
+const val RECOGNISED_CANDIDATE_EXTRA: String = "extra_recognised_candidate"
 const val CANDIDATES_EXTRA: String = "extra_candidates"
 
 const val MICROSOFT: Boolean = true
