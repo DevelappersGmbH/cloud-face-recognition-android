@@ -53,7 +53,7 @@ class MainActivity : CameraActivity() {
         amazonServiceAI = AmazonServiceAI(this)
 
         serviceProviders.add(microsoftServiceAI)
-        //serviceProviders.add(amazonServiceAI)
+        serviceProviders.add(amazonServiceAI)
 
 
         lifecycleScope.launch {
@@ -79,7 +79,7 @@ class MainActivity : CameraActivity() {
             setProgressBar()
             when (APP_MODE) {
                 APP_MODE_REALTIME -> {
-                    //TODO: take a picture and send to AI services
+                    //take a picture and send to AI services in capture callback
                     fromCameraPath = createImageFile()
                     lockFocus()
                 }
@@ -148,8 +148,10 @@ class MainActivity : CameraActivity() {
     suspend fun sendPhotoToServicesAndEvaluate(newImageUri: String) = withContext(Dispatchers.IO){
 
         serviceProviders.forEach{
-            launch {
-                findIdentifiedVisitors(newImageUri, it)
+            if (it.isActive){
+                launch {
+                    findIdentifiedVisitors(newImageUri, it)
+                }
             }
         }
         /*//amazon
@@ -163,6 +165,7 @@ class MainActivity : CameraActivity() {
         //luxand
     }
      fun findIdentifiedVisitors (newImageUri: String, service: RecognitionService) {
+         // if a sure match is found, greet him
         lifecycleScope.launch {
             val candidates = service.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
             candidates.forEach { candidate ->
@@ -173,8 +176,9 @@ class MainActivity : CameraActivity() {
                     return@launch
                 }
             }
-            val possibleVisitors = mutableListOf<RecognisedCandidate>()
+
             // otherwise show all candidates in visitor list
+            val possibleVisitors = mutableListOf<RecognisedCandidate>()
             candidates.forEach { candidate ->
                 val recognisedVisitor = findVisitor(candidate, service)
                 if (possibleVisitors.find { it.visitor == recognisedVisitor } == null) {
@@ -187,6 +191,10 @@ class MainActivity : CameraActivity() {
             }
             navigateToVisitorList(possibleVisitors)
         }
+    }
+
+    fun findSingleMatch (newImageUri: String, service: RecognitionService) {
+
     }
 
 
