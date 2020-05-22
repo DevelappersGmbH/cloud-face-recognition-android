@@ -148,10 +148,10 @@ class MainActivity : CameraActivity() {
         ivNewVisitor.setImageBitmap(imgBitmap)
     }
 
-    suspend fun sendPhotoToServicesAndEvaluate(newImageUri: String) = withContext(Dispatchers.IO){
+    suspend fun sendPhotoToServicesAndEvaluate(newImageUri: String) = withContext(Dispatchers.IO) {
 
-        serviceProviders.forEach{
-            if (it.isActive){
+        serviceProviders.forEach {
+            if (it.isActive) {
                 launch {
                     findIdentifiedVisitors(newImageUri, it)
                 }
@@ -159,43 +159,41 @@ class MainActivity : CameraActivity() {
         }
     }
 
-     suspend fun findIdentifiedVisitors (newImageUri: String, service: RecognitionService) {
-        lifecycleScope.launch {
-            val candidates = service.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
-            // otherwise show all candidates in visitor list
-            candidates.forEach { candidate ->
-                val recognisedVisitor = findVisitor(candidate, service)
-                if (possibleVisitors.find { it.visitor == recognisedVisitor } == null) {
-                    val newCandidate = RecognisedCandidate().apply {
-                        this.visitor = recognisedVisitor
-                        service.setConfidenceLevel(candidate, this)
-                    }
-                    possibleVisitors.add(newCandidate)
+    suspend fun findIdentifiedVisitors(newImageUri: String, service: RecognitionService) {
+        val candidates = service.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
+        // otherwise show all candidates in visitor list
+        candidates.forEach { candidate ->
+            val localIdPath = service.defineLocalIdPath(candidate)
+            val recognisedVisitor = findVisitor(localIdPath, service)
+            if (possibleVisitors.find { it.visitor == recognisedVisitor } == null) {
+                val newCandidate = RecognisedCandidate().apply {
+                    this.visitor = recognisedVisitor
+                    service.setConfidenceLevel(candidate, this)
                 }
+                possibleVisitors.add(newCandidate)
             }
         }
     }
 
-    fun findSingleMatchOrSuggestList () {
+    fun findSingleMatchOrSuggestList() {
         // if a sure match is found by all services, greet him
         possibleVisitors.forEach { candidate ->
             if (((candidate.microsoft_conf > CONFIDENCE_MATCH) || !MICROSOFT) &&
                 ((candidate.amazon_conf > CONFIDENCE_MATCH) || !AMAZON) &&
                 ((candidate.face_conf > CONFIDENCE_MATCH) || !FACE) &&
                 ((candidate.kairos_conf > CONFIDENCE_MATCH) || !KAIROS) &&
-                ((candidate.luxand_conf > CONFIDENCE_MATCH) || !LUXAND))
+                ((candidate.luxand_conf > CONFIDENCE_MATCH) || !LUXAND)) {
                 //return the match
                 navigateToGreeting(candidate)
                 return
             }
-
+        }
         navigateToVisitorList(possibleVisitors)
     }
 
 
-    suspend fun findVisitor(candidate: Any, service: RecognitionService): Visitor {
-        val localIdPath = service.defineLocalIdPath(candidate)
-        return when (service){
+    suspend fun findVisitor(localIdPath: String, service: RecognitionService): Visitor {
+        return when (service) {
             is AmazonServiceAI -> visitorDao.findByAmazonFaceId(localIdPath)
             is MicrosoftServiceAI -> visitorDao.findByMicrosoftId(localIdPath)
             else -> Visitor(null, null, null)

@@ -12,7 +12,7 @@
             tools:srcCompat="@tools:sample/avatars"/>
     <TextView
             android:id="@+id/fullNameView"
-            android:text="@string/full_name"
+            android:text="@string/title_full_name"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -21,7 +21,6 @@
             android:padding="@dimen/padding_default"/>
 
     <LinearLayout android:id="@+id/probabilityView"
-                  android:text="NA"
                   android:layout_weight="2"
                   android:layout_width="0dp"
                   android:layout_height="match_parent"
