@@ -36,12 +36,12 @@ class MicrosoftServiceAI(val context: Context) : RecognitionService {
         microsoftTrainPersonGroup(personGroupId)
     }
 
-    override suspend fun deletePersonGroup() {
+    override suspend fun deletePersonGroup(personGroupId: String) {
         microsoftDeletePersonGroup(personGroupId)
     }
 
     //step 1
-    override suspend fun addPersonGroup() {
+    override suspend fun addPersonGroup(personGroupId: String) {
         microsoftAddGroup(personGroupId, personGroupName, personGroupDescription)
     }
 
