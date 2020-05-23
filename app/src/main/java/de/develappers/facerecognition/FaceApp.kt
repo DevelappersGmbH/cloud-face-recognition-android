@@ -8,6 +8,7 @@ import com.amazonaws.services.rekognition.AmazonRekognition
 import com.amazonaws.services.rekognition.AmazonRekognitionClient
 import com.microsoft.projectoxford.face.FaceServiceClient
 import com.microsoft.projectoxford.face.FaceServiceRestClient
+import de.develappers.facerecognition.utils.*
 import java.io.File
 
 
@@ -28,6 +29,13 @@ class FaceApp : Application() {
                 Log.e("CapturedImages", "Failed to create directory")
             }
         }
+
+        values = mapOf(Pair(R.string.microsoft, MICROSOFT),
+            Pair(R.string.amazon, AMAZON),
+            Pair(R.string.face, FACE),
+            Pair(R.string.kairos, KAIROS),
+            Pair(R.string.luxand, LUXAND))
+
     }
 
     companion object {
@@ -41,7 +49,9 @@ class FaceApp : Application() {
 
 
         var storageDirectory: File? = null
+        lateinit var values: Map<Int, Boolean>
         lateinit var galleryFolder: File
+
 
 
     }

@@ -15,10 +15,7 @@ import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.database.model.Company
 import de.develappers.facerecognition.database.model.LogEntry
 import de.develappers.facerecognition.database.model.Visitor
-import de.develappers.facerecognition.serviceAI.AmazonServiceAI
-import de.develappers.facerecognition.serviceAI.ImageHelper
-import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
-import de.develappers.facerecognition.serviceAI.RecognitionService
+import de.develappers.facerecognition.serviceAI.*
 import de.develappers.facerecognition.utils.AMAZON
 import de.develappers.facerecognition.utils.MICROSOFT
 import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
@@ -86,16 +83,8 @@ abstract class FRdb : RoomDatabase() {
             val company = Company("apple")
             val galleryFolder = FaceApp.galleryFolder
 
-            //a list of active AI services
-            var serviceProviders = mutableListOf<RecognitionService>()
-
-            //access AI services
-            //AI services
-            val microsoftServiceAI = MicrosoftServiceAI(context, context.getString(R.string.microsoft))
-            val amazonServiceAI = AmazonServiceAI(context, context.getString(R.string.amazon))
-
-            serviceProviders.add(microsoftServiceAI)
-            serviceProviders.add(amazonServiceAI)
+            ///AI services
+            val serviceProviders = ServiceFactory.createAIServices(context, FaceApp.values)
 
             serviceProviders.forEach{
                 if (it.isActive){

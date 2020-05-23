@@ -25,7 +25,7 @@ import java.io.Serializable
 import java.nio.ByteBuffer
 
 
-class AmazonServiceAI(
+class FaceServiceAI(
     val context: Context,
     override var provider: String,
     override var isActive: Boolean): RecognitionService {
