@@ -4,5 +4,6 @@
     <dimen name="text_large">32sp</dimen>
     <dimen name="icon_default">96sp</dimen>
     <dimen name="padding_default">16dp</dimen>
+    <dimen name="padding_small">4dp</dimen>
     <dimen name="padding_large">32dp</dimen>
 </resources>

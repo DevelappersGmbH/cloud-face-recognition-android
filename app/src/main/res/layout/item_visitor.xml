@@ -4,12 +4,13 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="horizontal"
-              android:padding="@dimen/padding_default">
+              android:padding="@dimen/padding_small">
     <ImageView
             android:id="@+id/photoView"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="@dimen/icon_default"
+            android:layout_gravity="center"
             tools:srcCompat="@tools:sample/avatars"/>
     <TextView
             android:id="@+id/fullNameView"
@@ -17,16 +18,18 @@
             android:layout_weight="2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/text_default"
-            android:padding="@dimen/padding_default"/>
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="@dimen/padding_small"/>
 
     <LinearLayout android:id="@+id/probabilityView"
+                  android:layout_gravity="center"
                   android:layout_weight="2"
                   android:layout_width="0dp"
                   android:layout_height="match_parent"
                   android:textSize="@dimen/text_default"
                   android:orientation="horizontal"
-                  android:padding="@dimen/padding_default">
+                  android:padding="@dimen/padding_small">
     </LinearLayout>
 
 
