@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import de.develappers.facerecognition.FaceApp
+import de.develappers.facerecognition.R
 import de.develappers.facerecognition.database.dao.CompanyDao
 import de.develappers.facerecognition.database.dao.LogDao
 import de.develappers.facerecognition.database.dao.VisitorDao
@@ -89,8 +90,9 @@ abstract class FRdb : RoomDatabase() {
             var serviceProviders = mutableListOf<RecognitionService>()
 
             //access AI services
-            val microsoftServiceAI = MicrosoftServiceAI(context)
-            val amazonServiceAI = AmazonServiceAI(context)
+            //AI services
+            val microsoftServiceAI = MicrosoftServiceAI(context, context.getString(R.string.microsoft))
+            val amazonServiceAI = AmazonServiceAI(context, context.getString(R.string.amazon))
 
             serviceProviders.add(microsoftServiceAI)
             serviceProviders.add(amazonServiceAI)

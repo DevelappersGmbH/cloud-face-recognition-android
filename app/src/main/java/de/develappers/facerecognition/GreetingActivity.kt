@@ -23,8 +23,6 @@ import kotlin.system.measureTimeMillis
 
 class GreetingActivity : AppCompatActivity() {
 
-    private lateinit var microsoftServiceAI: MicrosoftServiceAI
-    private lateinit var amazonServiceAI: AmazonServiceAI
     private lateinit var visitorDao: VisitorDao
     private var log = LogEntry()
     private var serviceProviders = mutableListOf<RecognitionService>()
@@ -33,8 +31,9 @@ class GreetingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_greeting)
         //AI services
-        microsoftServiceAI = MicrosoftServiceAI(this)
-        amazonServiceAI = AmazonServiceAI(this)
+        //AI services
+        val microsoftServiceAI = MicrosoftServiceAI(this, getString(R.string.microsoft))
+        val amazonServiceAI = AmazonServiceAI(this, getString(R.string.amazon))
 
         serviceProviders.add(microsoftServiceAI)
         serviceProviders.add(amazonServiceAI)
@@ -69,18 +68,14 @@ class GreetingActivity : AppCompatActivity() {
 
     fun registerNewVisitor(visitorId: String) {
         log.timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        log.truth = visitorId
+        log.trueVisitorId = visitorId
 
     }
 
     fun registerRepeatingVisitor(candidate: RecognisedCandidate) {
         log.timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        log.microsoft = candidate.microsoft_conf.toString()
-        log.amazon = candidate.amazon_conf.toString()
-        log.face = candidate.face_conf.toString()
-        log.kairos = candidate.kairos_conf.toString()
-        log.luxand = candidate.luxand_conf.toString()
-        log.truth = candidate.visitor.visitorId.toString()
+        log.serviceResults = candidate.serviceResults
+        log.trueVisitorId = candidate.visitor.visitorId.toString()
 
     }
 

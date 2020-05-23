@@ -22,7 +22,9 @@ import java.io.InputStream
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class MicrosoftServiceAI(val context: Context) : RecognitionService {
+class MicrosoftServiceAI(
+    val context: Context,
+    override var provider: String) : RecognitionService {
 
     // Get an instance of face service client.
     val faceServiceClient = FaceApp.microsoftServiceClient
@@ -195,11 +197,6 @@ class MicrosoftServiceAI(val context: Context) : RecognitionService {
         visitor.microsoftId = id
     }
 
-
-    override fun setConfidenceLevel(candidate: Any, recognisedCandidate: RecognisedCandidate) {
-        candidate as Candidate
-        recognisedCandidate.microsoft_conf = candidate.confidence
-    }
 
     override fun defineLocalIdPath(candidate: Any): String {
         candidate as Candidate

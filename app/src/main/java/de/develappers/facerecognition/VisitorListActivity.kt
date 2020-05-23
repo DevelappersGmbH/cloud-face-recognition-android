@@ -16,6 +16,7 @@ import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.listeners.OnVisitorItemClickedListener
 import de.develappers.facerecognition.database.model.Visitor
 import de.develappers.facerecognition.utils.CANDIDATES_EXTRA
+import de.develappers.facerecognition.utils.RECOGNISED_CANDIDATE_EXTRA
 import de.develappers.facerecognition.utils.VISITOR_EXTRA
 import kotlinx.android.synthetic.main.activity_visitor_list.*
 import kotlinx.android.synthetic.main.item_visitor.view.*
@@ -45,10 +46,10 @@ class VisitorListActivity : AppCompatActivity(), OnVisitorItemClickedListener {
     }
 
 
-    override fun onVisitorItemClicked(visitor:Visitor){
+    override fun onVisitorItemClicked(candidate: RecognisedCandidate){
         intent = Intent(this@VisitorListActivity, GreetingActivity::class.java)
         //TODO: if the visitor is not new, but from here, add new photo to his entity in database in the next actiivty
-        intent.putExtra(VISITOR_EXTRA, visitor);
+        intent.putExtra(RECOGNISED_CANDIDATE_EXTRA, candidate);
         startActivity(intent)
     }
 

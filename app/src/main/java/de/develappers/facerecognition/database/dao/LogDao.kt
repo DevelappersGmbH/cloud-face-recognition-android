@@ -18,6 +18,4 @@ interface LogDao {
     @Insert
     fun insertAll(vararg logEntries: LogEntry)
 
-    @Delete
-    fun delete(visitor: Visitor)
 }
