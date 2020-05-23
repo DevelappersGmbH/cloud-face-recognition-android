@@ -18,10 +18,7 @@ import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.database.model.ServiceResult
 import de.develappers.facerecognition.database.model.Visitor
-import de.develappers.facerecognition.serviceAI.AmazonServiceAI
-import de.develappers.facerecognition.serviceAI.ImageHelper
-import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
-import de.develappers.facerecognition.serviceAI.RecognitionService
+import de.develappers.facerecognition.serviceAI.*
 import de.develappers.facerecognition.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +36,7 @@ class MainActivity : CameraActivity() {
     @PublishedApi
     internal lateinit var visitorDao: VisitorDao
     private lateinit var ivNewVisitor: ImageView
-    private val serviceProviders = mutableListOf<RecognitionService>()
+    private lateinit var serviceProviders: MutableList<RecognitionService>
     private val possibleVisitors = mutableListOf<RecognisedCandidate>()
 
 
@@ -50,11 +47,7 @@ class MainActivity : CameraActivity() {
         ivNewVisitor = findViewById(R.id.ivNewVisitor)
 
         //AI services
-        val microsoftServiceAI = MicrosoftServiceAI(this, getString(R.string.microsoft))
-        val amazonServiceAI = AmazonServiceAI(this, getString(R.string.amazon))
-
-        serviceProviders.add(microsoftServiceAI)
-        serviceProviders.add(amazonServiceAI)
+        serviceProviders = ServiceFactory.createAIServices(this, FaceApp.values)
 
 
         lifecycleScope.launch {

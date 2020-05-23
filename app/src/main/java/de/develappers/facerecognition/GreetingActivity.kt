@@ -11,6 +11,7 @@ import de.develappers.facerecognition.database.model.Visitor
 import de.develappers.facerecognition.serviceAI.AmazonServiceAI
 import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
 import de.develappers.facerecognition.serviceAI.RecognitionService
+import de.develappers.facerecognition.serviceAI.ServiceFactory
 import de.develappers.facerecognition.utils.RECOGNISED_CANDIDATE_EXTRA
 import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
 import de.develappers.facerecognition.utils.VISITOR_EXTRA
@@ -25,18 +26,14 @@ class GreetingActivity : AppCompatActivity() {
 
     private lateinit var visitorDao: VisitorDao
     private var log = LogEntry()
-    private var serviceProviders = mutableListOf<RecognitionService>()
+    private lateinit var serviceProviders:MutableList<RecognitionService>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_greeting)
-        //AI services
-        //AI services
-        val microsoftServiceAI = MicrosoftServiceAI(this, getString(R.string.microsoft))
-        val amazonServiceAI = AmazonServiceAI(this, getString(R.string.amazon))
 
-        serviceProviders.add(microsoftServiceAI)
-        serviceProviders.add(amazonServiceAI)
+        //AI services
+        serviceProviders = ServiceFactory.createAIServices(this, FaceApp.values)
 
         if (intent.hasExtra(VISITOR_EXTRA)) {
             val visitor = intent.getSerializableExtra(VISITOR_EXTRA) as Visitor

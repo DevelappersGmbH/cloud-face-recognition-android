@@ -24,7 +24,8 @@ import java.util.concurrent.TimeUnit
 
 class MicrosoftServiceAI(
     val context: Context,
-    override var provider: String) : RecognitionService {
+    override var provider: String,
+    override var isActive: Boolean) : RecognitionService {
 
     // Get an instance of face service client.
     val faceServiceClient = FaceApp.microsoftServiceClient
@@ -32,7 +33,6 @@ class MicrosoftServiceAI(
     val personGroupId = VISITORS_GROUP_ID
     val personGroupName = VISITORS_GROUP_NAME
     val personGroupDescription = VISITORS_GROUP_DESCRIPTION
-    override var isActive = MICROSOFT
 
     override suspend fun train() {
         microsoftTrainPersonGroup(personGroupId)
