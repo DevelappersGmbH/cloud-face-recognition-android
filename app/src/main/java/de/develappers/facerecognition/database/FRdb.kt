@@ -97,8 +97,8 @@ abstract class FRdb : RoomDatabase() {
 
             serviceProviders.forEach{
                 if (it.isActive){
-                    it.deletePersonGroup()
-                    it.addPersonGroup()
+                    it.deletePersonGroup(VISITORS_GROUP_ID)
+                    it.addPersonGroup(VISITORS_GROUP_ID)
                 }
             }
 
@@ -107,7 +107,7 @@ abstract class FRdb : RoomDatabase() {
             context.assets.list(databaseFolder)?.forEachIndexed { index, element ->
                 val file: File = ImageHelper.saveVisitorPhotoLocally(context, element, galleryFolder, databaseFolder)
                 println(element.toString())
-                //wait, because only 20TPM in free tier
+                //wait, because only 20TPM in Microsoft free tier
                 TimeUnit.SECONDS.sleep(2L)
                 Log.d("IMG to retrieve", file.path)
 
@@ -118,16 +118,12 @@ abstract class FRdb : RoomDatabase() {
                     company,
                     true
                 )
-                //microsoft
 
                 serviceProviders.forEach{
                     if (it.isActive){
                         it.addNewVisitorToDatabase(VISITORS_GROUP_ID, file.path, visitor)
-                        it.addPersonGroup()
                     }
                 }
-                microsoftServiceAI.addNewVisitorToDatabase(VISITORS_GROUP_ID, file.path, visitor)
-
                 visitor.imgPaths.add(file.path)
                 visitorDao.insert(visitor)
             }

@@ -35,12 +35,12 @@ class AmazonServiceAI(val context: Context): RecognitionService {
         // does not need to be trained manually
     }
 
-    override suspend fun deletePersonGroup() {
+    override suspend fun deletePersonGroup(personGroupId: String) {
        amazonDeletePersonGroup(personGroupId)
     }
 
     //step 1
-    override suspend fun addPersonGroup() {
+    override suspend fun addPersonGroup(personGroupId: String) {
         amazonAddGroup(personGroupId)
     }
 

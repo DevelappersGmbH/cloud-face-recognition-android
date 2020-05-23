@@ -29,13 +29,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.Serializable
+import kotlin.system.measureTimeMillis
 
 class MainActivity : CameraActivity() {
 
     private lateinit var fromCameraPath: String
     private lateinit var visitorViewModel: VisitorViewModel
-    private lateinit var microsoftServiceAI: MicrosoftServiceAI
-    private lateinit var amazonServiceAI: AmazonServiceAI
     @PublishedApi
     internal lateinit var visitorDao: VisitorDao
     private lateinit var ivNewVisitor: ImageView
@@ -50,8 +49,8 @@ class MainActivity : CameraActivity() {
         ivNewVisitor = findViewById(R.id.ivNewVisitor)
 
         //AI services
-        microsoftServiceAI = MicrosoftServiceAI(this)
-        amazonServiceAI = AmazonServiceAI(this)
+        val microsoftServiceAI = MicrosoftServiceAI(this)
+        val amazonServiceAI = AmazonServiceAI(this)
 
         serviceProviders.add(microsoftServiceAI)
         serviceProviders.add(amazonServiceAI)
@@ -62,7 +61,6 @@ class MainActivity : CameraActivity() {
             //fake call to database to trigger population on first time launch
             //val visitor = visitorDao.findByName("efe", "gfk")
         }
-
         visitorViewModel = ViewModelProvider(this).get(VisitorViewModel::class.java)
         // debugging the database population
         visitorViewModel.allVisitors.observe(this, Observer { visitors ->
@@ -109,7 +107,7 @@ class MainActivity : CameraActivity() {
 
     }
 
-    suspend fun getRandomVisitor(): Visitor {
+    private suspend fun getRandomVisitor(): Visitor {
         return visitorDao.getRandomVisitor()
     }
 
@@ -136,6 +134,7 @@ class MainActivity : CameraActivity() {
         }
         Log.d("Random visitor", newImageUri)
 
+        // after a test person has been chosen, send the photo for recognition
         setNewVisitorToPreview(newImageUri)
         lifecycleScope.launch {
             sendPhotoToServicesAndEvaluate(newImageUri)
@@ -149,7 +148,6 @@ class MainActivity : CameraActivity() {
     }
 
     suspend fun sendPhotoToServicesAndEvaluate(newImageUri: String) = withContext(Dispatchers.IO) {
-
         serviceProviders.forEach {
             if (it.isActive) {
                 launch {
@@ -160,8 +158,12 @@ class MainActivity : CameraActivity() {
     }
 
     suspend fun findIdentifiedVisitors(newImageUri: String, service: RecognitionService) {
-        val candidates = service.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
-        // otherwise show all candidates in visitor list
+        var candidates = listOf<Any>()
+        // measure time needed for the service to indentify a person
+        val identificationTime = measureTimeMillis {
+            candidates = service.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
+        }
+        // merge possible visitors from all services
         candidates.forEach { candidate ->
             val localIdPath = service.defineLocalIdPath(candidate)
             val recognisedVisitor = findVisitor(localIdPath, service)
