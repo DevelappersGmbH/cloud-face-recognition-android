@@ -8,12 +8,19 @@
         tools:context=".VisitorListActivity">
 
     <include layout="@layout/item_visitor"
-    android:id="@+id/header"></include>
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:id="@+id/headerItem"></include>
+    <include layout="@layout/item_visitor"
+             android:id="@+id/responseTimesItem"
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:layout_below="@id/headerItem"></include>
 
     <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/header"
+            android:layout_below="@+id/responseTimesItem"
             android:id="@+id/rvVisitorList"
             android:layout_above="@id/buttonsLayout">
     </androidx.recyclerview.widget.RecyclerView>

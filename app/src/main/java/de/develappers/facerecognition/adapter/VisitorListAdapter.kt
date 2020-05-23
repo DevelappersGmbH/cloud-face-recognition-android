@@ -3,21 +3,22 @@ package de.develappers.facerecognition.adapter
 import android.content.Context
 import android.net.Uri
 import android.view.LayoutInflater
-import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import de.develappers.facerecognition.R
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.listeners.OnVisitorItemClickedListener
-import de.develappers.facerecognition.database.model.Visitor
 import de.develappers.facerecognition.serviceAI.ImageHelper
 import kotlinx.android.synthetic.main.item_visitor.view.*
 
+
 class VisitorListAdapter internal constructor(
     val context: Context,
-    val listener: OnVisitorItemClickedListener
+    val listener: OnVisitorItemClickedListener,
+    val titles: List<String>
 ): RecyclerView.Adapter<VisitorListAdapter.VisitorViewHolder>() {
 
     private var items = emptyList<RecognisedCandidate>() // Cached copy of words
@@ -32,10 +33,20 @@ class VisitorListAdapter internal constructor(
 
     override fun onBindViewHolder(holder: VisitorViewHolder, position: Int) {
         val candidate: RecognisedCandidate = items[position]
-        holder.fullNameView?.text = context.resources.getString(R.string.full_name, candidate.visitor?.firstName, candidate.visitor?.lastName);
-        candidate.serviceResults.forEachIndexed{index, element ->
-            holder.probabilityViews[index].text = element.confidence.toString()
+        holder.fullNameView?.text = context.resources.getString(R.string.full_name, candidate.visitor.firstName, candidate.visitor.lastName);
+        titles.forEach{title ->
+            val textView = TextView(context)
+            textView.text = candidate.serviceResults.find { it.provider == title }?.confidence.toString()
+            val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1.0f
+            )
+            textView.layoutParams = params
+
+            holder.probabilityView.addView(textView)
         }
+
         val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(Uri.parse(candidate.visitor.imgPaths[0]), context)
         holder.photoView.setImageBitmap(imgBitmap)
         holder.mView.setOnClickListener { listener.onVisitorItemClicked(candidate) }
@@ -46,12 +57,7 @@ class VisitorListAdapter internal constructor(
         val mView = view
         val photoView = view.photoView
         val fullNameView = view.fullNameView
-        val probabilityViewMicrosoft = view.probabilityViewMicrosoft
-        val probabilityViewAmazon = view.probabilityViewAmazon
-        val probabilityViewFace = view.probabilityViewFace
-        val probabilityViewKairos = view.probabilityViewKairos
-        val probabilityViewLuxand = view.probabilityViewLuxand
-        val probabilityViews = listOf<TextView>(probabilityViewMicrosoft, probabilityViewAmazon, probabilityViewFace, probabilityViewKairos, probabilityViewLuxand)
+        val probabilityView = view.probabilityView
     }
 
     internal fun setVisitors(candidates: List<RecognisedCandidate>) {

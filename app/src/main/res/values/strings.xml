@@ -17,12 +17,13 @@
     <string name="greeting">Welcome, %s!</string>
     <string name="privacy_policy">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</string>
 
-    <string name="title_full_name">Full Name</string>
+    <string name="title_visitor">Visitor</string>
     <string name="microsoft">Microsoft</string>
     <string name="amazon">Amazon</string>
     <string name="kairos">Kairos</string>
     <string name="face">Face</string>
     <string name="luxand">Luxand</string>
+    <string name="response_time">Response (ms)</string>
     <string name="na">N/A</string>
     <string name="microsoft_subscription_key">24a9a48fd1b64e80adfb6aedc2768f15</string>
     <string name="microsoft_endpoint">https://eastus.api.cognitive.microsoft.com/face/v1.0</string>
