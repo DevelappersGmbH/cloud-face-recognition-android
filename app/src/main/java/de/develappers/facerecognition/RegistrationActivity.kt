@@ -35,10 +35,9 @@ import java.util.*
 class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, OnSignedCaptureListener {
 
     private var signed: Boolean = false
-    private lateinit var  visitor: Visitor
+    private var visitor = Visitor(null, null, Company(null), false)
     private lateinit var currentPhotoPath: String
     private lateinit var visitorDao: VisitorDao
-    private lateinit var microsoftServiceAI: MicrosoftServiceAI
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,15 +47,7 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
             visitorDao = FRdb.getDatabase(application, this).visitorDao()
         }
 
-
-        microsoftServiceAI = MicrosoftServiceAI(this)
-
-
         textureView = findViewById(R.id.cameraSurface)
-
-        visitor = Visitor(null, null, null, false)
-        val company = Company(null)
-        visitor.company = company
 
         etFirstName.addTextChangedListener(textWatcher)
         etLastName.addTextChangedListener(textWatcher)

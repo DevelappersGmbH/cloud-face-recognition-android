@@ -3,8 +3,10 @@ package de.develappers.facerecognition.adapter
 import android.content.Context
 import android.net.Uri
 import android.view.LayoutInflater
+import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import de.develappers.facerecognition.R
 import de.develappers.facerecognition.database.model.RecognisedCandidate
@@ -31,11 +33,12 @@ class VisitorListAdapter internal constructor(
     override fun onBindViewHolder(holder: VisitorViewHolder, position: Int) {
         val candidate: RecognisedCandidate = items[position]
         holder.fullNameView?.text = context.resources.getString(R.string.full_name, candidate.visitor?.firstName, candidate.visitor?.lastName);
-        holder.probabilityViewMicrosoft.text = candidate.microsoft_conf.toString()
-        holder.probabilityViewAmazon.text = candidate.amazon_conf.toString()
+        candidate.serviceResults.forEachIndexed{index, element ->
+            holder.probabilityViews[index].text = element.confidence.toString()
+        }
         val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(Uri.parse(candidate.visitor.imgPaths[0]), context)
         holder.photoView.setImageBitmap(imgBitmap)
-        holder.mView.setOnClickListener { listener.onVisitorItemClicked(candidate.visitor) }
+        holder.mView.setOnClickListener { listener.onVisitorItemClicked(candidate) }
 
     }
 
@@ -48,6 +51,7 @@ class VisitorListAdapter internal constructor(
         val probabilityViewFace = view.probabilityViewFace
         val probabilityViewKairos = view.probabilityViewKairos
         val probabilityViewLuxand = view.probabilityViewLuxand
+        val probabilityViews = listOf<TextView>(probabilityViewMicrosoft, probabilityViewAmazon, probabilityViewFace, probabilityViewKairos, probabilityViewLuxand)
     }
 
     internal fun setVisitors(candidates: List<RecognisedCandidate>) {

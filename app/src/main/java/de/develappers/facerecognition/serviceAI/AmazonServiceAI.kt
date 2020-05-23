@@ -1,5 +1,6 @@
 package de.develappers.facerecognition.serviceAI
 
+import android.content.ContentProvider
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
@@ -24,7 +25,10 @@ import java.io.Serializable
 import java.nio.ByteBuffer
 
 
-class AmazonServiceAI(val context: Context): RecognitionService {
+class AmazonServiceAI(
+    val context: Context,
+    override var provider: String): RecognitionService {
+
     val amazonServiceClient = FaceApp.amazonServiceClient
     val personGroupId = VISITORS_GROUP_ID
     val personGroupName = VISITORS_GROUP_NAME
@@ -139,10 +143,6 @@ class AmazonServiceAI(val context: Context): RecognitionService {
         visitor.amazonId = id
     }
 
-    override fun setConfidenceLevel(candidate: Any, recognisedCandidate: RecognisedCandidate) {
-        candidate as FaceMatch
-        recognisedCandidate.amazon_conf = candidate.similarity / 100.0
-    }
 
     override fun defineLocalIdPath(candidate: Any): String {
         candidate as FaceMatch

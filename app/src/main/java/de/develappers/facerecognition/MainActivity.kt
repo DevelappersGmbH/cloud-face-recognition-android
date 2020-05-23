@@ -16,6 +16,7 @@ import de.develappers.facerecognition.database.FRdb
 import de.develappers.facerecognition.database.VisitorViewModel
 import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.database.model.RecognisedCandidate
+import de.develappers.facerecognition.database.model.ServiceResult
 import de.develappers.facerecognition.database.model.Visitor
 import de.develappers.facerecognition.serviceAI.AmazonServiceAI
 import de.develappers.facerecognition.serviceAI.ImageHelper
@@ -49,8 +50,8 @@ class MainActivity : CameraActivity() {
         ivNewVisitor = findViewById(R.id.ivNewVisitor)
 
         //AI services
-        val microsoftServiceAI = MicrosoftServiceAI(this)
-        val amazonServiceAI = AmazonServiceAI(this)
+        val microsoftServiceAI = MicrosoftServiceAI(this, getString(R.string.microsoft))
+        val amazonServiceAI = AmazonServiceAI(this, getString(R.string.amazon))
 
         serviceProviders.add(microsoftServiceAI)
         serviceProviders.add(amazonServiceAI)
@@ -59,7 +60,7 @@ class MainActivity : CameraActivity() {
         lifecycleScope.launch {
             visitorDao = FRdb.getDatabase(application, this).visitorDao()
             //fake call to database to trigger population on first time launch
-            //val visitor = visitorDao.findByName("efe", "gfk")
+            val visitor = visitorDao.findByName("efe", "gfk")
         }
         visitorViewModel = ViewModelProvider(this).get(VisitorViewModel::class.java)
         // debugging the database population
@@ -159,8 +160,8 @@ class MainActivity : CameraActivity() {
 
     suspend fun findIdentifiedVisitors(newImageUri: String, service: RecognitionService) {
         var candidates = listOf<Any>()
-        // measure time needed for the service to indentify a person
-        val identificationTime = measureTimeMillis {
+        // measure time needed for the service to identify a person
+        val identificationResponseTime = measureTimeMillis {
             candidates = service.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
         }
         // merge possible visitors from all services
@@ -169,8 +170,14 @@ class MainActivity : CameraActivity() {
             val recognisedVisitor = findVisitor(localIdPath, service)
             if (possibleVisitors.find { it.visitor == recognisedVisitor } == null) {
                 val newCandidate = RecognisedCandidate().apply {
+                    this.serviceResults.add(
+                        ServiceResult(
+                            service.provider,
+                            identificationResponseTime,
+                            service.defineConfidenceLevel(candidate)
+                        )
+                    )
                     this.visitor = recognisedVisitor
-                    service.setConfidenceLevel(candidate, this)
                 }
                 possibleVisitors.add(newCandidate)
             }
@@ -178,18 +185,17 @@ class MainActivity : CameraActivity() {
     }
 
     fun findSingleMatchOrSuggestList() {
-        // if a sure match is found by all services, greet him
-        possibleVisitors.forEach { candidate ->
-            if (((candidate.microsoft_conf > CONFIDENCE_MATCH) || !MICROSOFT) &&
-                ((candidate.amazon_conf > CONFIDENCE_MATCH) || !AMAZON) &&
-                ((candidate.face_conf > CONFIDENCE_MATCH) || !FACE) &&
-                ((candidate.kairos_conf > CONFIDENCE_MATCH) || !KAIROS) &&
-                ((candidate.luxand_conf > CONFIDENCE_MATCH) || !LUXAND)) {
-                //return the match
-                navigateToGreeting(candidate)
-                return
-            }
+        // filter all candidates where all services returned high confidence
+        val sureMatches = possibleVisitors.filter { candidate ->
+            (candidate.serviceResults.all { it.confidence > CONFIDENCE_MATCH })
         }
+        // if only one sure match is found by all services, greet him
+        if (sureMatches.count() == 1) {
+            //return the only sure match
+            navigateToGreeting(sureMatches[0])
+            return
+        }
+        //otherwise show a list of options
         navigateToVisitorList(possibleVisitors)
     }
 
