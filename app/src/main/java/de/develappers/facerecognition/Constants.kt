@@ -1,7 +1,9 @@
-package de.develappers.facerecognition.utils
+package de.develappers.facerecognition
 
 import android.Manifest
 import android.hardware.camera2.CameraCharacteristics
+
+const val FACE_URL: String = "https://api-us.faceplusplus.com/facepp/v3/"
 
 const val VISITORS_GROUP_ID: String = "1"
 const val VISITORS_GROUP_DESCRIPTION: String = "all visitors"
@@ -13,10 +15,10 @@ const val VISITOR_FIRST_TIME: String = "extra_first_time_visitor"
 const val RECOGNISED_CANDIDATE_EXTRA: String = "extra_recognised_candidate"
 const val CANDIDATES_EXTRA: String = "extra_candidates"
 
-const val MICROSOFT: Boolean = true
-const val AMAZON: Boolean = true
+const val MICROSOFT: Boolean = false
+const val AMAZON: Boolean = false
 const val KAIROS: Boolean = false
-const val FACE: Boolean = false
+const val FACE: Boolean = true
 const val LUXAND: Boolean = false
 
 const val TYPE_PHOTO: String = "image_type_photo"

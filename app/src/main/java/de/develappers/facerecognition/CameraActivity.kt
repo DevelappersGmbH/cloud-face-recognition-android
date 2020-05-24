@@ -7,7 +7,6 @@ import android.content.res.Configuration
 import android.graphics.*
 import android.hardware.camera2.*
 import android.media.ImageReader
-import android.os.Environment
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
@@ -18,7 +17,6 @@ import android.view.TextureView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import de.develappers.facerecognition.utils.*
 import de.develappers.facerecognition.utils.CompareSizesByArea
 import de.develappers.facerecognition.utils.ImageSaver
 import de.develappers.facerecognition.view.AutoFitTextureView
@@ -683,7 +681,9 @@ open class CameraActivity: AppCompatActivity(), ActivityCompat.OnRequestPermissi
     protected fun requestCameraPermission() {
         if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
         } else {
-            requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+            requestPermissions(arrayOf(Manifest.permission.CAMERA),
+                REQUEST_CAMERA_PERMISSION
+            )
         }
     }
 
@@ -704,7 +704,9 @@ open class CameraActivity: AppCompatActivity(), ActivityCompat.OnRequestPermissi
     protected fun requestStoragePermission() {
         if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
         } else {
-            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_STORAGE_PERMISSION)
+            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_STORAGE_PERMISSION
+            )
         }
     }
 

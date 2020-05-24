@@ -8,7 +8,6 @@ import com.amazonaws.services.rekognition.AmazonRekognition
 import com.amazonaws.services.rekognition.AmazonRekognitionClient
 import com.microsoft.projectoxford.face.FaceServiceClient
 import com.microsoft.projectoxford.face.FaceServiceRestClient
-import de.develappers.facerecognition.utils.*
 import java.io.File
 
 

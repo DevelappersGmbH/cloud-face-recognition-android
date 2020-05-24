@@ -19,7 +19,7 @@ import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.database.model.ServiceResult
 import de.develappers.facerecognition.database.model.Visitor
 import de.develappers.facerecognition.serviceAI.*
-import de.develappers.facerecognition.utils.*
+import de.develappers.facerecognition.serviceAI.FaceServiceAI
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -219,6 +219,7 @@ class MainActivity : CameraActivity() {
         return when (service) {
             is AmazonServiceAI -> visitorDao.findByAmazonFaceId(localIdPath)
             is MicrosoftServiceAI -> visitorDao.findByMicrosoftId(localIdPath)
+            //is FaceServiceAI -> visitorDao.findByFaceId(localIdPath)
             else -> Visitor(null, null, null)
         }
     }
