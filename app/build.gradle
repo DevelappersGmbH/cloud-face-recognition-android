@@ -19,6 +19,8 @@ android {
         buildConfigField("String", "MICROSOFT_KEY", apikeyProperties['MICROSOFT_KEY'])
         buildConfigField("String", "AWS_SECRET_ACCESS_KEY", apikeyProperties['AWS_SECRET_ACCESS_KEY'])
         buildConfigField("String", "AWS_ACCESS_KEY_ID", apikeyProperties['AWS_ACCESS_KEY_ID'])
+        buildConfigField("String", "FACE_KEY", apikeyProperties['FACE_KEY'])
+        buildConfigField("String", "FACE_SECRET", apikeyProperties['FACE_SECRET'])
     }
     buildTypes {
         release {
