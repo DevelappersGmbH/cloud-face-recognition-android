@@ -29,7 +29,6 @@ class MicrosoftServiceAI(
 
     // Get an instance of face service client.
     val faceServiceClient = FaceApp.microsoftServiceClient
-    //personGroupId = 1 for visitors
     val personGroupId = VISITORS_GROUP_ID
     val personGroupName = VISITORS_GROUP_NAME
     val personGroupDescription = VISITORS_GROUP_DESCRIPTION

@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import de.develappers.facerecognition.FaceApp
 import de.develappers.facerecognition.R
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.listeners.OnVisitorItemClickedListener
@@ -17,8 +18,7 @@ import kotlinx.android.synthetic.main.item_visitor.view.*
 
 class VisitorListAdapter internal constructor(
     val context: Context,
-    val listener: OnVisitorItemClickedListener,
-    val titles: List<String>
+    val listener: OnVisitorItemClickedListener
 ): RecyclerView.Adapter<VisitorListAdapter.VisitorViewHolder>() {
 
     private var items = emptyList<RecognisedCandidate>() // Cached copy of words
@@ -34,7 +34,7 @@ class VisitorListAdapter internal constructor(
     override fun onBindViewHolder(holder: VisitorViewHolder, position: Int) {
         val candidate: RecognisedCandidate = items[position]
         holder.fullNameView?.text = context.resources.getString(R.string.full_name, candidate.visitor.firstName, candidate.visitor.lastName);
-        titles.forEach{title ->
+        FaceApp.values.keys.map { context.getString(it) }.forEach{ title ->
             val textView = TextView(context)
             textView.text = candidate.serviceResults.find { it.provider == title }?.confidence.toString()
             val params = LinearLayout.LayoutParams(

@@ -56,7 +56,7 @@ class AmazonServiceAI(
         indexFacesResult.faceRecords.forEach{
             faceIds.add(it.face.faceId)
         }
-        //add faceIds to amazonIds
+        //TODO: add faceIds to amazonIds in the database
     }
 
     override suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Any> {
