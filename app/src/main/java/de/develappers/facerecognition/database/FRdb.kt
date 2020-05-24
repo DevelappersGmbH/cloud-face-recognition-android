@@ -122,7 +122,9 @@ abstract class FRdb : RoomDatabase() {
 
             //train services
             serviceProviders.forEach{
-                it.train()
+                if (it.isActive){
+                    it.train()
+                }
             }
         }
 

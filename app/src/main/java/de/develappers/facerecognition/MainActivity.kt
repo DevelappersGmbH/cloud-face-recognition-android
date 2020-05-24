@@ -93,7 +93,8 @@ class MainActivity : CameraActivity() {
                 unlockFocus()
                 lifecycleScope.launch {
                     sendPhotoToServicesAndEvaluate(fromCameraPath)
-                    findSingleMatchOrSuggestList()
+                    mergeCandidates()
+                    //findSingleMatchOrSuggestList()
                 }
             }
         }
@@ -132,7 +133,8 @@ class MainActivity : CameraActivity() {
         setNewVisitorToPreview(newImageUri)
         lifecycleScope.launch {
             sendPhotoToServicesAndEvaluate(newImageUri)
-            findSingleMatchOrSuggestList()
+            mergeCandidates()
+            //findSingleMatchOrSuggestList()
         }
     }
 
@@ -160,21 +162,41 @@ class MainActivity : CameraActivity() {
         // merge possible visitors from all services
         candidates.forEach { candidate ->
             val localIdPath = service.defineLocalIdPath(candidate)
-            val recognisedVisitor = findVisitor(localIdPath, service)
-            if (possibleVisitors.find { it.visitor == recognisedVisitor } == null) {
-                val newCandidate = RecognisedCandidate().apply {
-                    this.serviceResults.add(
-                        ServiceResult(
-                            service.provider,
-                            identificationResponseTime,
-                            service.defineConfidenceLevel(candidate)
-                        )
-                    )
-                    this.visitor = recognisedVisitor
+            val newCandidate = RecognisedCandidate().apply {
+                this.visitor = findVisitor(localIdPath, service)
+                this.serviceResults.add(ServiceResult(
+                    service.provider,
+                    identificationResponseTime,
+                    service.defineConfidenceLevel(candidate)
+                ))
+            }
+            possibleVisitors.add(newCandidate)
+        }
+    }
+
+    fun mergeCandidates() {
+        val mergedVisitors = mutableListOf<RecognisedCandidate>()
+        possibleVisitors.forEach { candidate ->
+            if (mergedVisitors.find { candidate.visitor == it.visitor } == null){
+                val mergedCandidate = RecognisedCandidate().apply { this.visitor = candidate.visitor }
+                possibleVisitors.filter { candidate.visitor == it.visitor }.forEach {
+                    mergedCandidate.serviceResults.add(it.serviceResults.last())
                 }
-                possibleVisitors.add(newCandidate)
+                mergedVisitors.add(mergedCandidate)
             }
         }
+        // filter all candidates where all services returned high confidence
+        val sureMatches = mergedVisitors.filter { candidate ->
+            (candidate.serviceResults.all { it.confidence > CONFIDENCE_MATCH })
+        }
+        // if only one sure match is found by all services, greet him
+        if (sureMatches.count() == 1) {
+            //return the only sure match
+            navigateToGreeting(sureMatches[0])
+            return
+        }
+        //otherwise show a list of options
+        navigateToVisitorList(mergedVisitors)
     }
 
     fun findSingleMatchOrSuggestList() {

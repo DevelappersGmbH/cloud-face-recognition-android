@@ -29,34 +29,31 @@ class VisitorListActivity : AppCompatActivity(), OnVisitorItemClickedListener {
         setContentView(R.layout.activity_visitor_list)
         showAlertDialog()
 
-        val titles = listOf (getString(R.string.microsoft),
-            getString(R.string.amazon),
-            getString(R.string.face),
-            getString(R.string.kairos),
-            getString(R.string.luxand))
 
         val recognisedCandidates = intent.extras?.get(CANDIDATES_EXTRA) as List<RecognisedCandidate>
 
-        titles.forEach{title ->
-            val textView = TextView(this)
-            val responseView = TextView(this)
-            val responseTime = recognisedCandidates.flatMap { it.serviceResults }.firstOrNull { it.provider == title }?.identificationTime
-            textView.text = title
-            responseView.text = responseTime.toString()
-            val params = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                1.0f
-            )
-            textView.layoutParams = params
-            responseView.layoutParams = params
+        FaceApp.values.keys.forEach{key ->
+            getString(key).also {title ->
+                val textView = TextView(this)
+                val responseView = TextView(this)
+                val responseTime = recognisedCandidates.flatMap { it.serviceResults }.firstOrNull { it.provider == title }?.identificationTime
+                textView.text = title
+                responseView.text = responseTime.toString()
+                val params = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    1.0f
+                )
+                textView.layoutParams = params
+                responseView.layoutParams = params
 
-            headerItem.probabilityView.addView(textView)
-            responseTimesItem.probabilityView.addView(responseView)
-            responseTimesItem.fullNameView.text = getString(R.string.response_time)
+                headerItem.probabilityView.addView(textView)
+                responseTimesItem.probabilityView.addView(responseView)
+                responseTimesItem.fullNameView.text = getString(R.string.response_time)  }
+
         }
 
-        var adapter = VisitorListAdapter(this, this, titles)
+        var adapter = VisitorListAdapter(this, this)
         rvVisitorList.adapter = adapter
         rvVisitorList.layoutManager = LinearLayoutManager(this)
 
