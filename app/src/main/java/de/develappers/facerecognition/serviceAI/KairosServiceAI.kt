@@ -1,6 +1,5 @@
 package de.develappers.facerecognition.serviceAI
 
-import android.content.ContentProvider
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
@@ -8,14 +7,12 @@ import android.util.Log
 import com.amazonaws.AmazonClientException
 import com.amazonaws.services.rekognition.model.*
 import com.amazonaws.util.IOUtils
-import com.microsoft.projectoxford.face.contract.Candidate
-import com.microsoft.projectoxford.face.contract.CreatePersonResult
-import com.microsoft.projectoxford.face.rest.ClientException
 import de.develappers.facerecognition.FaceApp
 import de.develappers.facerecognition.R
-import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.database.model.Visitor
-import de.develappers.facerecognition.utils.*
+import de.develappers.facerecognition.VISITORS_GROUP_DESCRIPTION
+import de.develappers.facerecognition.VISITORS_GROUP_ID
+import de.develappers.facerecognition.VISITORS_GROUP_NAME
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream

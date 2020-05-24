@@ -1,6 +1,5 @@
 package de.develappers.facerecognition.serviceAI
 
-import android.content.ContentProvider
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
@@ -8,14 +7,12 @@ import android.util.Log
 import com.amazonaws.AmazonClientException
 import com.amazonaws.services.rekognition.model.*
 import com.amazonaws.util.IOUtils
-import com.microsoft.projectoxford.face.contract.Candidate
-import com.microsoft.projectoxford.face.contract.CreatePersonResult
-import com.microsoft.projectoxford.face.rest.ClientException
-import de.develappers.facerecognition.FaceApp
-import de.develappers.facerecognition.R
-import de.develappers.facerecognition.database.model.RecognisedCandidate
+import de.develappers.facerecognition.*
 import de.develappers.facerecognition.database.model.Visitor
-import de.develappers.facerecognition.utils.*
+import de.develappers.facerecognition.retrofit.FaceApi
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
@@ -34,18 +31,36 @@ class FaceServiceAI(
     val personGroupId = VISITORS_GROUP_ID
     val personGroupName = VISITORS_GROUP_NAME
     val personGroupDescription = VISITORS_GROUP_DESCRIPTION
+    val apiKey = BuildConfig.FACE_KEY
+    val apiSecret = BuildConfig.FACE_SECRET
+
+    val faceApi by lazy {
+        FaceApi.create()
+    }
+    var disposable: Disposable? = null
 
     override suspend fun train() {
         // does not need to be trained manually
     }
 
     override suspend fun deletePersonGroup(personGroupId: String) {
-       amazonDeletePersonGroup(personGroupId)
+            val response = faceDeletePersonGroup(personGroupId)
+        Log.d("Face++", response.faceset_token.toString())
     }
 
     //step 1
     override suspend fun addPersonGroup(personGroupId: String) {
-        amazonAddGroup(personGroupId)
+        disposable =
+            faceApi.createFaceSet(apiKey, apiSecret, personGroupId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { result -> run {
+                    Log.d("Face++", result.faceset_token)
+                    if (result.failure_detail.isNotEmpty()) {
+                        result.failure_detail.forEach { Log.d("Face++", it.reason) }
+                    }
+                }
+                }
     }
 
     override suspend fun addNewVisitorToDatabase(personGroupId: String, imgUri: String, visitor: Visitor) {
@@ -120,20 +135,18 @@ class FaceServiceAI(
             }
         }
 
-    suspend fun amazonDeletePersonGroup(personGroupId: String) =
+    suspend fun faceDeletePersonGroup(personGroupId: String) =
         withContext(Dispatchers.IO) {
-            try {
-                val request = DeleteCollectionRequest()
-                    .withCollectionId(personGroupId)
-                amazonServiceClient?.deleteCollection(request)
-            } catch (e: AmazonClientException) {
-                Log.d("Amazon", e.message!!)
-            }
+            faceApi.deleteFaceSet(apiKey, apiSecret, personGroupId)
         }
 
     fun convertBitmapToStream(imgUri: String): InputStream{
         var imageUri = Uri.parse(imgUri)
-        val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(imageUri, context)
+        val imgBitmap =
+            ImageHelper.loadSizeLimitedBitmapFromUri(
+                imageUri,
+                context
+            )
         val stream = ByteArrayOutputStream()
         imgBitmap?.compress(Bitmap.CompressFormat.JPEG, 100, stream)
         return ByteArrayInputStream(stream.toByteArray())

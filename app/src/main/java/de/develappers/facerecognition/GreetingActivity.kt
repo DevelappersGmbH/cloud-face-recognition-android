@@ -8,19 +8,12 @@ import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.database.model.LogEntry
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.database.model.Visitor
-import de.develappers.facerecognition.serviceAI.AmazonServiceAI
-import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
 import de.develappers.facerecognition.serviceAI.RecognitionService
 import de.develappers.facerecognition.serviceAI.ServiceFactory
-import de.develappers.facerecognition.utils.RECOGNISED_CANDIDATE_EXTRA
-import de.develappers.facerecognition.utils.VISITORS_GROUP_ID
-import de.develappers.facerecognition.utils.VISITOR_EXTRA
-import de.develappers.facerecognition.utils.VISITOR_FIRST_TIME
 import kotlinx.android.synthetic.main.activity_greeting.*
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.system.measureTimeMillis
 
 class GreetingActivity : AppCompatActivity() {
 

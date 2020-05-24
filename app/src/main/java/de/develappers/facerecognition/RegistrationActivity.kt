@@ -7,7 +7,6 @@ import android.hardware.camera2.*
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.Toast
@@ -18,10 +17,7 @@ import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.listeners.OnSignedCaptureListener
 import de.develappers.facerecognition.database.model.Visitor
 import de.develappers.facerecognition.database.model.Company
-import de.develappers.facerecognition.serviceAI.MicrosoftServiceAI
-import de.develappers.facerecognition.utils.*
 import de.develappers.facerecognition.view.SignatureView
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_registration.*
 import kotlinx.android.synthetic.main.activity_registration.progressBar
 import kotlinx.coroutines.launch

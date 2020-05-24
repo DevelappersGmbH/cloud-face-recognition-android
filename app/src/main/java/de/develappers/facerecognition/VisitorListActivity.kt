@@ -7,18 +7,10 @@ import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.develappers.facerecognition.adapter.VisitorListAdapter
-import de.develappers.facerecognition.database.FRdb
-import de.develappers.facerecognition.database.VisitorViewModel
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.listeners.OnVisitorItemClickedListener
-import de.develappers.facerecognition.database.model.Visitor
-import de.develappers.facerecognition.utils.CANDIDATES_EXTRA
-import de.develappers.facerecognition.utils.RECOGNISED_CANDIDATE_EXTRA
-import de.develappers.facerecognition.utils.VISITOR_EXTRA
 import kotlinx.android.synthetic.main.activity_visitor_list.*
 import kotlinx.android.synthetic.main.item_visitor.view.*
 
