@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -36,8 +37,11 @@ class VisitorListActivity : AppCompatActivity(), OnVisitorItemClickedListener {
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     1.0f
                 )
+                params.gravity = Gravity.CENTER;
                 textView.layoutParams = params
                 responseView.layoutParams = params
+                textView.gravity = Gravity.CENTER;
+                responseView.gravity = Gravity.CENTER;
 
                 headerItem.probabilityView.addView(textView)
                 responseTimesItem.probabilityView.addView(responseView)

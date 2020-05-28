@@ -5,6 +5,7 @@
     <string name="no">No</string>
     <string name="ok">OK</string>
     <string name="oops">Oops&#8230;</string>
+    <string name="confidence">%.2f%%</string>
     <string name="not_recognised">Unfortunately, I cannot recognise you. Are you one of these people?</string>
     <string name="field_required">Please, fill in the %s</string>
     <string name="pp_required">Please, accept the privacy policy</string>
