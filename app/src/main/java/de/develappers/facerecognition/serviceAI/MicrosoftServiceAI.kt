@@ -6,11 +6,8 @@ import android.net.Uri
 import android.util.Log
 import com.microsoft.projectoxford.face.contract.*
 import com.microsoft.projectoxford.face.rest.ClientException
-import de.develappers.facerecognition.FaceApp
+import de.develappers.facerecognition.*
 import de.develappers.facerecognition.database.model.Visitor
-import de.develappers.facerecognition.VISITORS_GROUP_DESCRIPTION
-import de.develappers.facerecognition.VISITORS_GROUP_ID
-import de.develappers.facerecognition.VISITORS_GROUP_NAME
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
@@ -82,7 +79,7 @@ class MicrosoftServiceAI(
         }
         faces.forEach { faceIds.add(it.faceId) }
         val faceIdsArray = faceIds.toTypedArray()
-        val identifyResults =  microsoftIdentifyFace(personGroupId, faceIdsArray, 0.0f, 10)
+        val identifyResults =  microsoftIdentifyFace(personGroupId, faceIdsArray, CONFIDENCE_CANDIDATE.toFloat(), RETURN_RESULT_COUNT)
         return mutableListOf<Candidate>().apply {
             identifyResults.forEach {
                 this.addAll(it.candidates)
