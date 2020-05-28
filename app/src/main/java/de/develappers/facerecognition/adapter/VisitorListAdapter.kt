@@ -2,6 +2,8 @@ package de.develappers.facerecognition.adapter
 
 import android.content.Context
 import android.net.Uri
+import android.provider.Settings.Global.getString
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,9 +21,9 @@ import kotlinx.android.synthetic.main.item_visitor.view.*
 class VisitorListAdapter internal constructor(
     val context: Context,
     val listener: OnVisitorItemClickedListener
-): RecyclerView.Adapter<VisitorListAdapter.VisitorViewHolder>() {
+) : RecyclerView.Adapter<VisitorListAdapter.VisitorViewHolder>() {
 
-    private var items = emptyList<RecognisedCandidate>() // Cached copy of words
+    private var items = emptyList<RecognisedCandidate>() // Cached copy of candidates
 
     override fun getItemCount(): Int {
         return items.size
@@ -33,16 +35,23 @@ class VisitorListAdapter internal constructor(
 
     override fun onBindViewHolder(holder: VisitorViewHolder, position: Int) {
         val candidate: RecognisedCandidate = items[position]
-        holder.fullNameView?.text = context.resources.getString(R.string.full_name, candidate.visitor.firstName, candidate.visitor.lastName);
-        FaceApp.values.keys.map { context.getString(it) }.forEach{ title ->
+        holder.fullNameView?.text =
+            context.resources.getString(R.string.full_name, candidate.visitor.firstName, candidate.visitor.lastName);
+        //set the confidence results in the columns according to predefined order in FaceApp
+        FaceApp.values.keys.map { context.getString(it) }.forEach { title ->
             val textView = TextView(context)
-            textView.text = candidate.serviceResults.find { it.provider == title }?.confidence.toString()
+            candidate.serviceResults.find { it.provider == title }?.confidence?.times(100.0)?.let{
+                textView.text = context.getString(R.string.confidence, it)
+            }
+
             val params = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 1.0f
             )
+            params.gravity = Gravity.CENTER;
             textView.layoutParams = params
+            textView.gravity = Gravity.CENTER;
 
             holder.probabilityView.addView(textView)
         }
@@ -53,7 +62,7 @@ class VisitorListAdapter internal constructor(
 
     }
 
-    inner class VisitorViewHolder (view: View) : RecyclerView.ViewHolder(view) {
+    inner class VisitorViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val mView = view
         val photoView = view.photoView
         val fullNameView = view.fullNameView
