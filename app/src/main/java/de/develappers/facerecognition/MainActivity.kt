@@ -219,7 +219,7 @@ class MainActivity : CameraActivity() {
         return when (service) {
             is AmazonServiceAI -> visitorDao.findByAmazonFaceId(localIdPath)
             is MicrosoftServiceAI -> visitorDao.findByMicrosoftId(localIdPath)
-            //is FaceServiceAI -> visitorDao.findByFaceId(localIdPath)
+            is FaceServiceAI -> visitorDao.findByFaceId(localIdPath)
             else -> Visitor(null, null, null)
         }
     }

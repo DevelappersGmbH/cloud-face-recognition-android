@@ -8,15 +8,13 @@ import android.graphics.Matrix
 import android.graphics.Rect
 import android.media.ExifInterface
 import android.net.Uri
-import android.os.Environment
 import android.provider.MediaStore
+import android.util.Base64
+import android.util.Base64OutputStream
 import android.util.Log
 import de.develappers.facerecognition.FaceApp
 import de.develappers.facerecognition.R
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -161,7 +159,27 @@ class ImageHelper() {
             }
             return newFile
         }
+
+        fun encodeImage(bitmap: Bitmap?): String? {
+            val baos = ByteArrayOutputStream()
+            bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+            val b = baos.toByteArray()
+            return Base64.encodeToString(b, Base64.DEFAULT)
+        }
+
+        fun convertStreamToBase64(inputStream: FileInputStream?): String {
+            return ByteArrayOutputStream().use { outputStream ->
+                Base64OutputStream(outputStream, Base64.DEFAULT).use { base64FilterStream ->
+                    inputStream?.copyTo(base64FilterStream)
+                    base64FilterStream.close()
+                    outputStream.toString()
+                }
+            }
+        }
+
     }
+
+
 
 
 }

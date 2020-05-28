@@ -7,12 +7,8 @@ import android.util.Log
 import com.amazonaws.AmazonClientException
 import com.amazonaws.services.rekognition.model.*
 import com.amazonaws.util.IOUtils
-import de.develappers.facerecognition.FaceApp
-import de.develappers.facerecognition.R
+import de.develappers.facerecognition.*
 import de.develappers.facerecognition.database.model.Visitor
-import de.develappers.facerecognition.VISITORS_GROUP_DESCRIPTION
-import de.develappers.facerecognition.VISITORS_GROUP_ID
-import de.develappers.facerecognition.VISITORS_GROUP_NAME
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
@@ -58,7 +54,7 @@ class AmazonServiceAI(
 
     override suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Any> {
         val imageInputStream: InputStream = convertBitmapToStream(imgUri)
-        val faceSearchResult = amazonIdentifyVisitor(imageInputStream, 0.0f) as SearchFacesByImageResult
+        val faceSearchResult = amazonIdentifyVisitor(imageInputStream, CONFIDENCE_CANDIDATE.toFloat()) as SearchFacesByImageResult
         return faceSearchResult.faceMatches;
 
     }

@@ -30,6 +30,8 @@ const val APP_MODE: String = APP_MODE_DATABASE
 
 const val CONFIDENCE_MATCH: Double = 0.9
 const val CONFIDENCE_CANDIDATE: Double = 0.0
+const val RETURN_RESULT_COUNT: Int = 5 //for Face++ from 1 to 5 returned candidates
+const val REMOVE_ALL_TOKENS: String = "RemoveAllFaceTokens" //remove all tokens from face++ before deleting FaceSet
 
 const val REQUEST_CAMERA_PERMISSION = 0
 const val REQUEST_STORAGE_PERMISSION = 1

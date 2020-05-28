@@ -1,9 +1,10 @@
 package de.develappers.facerecognition.serviceAI.faceServiceAI.model
 
 import com.amazonaws.services.rekognition.model.FaceAttributes
+import java.io.Serializable
 
 
-class Face {
+class Face : Serializable {
     var face_token: String? = null
     private var face_rectangle: CommonRect? = null
     private var landmark: FaceLandmark? = null

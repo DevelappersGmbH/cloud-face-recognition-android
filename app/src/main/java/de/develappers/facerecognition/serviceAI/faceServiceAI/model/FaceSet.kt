@@ -1,6 +1,8 @@
 package de.develappers.facerecognition.serviceAI.faceServiceAI.model
 
-class FaceSet {
+import java.io.Serializable
+
+class FaceSet : Serializable {
     var faceset_token: String? = null
     var outer_id: String? = null
     var display_name: String? = null
