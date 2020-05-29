@@ -105,27 +105,26 @@ class MainActivity : CameraActivity() {
     }
 
     private fun chooseTrialPerson() {
-        var newImageUri = ""
         var resFolder = "database"
         //randomly decide between testing a person from the prepopulated database or a person from testbase
         if (false) {
             //only familiar
             runBlocking {
                 val randomVisitor = getRandomVisitor()
-                newImageUri = getAssetsPhotoUri(randomVisitor.lastName!!, resFolder)
+                fromCameraPath = getAssetsPhotoUri(randomVisitor.lastName!!, resFolder)
             }
         } else {
             //unfamiliar faces
             resFolder = "testbase"
-            newImageUri = getAssetsPhotoUri(assets.list(resFolder)!!.random().toString(), resFolder)
+            fromCameraPath = getAssetsPhotoUri(assets.list(resFolder)!!.random().toString(), resFolder)
 
         }
-        Log.d("Random visitor", newImageUri)
+        Log.d("Random visitor", fromCameraPath)
 
         // after a test person has been chosen, send the photo for recognition
-        setNewVisitorToPreview(newImageUri)
+        setNewVisitorToPreview(fromCameraPath)
         lifecycleScope.launch {
-            sendPhotoToServicesAndEvaluate(newImageUri)
+            sendPhotoToServicesAndEvaluate(fromCameraPath)
             mergeCandidates()
             //findSingleMatchOrSuggestList()
         }
@@ -220,6 +219,7 @@ class MainActivity : CameraActivity() {
     internal fun navigateToGreeting(match: RecognisedCandidate) {
         intent = Intent(this@MainActivity, GreetingActivity::class.java)
         intent.putExtra(RECOGNISED_CANDIDATE_EXTRA, match)
+        intent.putExtra(NEW_IMAGE_PATH_EXTRA, fromCameraPath)
         startActivity(intent)
     }
 
@@ -227,6 +227,7 @@ class MainActivity : CameraActivity() {
     internal fun navigateToVisitorList(possibleVisitors: List<RecognisedCandidate>) {
         intent = Intent(this@MainActivity, VisitorListActivity::class.java)
         intent.putExtra(CANDIDATES_EXTRA, possibleVisitors as Serializable)
+        intent.putExtra(NEW_IMAGE_PATH_EXTRA, fromCameraPath)
         startActivity(intent)
     }
 

@@ -9,6 +9,7 @@ interface RecognitionService {
     suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Any>
     suspend fun addPersonGroup(personGroupId: String)
     suspend fun deletePersonGroup(personGroupId: String)
+    suspend fun addNewImage(personGroupId: String, imgUri: String, visitor: Visitor)
     suspend fun train()
     fun setServiceId(visitor: Visitor, id: String)
     fun defineLocalIdPath(candidate: Any): String

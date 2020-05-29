@@ -55,6 +55,10 @@ class FaceServiceAI(
 
     }
 
+    override suspend fun addNewImage(personGroupId: String, imgUri: String, visitor: Visitor) {
+        addNewVisitorToDatabase(personGroupId, imgUri, visitor)
+    }
+
     override suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Any> {
         var imageUri = Uri.parse(imgUri)
         val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(imageUri, context)
