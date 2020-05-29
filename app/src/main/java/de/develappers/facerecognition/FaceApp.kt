@@ -21,8 +21,6 @@ class FaceApp : Application() {
         AmazonServiceClient =
             AmazonRekognitionClient(BasicAWSCredentials(BuildConfig.AWS_ACCESS_KEY_ID, BuildConfig.AWS_SECRET_ACCESS_KEY))
 
-        FaceServiceClient  = FaceApi.create()
-
         storageDirectory = applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         galleryFolder = File(storageDirectory, applicationContext.getString(R.string.app_name))
         if (!galleryFolder.exists()) {
@@ -49,9 +47,9 @@ class FaceApp : Application() {
             get() = AmazonServiceClient
         private var AmazonServiceClient: AmazonRekognition? = null
 
-        val faceServiceClient: FaceApi?
-            get() = FaceServiceClient
-        private var FaceServiceClient: FaceApi? = null
+        val faceApi by lazy {
+            FaceApi.create()
+        }
 
 
         var storageDirectory: File? = null
