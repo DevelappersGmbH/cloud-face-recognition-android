@@ -1,9 +1,6 @@
 package de.develappers.facerecognition.serviceAI
 
-import com.microsoft.projectoxford.face.contract.Candidate
-import com.microsoft.projectoxford.face.contract.CreatePersonResult
-import de.develappers.facerecognition.database.model.RecognisedCandidate
-import de.develappers.facerecognition.database.model.Visitor
+import de.develappers.facerecognition.database.model.entities.Visitor
 
 interface RecognitionService {
     var isActive: Boolean

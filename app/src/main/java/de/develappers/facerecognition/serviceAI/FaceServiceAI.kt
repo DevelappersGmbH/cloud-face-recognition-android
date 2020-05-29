@@ -1,22 +1,16 @@
 package de.develappers.facerecognition.serviceAI
 
-import android.R.attr.bitmap
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import de.develappers.facerecognition.*
-import de.develappers.facerecognition.database.model.Visitor
+import de.develappers.facerecognition.database.model.entities.Visitor
 import de.develappers.facerecognition.retrofit.FaceApi
 import de.develappers.facerecognition.serviceAI.faceServiceAI.model.*
-import io.reactivex.disposables.Disposable
+import de.develappers.facerecognition.utils.ImageHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
 import java.io.Serializable
-import java.nio.ByteBuffer
 
 
 class FaceServiceAI(

@@ -2,7 +2,6 @@ package de.develappers.facerecognition.adapter
 
 import android.content.Context
 import android.net.Uri
-import android.provider.Settings.Global.getString
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +13,7 @@ import de.develappers.facerecognition.FaceApp
 import de.develappers.facerecognition.R
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.listeners.OnVisitorItemClickedListener
-import de.develappers.facerecognition.serviceAI.ImageHelper
+import de.develappers.facerecognition.utils.ImageHelper
 import kotlinx.android.synthetic.main.item_visitor.view.*
 
 

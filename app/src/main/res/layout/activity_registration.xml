@@ -5,7 +5,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".RegistrationActivity">
+        tools:context=".activities.RegistrationActivity">
 
     <ProgressBar
             android:id="@+id/progressBar"
@@ -93,7 +93,7 @@
                   app:layout_constraintHorizontal_bias="0.5"
                   app:layout_constraintEnd_toEndOf="parent">
 
-        <de.develappers.facerecognition.view.AutoFitTextureView
+        <de.develappers.facerecognition.utils.signatureView.AutoFitTextureView
                 android:id="@+id/cameraSurface"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -112,7 +112,7 @@
                           android:layout_alignParentLeft="true"
                           android:layout_toLeftOf="@id/btnOk"
                           android:layout_toStartOf="@id/btnOk">
-                <de.develappers.facerecognition.view.SignatureView
+                <de.develappers.facerecognition.utils.signatureView.SignatureView
                         android:id="@+id/signatureView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>

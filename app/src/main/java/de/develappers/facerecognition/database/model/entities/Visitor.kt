@@ -1,10 +1,10 @@
-package de.develappers.facerecognition.database.model
+package de.develappers.facerecognition.database.model.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import de.develappers.facerecognition.database.model.Company
+import de.develappers.facerecognition.database.model.entities.Company
 import java.io.Serializable
 
 @Entity

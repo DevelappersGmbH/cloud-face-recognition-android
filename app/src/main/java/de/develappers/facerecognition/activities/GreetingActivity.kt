@@ -1,13 +1,14 @@
-package de.develappers.facerecognition
+package de.develappers.facerecognition.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
+import de.develappers.facerecognition.*
 import de.develappers.facerecognition.database.FRdb
 import de.develappers.facerecognition.database.dao.VisitorDao
-import de.develappers.facerecognition.database.model.LogEntry
+import de.develappers.facerecognition.database.model.entities.LogEntry
 import de.develappers.facerecognition.database.model.RecognisedCandidate
-import de.develappers.facerecognition.database.model.Visitor
+import de.develappers.facerecognition.database.model.entities.Visitor
 import de.develappers.facerecognition.serviceAI.RecognitionService
 import de.develappers.facerecognition.serviceAI.ServiceFactory
 import kotlinx.android.synthetic.main.activity_greeting.*
@@ -26,7 +27,9 @@ class GreetingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_greeting)
 
         //AI services
-        serviceProviders = ServiceFactory.createAIServices(this, FaceApp.values)
+        serviceProviders = ServiceFactory.createAIServices(this,
+            FaceApp.values
+        )
 
         if (intent.hasExtra(VISITOR_EXTRA)) {
             val visitor = intent.getSerializableExtra(VISITOR_EXTRA) as Visitor

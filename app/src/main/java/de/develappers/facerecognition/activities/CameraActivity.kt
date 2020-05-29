@@ -1,4 +1,4 @@
-package de.develappers.facerecognition
+package de.develappers.facerecognition.activities
 
 import android.Manifest
 import android.content.Context
@@ -17,9 +17,12 @@ import android.view.TextureView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import de.develappers.facerecognition.FaceApp
+import de.develappers.facerecognition.REQUEST_CAMERA_PERMISSION
+import de.develappers.facerecognition.REQUEST_STORAGE_PERMISSION
 import de.develappers.facerecognition.utils.CompareSizesByArea
 import de.develappers.facerecognition.utils.ImageSaver
-import de.develappers.facerecognition.view.AutoFitTextureView
+import de.develappers.facerecognition.utils.signatureView.AutoFitTextureView
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -30,7 +33,8 @@ open class CameraActivity: AppCompatActivity(), ActivityCompat.OnRequestPermissi
 
 
     protected lateinit var textureView: AutoFitTextureView
-    protected val galleryFolder: File = FaceApp.galleryFolder
+    protected val galleryFolder: File =
+        FaceApp.galleryFolder
     private lateinit var file: File
     private lateinit var cameraId: String
     private var captureSession: CameraCaptureSession? = null
@@ -40,7 +44,8 @@ open class CameraActivity: AppCompatActivity(), ActivityCompat.OnRequestPermissi
     private var backgroundHandler: Handler? = null
     private lateinit var previewRequestBuilder: CaptureRequest.Builder
     private lateinit var previewRequest: CaptureRequest
-    private var state = STATE_PREVIEW
+    private var state =
+        STATE_PREVIEW
     private var imageReader: ImageReader? = null
     private var flashSupported = false
     private var sensorOrientation = 0
@@ -84,7 +89,8 @@ open class CameraActivity: AppCompatActivity(), ActivityCompat.OnRequestPermissi
                     CameraMetadata.CONTROL_AF_TRIGGER_START
                 )
                 // Tell #captureCallback to wait for the lock.
-                state = STATE_WAITING_LOCK
+                state =
+                    STATE_WAITING_LOCK
                 captureSession?.capture(
                     previewRequestBuilder.build(), captureCallback,
                     backgroundHandler
@@ -152,7 +158,8 @@ open class CameraActivity: AppCompatActivity(), ActivityCompat.OnRequestPermissi
                     backgroundHandler
                 )
                 // After this, the camera will go back to the normal state of preview.
-                state = STATE_PREVIEW
+                state =
+                    STATE_PREVIEW
                 captureSession?.setRepeatingRequest(
                     previewRequest, captureCallback,
                     backgroundHandler
@@ -216,12 +223,13 @@ open class CameraActivity: AppCompatActivity(), ActivityCompat.OnRequestPermissi
                     // Danger, W.R.! Attempting to use too large a preview size could  exceed the camera
                     // bus' bandwidth limitation, resulting in gorgeous previews but the storage of
                     // garbage capture data.
-                    previewSize = chooseOptimalSize(
-                        map.getOutputSizes(SurfaceTexture::class.java),
-                        rotatedPreviewWidth, rotatedPreviewHeight,
-                        maxPreviewWidth, maxPreviewHeight,
-                        largest
-                    )
+                    previewSize =
+                        chooseOptimalSize(
+                            map.getOutputSizes(SurfaceTexture::class.java),
+                            rotatedPreviewWidth, rotatedPreviewHeight,
+                            maxPreviewWidth, maxPreviewHeight,
+                            largest
+                        )
 
                     // We fit the aspect ratio of TextureView to the size of preview we picked.
                     if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -489,14 +497,16 @@ open class CameraActivity: AppCompatActivity(), ActivityCompat.OnRequestPermissi
                             aeState == CaptureResult.CONTROL_AE_STATE_PRECAPTURE ||
                             aeState == CaptureRequest.CONTROL_AE_STATE_FLASH_REQUIRED
                         ) {
-                            state = STATE_WAITING_NON_PRECAPTURE
+                            state =
+                                STATE_WAITING_NON_PRECAPTURE
                         }
                     }
                     STATE_WAITING_NON_PRECAPTURE -> {
                         // CONTROL_AE_STATE can be null on some devices
                         val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
                         if (aeState == null || aeState != CaptureResult.CONTROL_AE_STATE_PRECAPTURE) {
-                            state = STATE_PICTURE_TAKEN
+                            state =
+                                STATE_PICTURE_TAKEN
                             captureStillPicture()
                         }
                     }
@@ -533,7 +543,8 @@ open class CameraActivity: AppCompatActivity(), ActivityCompat.OnRequestPermissi
                 // CONTROL_AE_STATE can be null on some devices
                 val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
                 if (aeState == null || aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED) {
-                    state = STATE_PICTURE_TAKEN
+                    state =
+                        STATE_PICTURE_TAKEN
                     captureStillPicture()
                 } else {
                     runPrecaptureSequence()
@@ -553,7 +564,8 @@ open class CameraActivity: AppCompatActivity(), ActivityCompat.OnRequestPermissi
                     CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START
                 )
                 // Tell #captureCallback to wait for the precapture sequence to be set.
-                state = STATE_WAITING_PRECAPTURE
+                state =
+                    STATE_WAITING_PRECAPTURE
                 captureSession?.capture(
                     previewRequestBuilder.build(), captureCallback,
                     backgroundHandler

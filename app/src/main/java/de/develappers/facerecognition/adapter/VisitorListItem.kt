@@ -1,7 +1,6 @@
 package de.develappers.facerecognition.adapter
 
-import de.develappers.facerecognition.database.model.Company
-import java.io.Serializable
+import de.develappers.facerecognition.database.model.entities.Company
 
 class VisitorListItem {
     var id: String? = null

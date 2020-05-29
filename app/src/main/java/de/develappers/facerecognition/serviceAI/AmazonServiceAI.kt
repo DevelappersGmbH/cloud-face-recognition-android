@@ -8,7 +8,8 @@ import com.amazonaws.AmazonClientException
 import com.amazonaws.services.rekognition.model.*
 import com.amazonaws.util.IOUtils
 import de.develappers.facerecognition.*
-import de.develappers.facerecognition.database.model.Visitor
+import de.develappers.facerecognition.database.model.entities.Visitor
+import de.develappers.facerecognition.utils.ImageHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream

@@ -1,4 +1,4 @@
-package de.develappers.facerecognition.view
+package de.develappers.facerecognition.utils.signatureView
 
 import android.os.Build
 import android.view.View

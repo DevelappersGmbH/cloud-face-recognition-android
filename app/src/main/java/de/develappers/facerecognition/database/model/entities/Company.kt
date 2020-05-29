@@ -1,4 +1,4 @@
-package de.develappers.facerecognition.database.model
+package de.develappers.facerecognition.database.model.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

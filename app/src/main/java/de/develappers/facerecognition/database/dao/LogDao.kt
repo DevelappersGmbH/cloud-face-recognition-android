@@ -1,11 +1,9 @@
 package de.develappers.facerecognition.database.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import de.develappers.facerecognition.database.model.LogEntry
-import de.develappers.facerecognition.database.model.Visitor
+import de.develappers.facerecognition.database.model.entities.LogEntry
 
 @Dao
 interface LogDao {
