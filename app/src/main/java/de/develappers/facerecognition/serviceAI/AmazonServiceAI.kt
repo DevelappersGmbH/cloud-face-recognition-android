@@ -53,6 +53,10 @@ class AmazonServiceAI(
         //TODO: add faceIds to amazonIds in the database
     }
 
+    override suspend fun addNewImage(personGroupId: String, imgUri: String, visitor: Visitor) {
+        addNewVisitorToDatabase(personGroupId, imgUri, visitor)
+    }
+
     override suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Any> {
         val imageInputStream: InputStream = convertBitmapToStream(imgUri)
         val faceSearchResult = amazonIdentifyVisitor(imageInputStream, CONFIDENCE_CANDIDATE.toFloat()) as SearchFacesByImageResult

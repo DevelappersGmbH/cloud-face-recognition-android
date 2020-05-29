@@ -27,6 +27,7 @@ class MicrosoftServiceAI(
     val personGroupId = VISITORS_GROUP_ID
     val personGroupName = VISITORS_GROUP_NAME
     val personGroupDescription = VISITORS_GROUP_DESCRIPTION
+    val userData = "user data"
 
     override suspend fun train() {
         microsoftTrainPersonGroup(personGroupId)
@@ -42,17 +43,19 @@ class MicrosoftServiceAI(
     }
 
     override suspend fun addNewVisitorToDatabase(personGroupId: String, imgUri: String, visitor: Visitor) {
-        val userData = "user data"
         //step 2
-        val createPersonResult = addPersonToGroup(personGroupId, imgUri)
+        val createPersonResult = addPersonToGroup(personGroupId)
+        addNewImage(personGroupId, imgUri, visitor)
+        setServiceId(visitor, createPersonResult.personId.toString())
+    }
+
+    override suspend fun addNewImage(personGroupId: String, imgUri: String, visitor: Visitor) {
         Log.d("Retrieving", imgUri)
         var imageUri = Uri.parse(imgUri)
         val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(imageUri, context)
         var faces = arrayOf<Face>()
-        if (imgBitmap != null) {
-            //step 3
-            faces = detectFacesInImage(imgBitmap)
-        }
+        imgBitmap?.let { //step 3
+            faces = detectFacesInImage(it) }
         faces.forEach {
             val stream = ByteArrayOutputStream()
             imgBitmap?.compress(Bitmap.CompressFormat.JPEG, 100, stream)
@@ -60,14 +63,12 @@ class MicrosoftServiceAI(
             //step 4 (given there is only one person/face in the captured photo and we can add all detected faces to this person)
             microsoftAddFaceToPerson(
                 personGroupId,
-                createPersonResult.personId,
+                UUID.fromString(visitor.microsoftId),
                 imageInputStream,
                 userData,
                 it.faceRectangle
             )
         }
-
-        visitor.microsoftId = createPersonResult.personId.toString()
     }
 
     override suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Any> {
@@ -89,7 +90,7 @@ class MicrosoftServiceAI(
     }
 
 
-    suspend fun addPersonToGroup(personGroupId: String, imgUri: String): CreatePersonResult {
+    suspend fun addPersonToGroup(personGroupId: String): CreatePersonResult {
         return microsoftAddPersonToGroup(personGroupId, personGroupName, personGroupDescription)
     }
 

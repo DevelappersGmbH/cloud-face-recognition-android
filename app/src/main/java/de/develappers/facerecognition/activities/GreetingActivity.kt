@@ -26,18 +26,23 @@ class GreetingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_greeting)
 
+        val imgPath: String? = intent.extras?.getString(NEW_IMAGE_PATH_EXTRA)
+
         //AI services
         serviceProviders = ServiceFactory.createAIServices(this,
             FaceApp.values
         )
+
+        lifecycleScope.launch {
+            visitorDao = FRdb.getDatabase(application, this).visitorDao()
+        }
 
         if (intent.hasExtra(VISITOR_EXTRA)) {
             val visitor = intent.getSerializableExtra(VISITOR_EXTRA) as Visitor
             tvGreeting.text = getString(R.string.greeting, visitor.lastName)
 
             lifecycleScope.launch {
-                visitorDao = FRdb.getDatabase(application, this).visitorDao()
-                //register the visitor within AI services and sets visitor service ID in the datasbe
+                //register the visitor within AI services and set visitor service ID in the database
                 registerVisitorInAIServices(visitor)
                 //save new visitor in database, get visitor id
                 val newVisitorId = visitorDao.insert(visitor)
@@ -53,7 +58,18 @@ class GreetingActivity : AppCompatActivity() {
         if (intent.hasExtra(RECOGNISED_CANDIDATE_EXTRA)) {
             val recognisedCandidate = intent.getSerializableExtra(RECOGNISED_CANDIDATE_EXTRA) as RecognisedCandidate
             tvGreeting.text = getString(R.string.greeting, recognisedCandidate.visitor.lastName)
+
+            lifecycleScope.launch {
+                addNewPhotoToAIServices(imgPath, recognisedCandidate.visitor)
+            }
+            lifecycleScope.launch {
+                addNewPhotoPathToDatabase(imgPath, recognisedCandidate.visitor)
+
+            }
+
             registerRepeatingVisitor(recognisedCandidate)
+            println("Logged visit: $log")
+            //TODO: write to logbook file
         }
 
 
@@ -70,6 +86,22 @@ class GreetingActivity : AppCompatActivity() {
         log.serviceResults = candidate.serviceResults
         log.trueVisitorId = candidate.visitor.visitorId.toString()
 
+    }
+
+    suspend fun addNewPhotoToAIServices(imgPath: String?, visitor: Visitor) = withContext(Dispatchers.IO) {
+        // withContext waits for all children coroutines
+        serviceProviders.forEach {service ->
+            if (service.isActive) {
+                launch {
+                    imgPath?.let { service.addNewImage(VISITORS_GROUP_ID, it, visitor) }
+                }
+            }
+        }
+    }
+
+    suspend fun addNewPhotoPathToDatabase(imgPath: String?, visitor: Visitor) {
+       imgPath?.let { visitor.imgPaths.add(it) }
+        visitorDao.updateVisitor(visitor)
     }
 
     suspend fun registerVisitorInAIServices(visitor: Visitor) = withContext(Dispatchers.IO) {

@@ -51,7 +51,6 @@ class FaceApp : Application() {
             FaceApi.create()
         }
 
-
         var storageDirectory: File? = null
         lateinit var values: Map<Int, Boolean>
         lateinit var galleryFolder: File
