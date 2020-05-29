@@ -8,6 +8,7 @@ import com.amazonaws.services.rekognition.AmazonRekognition
 import com.amazonaws.services.rekognition.AmazonRekognitionClient
 import com.microsoft.projectoxford.face.FaceServiceClient
 import com.microsoft.projectoxford.face.FaceServiceRestClient
+import de.develappers.facerecognition.retrofit.FaceApi
 import java.io.File
 
 
@@ -19,6 +20,8 @@ class FaceApp : Application() {
 
         AmazonServiceClient =
             AmazonRekognitionClient(BasicAWSCredentials(BuildConfig.AWS_ACCESS_KEY_ID, BuildConfig.AWS_SECRET_ACCESS_KEY))
+
+        FaceServiceClient  = FaceApi.create()
 
         storageDirectory = applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         galleryFolder = File(storageDirectory, applicationContext.getString(R.string.app_name))
@@ -45,6 +48,10 @@ class FaceApp : Application() {
         val amazonServiceClient: AmazonRekognition?
             get() = AmazonServiceClient
         private var AmazonServiceClient: AmazonRekognition? = null
+
+        val faceServiceClient: FaceApi?
+            get() = FaceServiceClient
+        private var FaceServiceClient: FaceApi? = null
 
 
         var storageDirectory: File? = null

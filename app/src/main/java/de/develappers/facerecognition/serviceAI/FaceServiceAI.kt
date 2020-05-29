@@ -5,7 +5,6 @@ import android.net.Uri
 import android.util.Log
 import de.develappers.facerecognition.*
 import de.develappers.facerecognition.database.model.entities.Visitor
-import de.develappers.facerecognition.retrofit.FaceApi
 import de.develappers.facerecognition.serviceAI.faceServiceAI.model.*
 import de.develappers.facerecognition.utils.ImageHelper
 import kotlinx.coroutines.Dispatchers
@@ -18,16 +17,10 @@ class FaceServiceAI(
     override var provider: String,
     override var isActive: Boolean): RecognitionService {
 
-    val amazonServiceClient = FaceApp.amazonServiceClient
-    val personGroupId = VISITORS_GROUP_ID
-    val personGroupName = VISITORS_GROUP_NAME
-    val personGroupDescription = VISITORS_GROUP_DESCRIPTION
     val apiKey = BuildConfig.FACE_KEY
     val apiSecret = BuildConfig.FACE_SECRET
 
-    val faceApi by lazy {
-        FaceApi.create()
-    }
+    val faceApi= FaceApp.faceServiceClient
 
     override suspend fun train() {
         // does not need to be trained manually
@@ -73,7 +66,7 @@ class FaceServiceAI(
     suspend fun faceSetUserId(faceToken: String?, localPathId: String?) =
         withContext(Dispatchers.IO) {
             try {
-                 faceApi.setUserId(apiKey, apiSecret, faceToken, localPathId)
+                 faceApi?.setUserId(apiKey, apiSecret, faceToken, localPathId)
             } catch (e: Exception) {
                 Log.d("Face++ setuserid: ", e.toString())
             }
@@ -83,7 +76,7 @@ class FaceServiceAI(
         withContext(Dispatchers.IO) {
             var result : FaceSetCreateResponse? = null
             try {
-                result = faceApi.addFaceToFaceSet(apiKey, apiSecret, personGroupId, faceToken)
+                result = faceApi?.addFaceToFaceSet(apiKey, apiSecret, personGroupId, faceToken)
             } catch (e: Exception) {
                 Log.d("Face++ addfacetofs: ", e.toString())
             }
@@ -92,7 +85,7 @@ class FaceServiceAI(
     suspend fun faceSearch(imgBase64:String?, personGroupId: String?): Serializable? =
         withContext(Dispatchers.IO) {
             try {
-                faceApi.search(apiKey, apiSecret, imgBase64, personGroupId, RETURN_RESULT_COUNT)
+                faceApi?.search(apiKey, apiSecret, imgBase64, personGroupId, RETURN_RESULT_COUNT)
             } catch (e: Exception) {
                 Log.d("Face++ search: ", e.toString())
             }
@@ -101,7 +94,7 @@ class FaceServiceAI(
     suspend fun faceDetect(imgBase64: String?): Serializable? =
         withContext(Dispatchers.IO) {
             try {
-                val detectFacesResult = faceApi.detect(apiKey, apiSecret, imgBase64)
+                val detectFacesResult = faceApi?.detect(apiKey, apiSecret, imgBase64)
                 detectFacesResult
             } catch (e: Exception) {
                 Log.d("Face++ detect: ", e.toString())
@@ -111,8 +104,8 @@ class FaceServiceAI(
     suspend fun faceCreateFaceSet(personGroupId: String?): Serializable? =
         withContext(Dispatchers.IO) {
             try {
-                val response = faceApi.createFaceSet(apiKey, apiSecret, personGroupId)
-                Log.d("Face++", response.faceset_token.toString())
+                val response = faceApi?.createFaceSet(apiKey, apiSecret, personGroupId)
+                Log.d("Face++", response?.faceset_token.toString())
             } catch (e: Exception) {
                 Log.d("Face++ create fs: ", e.toString())
             }
@@ -123,9 +116,9 @@ class FaceServiceAI(
     suspend fun faceDeleteFaceSet(personGroupId: String?) =
         withContext(Dispatchers.IO) {
             try {
-                faceApi.removeFaceTokensFromSet(apiKey, apiSecret, personGroupId, REMOVE_ALL_TOKENS)
-                val response = faceApi.deleteFaceSet(apiKey, apiSecret, personGroupId)
-                Log.d("Face++", response.faceset_token.toString())
+                faceApi?.removeFaceTokensFromSet(apiKey, apiSecret, personGroupId, REMOVE_ALL_TOKENS)
+                val response = faceApi?.deleteFaceSet(apiKey, apiSecret, personGroupId)
+                Log.d("Face++", response?.faceset_token.toString())
             } catch (e: Exception) {
                 Log.d("Face++ delete: ", e.toString())
             }
