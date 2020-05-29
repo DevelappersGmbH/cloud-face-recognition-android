@@ -1,4 +1,4 @@
-package de.develappers.facerecognition.view
+package de.develappers.facerecognition.utils.signatureView
 /*
  * Copyright 2017 The Android Open Source Project
  *

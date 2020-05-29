@@ -15,10 +15,10 @@ const val VISITOR_FIRST_TIME: String = "extra_first_time_visitor"
 const val RECOGNISED_CANDIDATE_EXTRA: String = "extra_recognised_candidate"
 const val CANDIDATES_EXTRA: String = "extra_candidates"
 
-const val MICROSOFT: Boolean = false
-const val AMAZON: Boolean = false
+const val MICROSOFT: Boolean = true
+const val AMAZON: Boolean = true
 const val KAIROS: Boolean = false
-const val FACE: Boolean = false
+const val FACE: Boolean = true
 const val LUXAND: Boolean = false
 
 const val TYPE_PHOTO: String = "image_type_photo"

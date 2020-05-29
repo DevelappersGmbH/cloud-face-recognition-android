@@ -1,4 +1,4 @@
-package de.develappers.facerecognition
+package de.develappers.facerecognition.activities
 
 import android.content.DialogInterface
 import android.content.Intent
@@ -12,12 +12,14 @@ import android.view.View.VISIBLE
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
+import de.develappers.facerecognition.R
+import de.develappers.facerecognition.VISITOR_EXTRA
 import de.develappers.facerecognition.database.FRdb
 import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.listeners.OnSignedCaptureListener
-import de.develappers.facerecognition.database.model.Visitor
-import de.develappers.facerecognition.database.model.Company
-import de.develappers.facerecognition.view.SignatureView
+import de.develappers.facerecognition.database.model.entities.Visitor
+import de.develappers.facerecognition.database.model.entities.Company
+import de.develappers.facerecognition.utils.signatureView.SignatureView
 import kotlinx.android.synthetic.main.activity_registration.*
 import kotlinx.android.synthetic.main.activity_registration.progressBar
 import kotlinx.coroutines.launch
@@ -31,7 +33,10 @@ import java.util.*
 class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, OnSignedCaptureListener {
 
     private var signed: Boolean = false
-    private var visitor = Visitor(null, null, Company(null), false)
+    private var visitor = Visitor(
+        null, null,
+        Company(null), false
+    )
     private lateinit var currentPhotoPath: String
     private lateinit var visitorDao: VisitorDao
 
@@ -192,7 +197,9 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
 
         // set message of alert dialog
         when (field){
-            R.string.privacy_policy -> dialogBuilder.setMessage(getString(R.string.pp_required))
+            R.string.privacy_policy -> dialogBuilder.setMessage(getString(
+                R.string.pp_required
+            ))
             else -> dialogBuilder.setMessage(getString(R.string.field_required, getString(field)))
         }
             // if the dialog is cancelable

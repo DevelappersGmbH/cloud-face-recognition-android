@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import de.develappers.facerecognition.database.model.Company
+import de.develappers.facerecognition.database.model.entities.Company
 
 @Dao
 interface CompanyDao {

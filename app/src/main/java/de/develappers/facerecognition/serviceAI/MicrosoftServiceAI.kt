@@ -7,7 +7,8 @@ import android.util.Log
 import com.microsoft.projectoxford.face.contract.*
 import com.microsoft.projectoxford.face.rest.ClientException
 import de.develappers.facerecognition.*
-import de.develappers.facerecognition.database.model.Visitor
+import de.develappers.facerecognition.database.model.entities.Visitor
+import de.develappers.facerecognition.utils.ImageHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream

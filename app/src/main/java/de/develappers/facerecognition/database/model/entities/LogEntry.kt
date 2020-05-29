@@ -1,8 +1,9 @@
-package de.develappers.facerecognition.database.model
+package de.develappers.facerecognition.database.model.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import de.develappers.facerecognition.database.model.ServiceResult
 
 @Entity
 data class LogEntry(

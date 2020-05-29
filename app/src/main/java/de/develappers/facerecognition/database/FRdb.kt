@@ -11,11 +11,12 @@ import de.develappers.facerecognition.FaceApp
 import de.develappers.facerecognition.database.dao.CompanyDao
 import de.develappers.facerecognition.database.dao.LogDao
 import de.develappers.facerecognition.database.dao.VisitorDao
-import de.develappers.facerecognition.database.model.Company
-import de.develappers.facerecognition.database.model.LogEntry
-import de.develappers.facerecognition.database.model.Visitor
-import de.develappers.facerecognition.serviceAI.*
+import de.develappers.facerecognition.database.model.entities.Company
+import de.develappers.facerecognition.database.model.entities.LogEntry
+import de.develappers.facerecognition.database.model.entities.Visitor
 import de.develappers.facerecognition.VISITORS_GROUP_ID
+import de.develappers.facerecognition.utils.ImageHelper
+import de.develappers.facerecognition.serviceAI.ServiceFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient

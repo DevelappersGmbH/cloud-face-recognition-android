@@ -1,6 +1,5 @@
-package de.develappers.facerecognition.view
+package de.develappers.facerecognition.utils.signatureView
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.*

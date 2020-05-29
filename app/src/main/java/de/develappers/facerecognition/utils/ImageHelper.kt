@@ -1,4 +1,4 @@
-package de.develappers.facerecognition.serviceAI
+package de.develappers.facerecognition.utils
 
 import android.content.ContentResolver
 import android.content.Context
@@ -51,7 +51,11 @@ class ImageHelper() {
                 // Calculate shrink rate when loading the image into memory.
                 var maxSideLength = if (options.outWidth > options.outHeight) options.outWidth else options.outHeight
                 options.inSampleSize = 1
-                options.inSampleSize = calculateSampleSize(maxSideLength, IMAGE_MAX_SIDE_LENGTH)
+                options.inSampleSize =
+                    calculateSampleSize(
+                        maxSideLength,
+                        IMAGE_MAX_SIDE_LENGTH
+                    )
                 options.inJustDecodeBounds = false
                 imageInputStream?.close()
                 // Load the bitmap and resize it to the expected size length
@@ -68,7 +72,13 @@ class ImageHelper() {
                         false
                     )
                 }
-                rotateBitmap(bitmap!!, getImageRotationAngle(imageUri!!, context.contentResolver))
+                rotateBitmap(
+                    bitmap!!,
+                    getImageRotationAngle(
+                        imageUri!!,
+                        context.contentResolver
+                    )
+                )
             } catch (e: Exception) {
                 Log.d("Exception", "exception")
                 null

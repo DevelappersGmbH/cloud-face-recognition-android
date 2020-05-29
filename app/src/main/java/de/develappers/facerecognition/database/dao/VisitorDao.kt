@@ -2,8 +2,7 @@ package de.develappers.facerecognition.database.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import de.develappers.facerecognition.database.model.Visitor
-import java.util.*
+import de.develappers.facerecognition.database.model.entities.Visitor
 
 @Dao
 interface VisitorDao {

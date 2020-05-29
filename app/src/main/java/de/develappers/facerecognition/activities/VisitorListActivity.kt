@@ -1,4 +1,4 @@
-package de.develappers.facerecognition
+package de.develappers.facerecognition.activities
 
 import android.content.DialogInterface
 import android.content.Intent
@@ -9,6 +9,10 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
+import de.develappers.facerecognition.CANDIDATES_EXTRA
+import de.develappers.facerecognition.FaceApp
+import de.develappers.facerecognition.R
+import de.develappers.facerecognition.RECOGNISED_CANDIDATE_EXTRA
 import de.develappers.facerecognition.adapter.VisitorListAdapter
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.listeners.OnVisitorItemClickedListener
@@ -25,7 +29,7 @@ class VisitorListActivity : AppCompatActivity(), OnVisitorItemClickedListener {
 
         val recognisedCandidates = intent.extras?.get(CANDIDATES_EXTRA) as List<RecognisedCandidate>
 
-        FaceApp.values.keys.forEach{key ->
+        FaceApp.values.keys.forEach{ key ->
             getString(key).also {title ->
                 val textView = TextView(this)
                 val responseView = TextView(this)

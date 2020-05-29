@@ -1,4 +1,4 @@
-package de.develappers.facerecognition
+package de.develappers.facerecognition.activities
 
 import android.content.Intent
 import android.hardware.camera2.CameraCaptureSession
@@ -9,17 +9,17 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View.VISIBLE
 import android.widget.ImageView
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import de.develappers.facerecognition.*
 import de.develappers.facerecognition.database.FRdb
-import de.develappers.facerecognition.database.VisitorViewModel
 import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.database.model.ServiceResult
-import de.develappers.facerecognition.database.model.Visitor
+import de.develappers.facerecognition.database.model.entities.Visitor
 import de.develappers.facerecognition.serviceAI.*
 import de.develappers.facerecognition.serviceAI.FaceServiceAI
+import de.develappers.facerecognition.utils.ImageHelper
+import de.develappers.facerecognition.serviceAI.ServiceFactory
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,7 +32,6 @@ import kotlin.system.measureTimeMillis
 class MainActivity : CameraActivity() {
 
     private lateinit var fromCameraPath: String
-    private lateinit var visitorViewModel: VisitorViewModel
     @PublishedApi
     internal lateinit var visitorDao: VisitorDao
     private lateinit var ivNewVisitor: ImageView
@@ -47,7 +46,9 @@ class MainActivity : CameraActivity() {
         ivNewVisitor = findViewById(R.id.ivNewVisitor)
 
         //AI services
-        serviceProviders = ServiceFactory.createAIServices(this, FaceApp.values)
+        serviceProviders = ServiceFactory.createAIServices(this,
+            FaceApp.values
+        )
 
 
         lifecycleScope.launch {
@@ -55,13 +56,6 @@ class MainActivity : CameraActivity() {
             //fake call to database to trigger population on first time launch
             val visitor = visitorDao.findByName("efe", "gfk")
         }
-        visitorViewModel = ViewModelProvider(this).get(VisitorViewModel::class.java)
-        // debugging the database population
-        visitorViewModel.allVisitors.observe(this, Observer { visitors ->
-            if (visitors.isNotEmpty()) {
-                Log.d("New visitor in db : ", visitors.last().lastName!!)
-            }
-        })
 
         btnNo.setOnClickListener {
             setProgressBar()
@@ -94,7 +88,6 @@ class MainActivity : CameraActivity() {
                 lifecycleScope.launch {
                     sendPhotoToServicesAndEvaluate(fromCameraPath)
                     mergeCandidates()
-                    //findSingleMatchOrSuggestList()
                 }
             }
         }
@@ -197,21 +190,6 @@ class MainActivity : CameraActivity() {
         }
         //otherwise show a list of options
         navigateToVisitorList(mergedVisitors)
-    }
-
-    fun findSingleMatchOrSuggestList() {
-        // filter all candidates where all services returned high confidence
-        val sureMatches = possibleVisitors.filter { candidate ->
-            (candidate.serviceResults.all { it.confidence > CONFIDENCE_MATCH })
-        }
-        // if only one sure match is found by all services, greet him
-        if (sureMatches.count() == 1) {
-            //return the only sure match
-            navigateToGreeting(sureMatches[0])
-            return
-        }
-        //otherwise show a list of options
-        navigateToVisitorList(possibleVisitors)
     }
 
 
