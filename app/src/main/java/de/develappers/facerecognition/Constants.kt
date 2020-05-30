@@ -4,6 +4,8 @@ import android.Manifest
 import android.hardware.camera2.CameraCharacteristics
 
 const val FACE_URL: String = "https://api-us.faceplusplus.com/facepp/v3/"
+const val KAIROS_URL: String = "https://api.kairos.com/"
+//TODO: https://stackoverflow.com/questions/32605711/adding-header-to-all-request-with-retrofit-2
 
 const val VISITORS_GROUP_ID: String = "1"
 const val VISITORS_GROUP_DESCRIPTION: String = "all visitors"
@@ -16,10 +18,10 @@ const val RECOGNISED_CANDIDATE_EXTRA: String = "extra_recognised_candidate"
 const val NEW_IMAGE_PATH_EXTRA: String = "extra_new_image"
 const val CANDIDATES_EXTRA: String = "extra_candidates"
 
-const val MICROSOFT: Boolean = true
-const val AMAZON: Boolean = true
-const val KAIROS: Boolean = false
-const val FACE: Boolean = true
+const val MICROSOFT: Boolean = false
+const val AMAZON: Boolean = false
+const val KAIROS: Boolean = true
+const val FACE: Boolean = false
 const val LUXAND: Boolean = false
 
 const val TYPE_PHOTO: String = "image_type_photo"
