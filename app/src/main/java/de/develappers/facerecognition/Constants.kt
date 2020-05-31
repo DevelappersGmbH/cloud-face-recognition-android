@@ -16,8 +16,8 @@ const val RECOGNISED_CANDIDATE_EXTRA: String = "extra_recognised_candidate"
 const val NEW_IMAGE_PATH_EXTRA: String = "extra_new_image"
 const val CANDIDATES_EXTRA: String = "extra_candidates"
 
-const val MICROSOFT: Boolean = true
-const val AMAZON: Boolean = true
+const val MICROSOFT: Boolean = false
+const val AMAZON: Boolean = false
 const val KAIROS: Boolean = false
 const val FACE: Boolean = true
 const val LUXAND: Boolean = false
