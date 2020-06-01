@@ -31,6 +31,9 @@ interface VisitorDao {
     @Query("SELECT * FROM visitor WHERE img_path LIKE '%' || :id || '%' ")
     suspend fun findByFaceId(id: String): Visitor
 
+    @Query("SELECT * FROM visitor WHERE img_path LIKE '%' || :id || '%' ")
+    suspend fun findByKairosId(id: String): Visitor
+
     @Insert
     suspend fun insertAll(vararg visitors: Visitor)
 
