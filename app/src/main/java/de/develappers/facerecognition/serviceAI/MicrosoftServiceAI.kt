@@ -45,8 +45,8 @@ class MicrosoftServiceAI(
     override suspend fun addNewVisitorToDatabase(personGroupId: String, imgUri: String, visitor: Visitor) {
         //step 2
         val createPersonResult = addPersonToGroup(personGroupId)
-        addNewImage(personGroupId, imgUri, visitor)
         setServiceId(visitor, createPersonResult.personId.toString())
+        addNewImage(personGroupId, imgUri, visitor)
     }
 
     override suspend fun addNewImage(personGroupId: String, imgUri: String, visitor: Visitor) {
