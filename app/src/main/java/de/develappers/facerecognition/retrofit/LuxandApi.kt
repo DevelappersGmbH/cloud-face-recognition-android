@@ -11,6 +11,7 @@ import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.AddFaceToP
 import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.CreatePersonResponse
 import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.LuxandFace
 import io.reactivex.Observable
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -42,17 +43,19 @@ interface LuxandApi {
 
     @Headers ("token: ${BuildConfig.LUXAND_KEY}")
     @FormUrlEncoded
+    @Multipart
     @POST("/subject/{id}")
     suspend fun addFaceToPerson(
-        @Path("id") luxandId: String?,
-        @Field("photo") photoFile: String?
+        @Path("id") luxandId: Int?,
+        @Field("photo") photoFile: MultipartBody.Part
     ): AddFaceToPersonResponse
 
     @Headers ("token: ${BuildConfig.LUXAND_KEY}")
     @FormUrlEncoded
+    @Multipart
     @POST("photo/search")
     suspend fun search(
-        @Field("photo") photoFile: String?
+        @Field("photo") photoFile: MultipartBody.Part
     ): List<LuxandFace>
 
 
