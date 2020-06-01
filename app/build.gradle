@@ -87,3 +87,7 @@ dependencies {
     implementation 'com.amazonaws:aws-android-sdk-rekognition:2.16.10'
 
 }
+
+repositories {
+    jcenter()
+}
