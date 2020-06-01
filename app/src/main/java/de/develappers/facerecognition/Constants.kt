@@ -4,6 +4,7 @@ import android.Manifest
 import android.hardware.camera2.CameraCharacteristics
 
 const val FACE_URL: String = "https://api-us.faceplusplus.com/facepp/v3/"
+const val LUXAND_URL: String = "https://api.luxand.cloud/"
 
 const val VISITORS_GROUP_ID: String = "1"
 const val VISITORS_GROUP_DESCRIPTION: String = "all visitors"

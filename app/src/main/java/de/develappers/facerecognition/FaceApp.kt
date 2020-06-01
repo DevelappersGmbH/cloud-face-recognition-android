@@ -9,6 +9,7 @@ import com.amazonaws.services.rekognition.AmazonRekognitionClient
 import com.microsoft.projectoxford.face.FaceServiceClient
 import com.microsoft.projectoxford.face.FaceServiceRestClient
 import de.develappers.facerecognition.retrofit.FaceApi
+import de.develappers.facerecognition.retrofit.LuxandApi
 import java.io.File
 
 
@@ -49,6 +50,9 @@ class FaceApp : Application() {
 
         val faceApi by lazy {
             FaceApi.create()
+        }
+        val luxandApi by lazy {
+            LuxandApi.create()
         }
 
         var storageDirectory: File? = null
