@@ -46,7 +46,8 @@ class MainActivity : CameraActivity() {
         ivNewVisitor = findViewById(R.id.ivNewVisitor)
 
         //AI services
-        serviceProviders = ServiceFactory.createAIServices(this,
+        serviceProviders = ServiceFactory.createAIServices(
+            this,
             FaceApp.values
         )
 
@@ -151,16 +152,18 @@ class MainActivity : CameraActivity() {
         val identificationResponseTime = measureTimeMillis {
             candidates = service.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
         }
-        // merge possible visitors from all services
+        // unite possible visitors from all services
         candidates.forEach { candidate ->
             val localIdPath = service.defineLocalIdPath(candidate)
             val newCandidate = RecognisedCandidate().apply {
                 this.visitor = findVisitor(localIdPath, service)
-                this.serviceResults.add(ServiceResult(
-                    service.provider,
-                    identificationResponseTime,
-                    service.defineConfidenceLevel(candidate)
-                ))
+                this.serviceResults.add(
+                    ServiceResult(
+                        service.provider,
+                        identificationResponseTime,
+                        service.defineConfidenceLevel(candidate)
+                    )
+                )
             }
             possibleVisitors.add(newCandidate)
         }
@@ -169,10 +172,23 @@ class MainActivity : CameraActivity() {
     fun mergeCandidates() {
         val mergedVisitors = mutableListOf<RecognisedCandidate>()
         possibleVisitors.forEach { candidate ->
-            if (mergedVisitors.find { candidate.visitor == it.visitor } == null){
+            //if there is no such candidate yet, add him
+            if (mergedVisitors.find { candidate.visitor == it.visitor } == null) {
                 val mergedCandidate = RecognisedCandidate().apply { this.visitor = candidate.visitor }
+                //filter all candidates with current visitor id and merge service results from all services
                 possibleVisitors.filter { candidate.visitor == it.visitor }.forEach {
-                    mergedCandidate.serviceResults.add(it.serviceResults.last())
+                    //if there is already result from this service for the same visitor, choose the highest rate result
+                    val exisitingServiceResult =
+                        mergedCandidate.serviceResults.find { result -> result.provider == it.serviceResults.last().provider }
+                    if (exisitingServiceResult != null) {
+                        if (exisitingServiceResult.confidence < it.serviceResults.last().confidence) {
+                            mergedCandidate.serviceResults.remove(exisitingServiceResult)
+                            mergedCandidate.serviceResults.add(it.serviceResults.last())
+                        }
+                    } else {
+                        mergedCandidate.serviceResults.add(it.serviceResults.last())
+                    }
+
                 }
                 mergedVisitors.add(mergedCandidate)
             }
