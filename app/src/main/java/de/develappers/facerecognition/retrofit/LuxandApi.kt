@@ -1,0 +1,60 @@
+package de.develappers.facerecognition.retrofit
+
+import de.develappers.facerecognition.BuildConfig
+import de.develappers.facerecognition.FACE_URL
+import de.develappers.facerecognition.LUXAND_URL
+import de.develappers.facerecognition.serviceAI.faceServiceAI.model.DetectResponse
+import de.develappers.facerecognition.serviceAI.faceServiceAI.model.FaceSetCreateResponse
+import de.develappers.facerecognition.serviceAI.faceServiceAI.model.FaceSetDeleteResponse
+import de.develappers.facerecognition.serviceAI.faceServiceAI.model.SearchResponse
+import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.AddFaceToPersonResponse
+import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.CreatePersonResponse
+import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.LuxandFace
+import io.reactivex.Observable
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.http.*
+
+interface LuxandApi {
+
+    companion object {
+        fun create(): LuxandApi {
+
+            val retrofit = Retrofit.Builder()
+                .addConverterFactory(MoshiConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .baseUrl(LUXAND_URL)
+                .build()
+
+            return retrofit.create(LuxandApi::class.java)
+        }
+    }
+
+    @Headers ("token: ${BuildConfig.LUXAND_KEY}")
+    @FormUrlEncoded
+    @POST("/subject")
+    suspend fun createPerson(
+        @Field("name") personName: String?
+    ): CreatePersonResponse
+
+    @Headers ("token: ${BuildConfig.LUXAND_KEY}")
+    @FormUrlEncoded
+    @POST("/subject/{id}")
+    suspend fun addFaceToPerson(
+        @Path("id") luxandId: String?,
+        @Field("photo") photoFile: String?
+    ): AddFaceToPersonResponse
+
+    @Headers ("token: ${BuildConfig.LUXAND_KEY}")
+    @FormUrlEncoded
+    @POST("photo/search")
+    suspend fun search(
+        @Field("photo") photoFile: String?
+    ): List<LuxandFace>
+
+
+
+}
