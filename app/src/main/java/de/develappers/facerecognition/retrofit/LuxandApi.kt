@@ -42,21 +42,29 @@ interface LuxandApi {
     ): CreatePersonResponse
 
     @Headers ("token: ${BuildConfig.LUXAND_KEY}")
+    @Multipart
+    @POST("/subject/{id}")
+    suspend fun addFaceToPerson(
+        @Path("id") luxandId: Int?,
+        @Part photoFile: MultipartBody.Part
+    ): AddFaceToPersonResponse
+
+
+    @Headers ("token: ${BuildConfig.LUXAND_KEY}")
+    @Multipart
+    @POST("photo/search")
+    suspend fun search(
+        @Part photoFile: MultipartBody.Part
+    ): List<LuxandFace>
+
+    /*@Headers ("token: ${BuildConfig.LUXAND_KEY}")
     @FormUrlEncoded
     @Multipart
     @POST("/subject/{id}")
     suspend fun addFaceToPerson(
         @Path("id") luxandId: Int?,
         @Field("photo") photoFile: MultipartBody.Part
-    ): AddFaceToPersonResponse
-
-    @Headers ("token: ${BuildConfig.LUXAND_KEY}")
-    @FormUrlEncoded
-    @Multipart
-    @POST("photo/search")
-    suspend fun search(
-        @Field("photo") photoFile: MultipartBody.Part
-    ): List<LuxandFace>
+    ): AddFaceToPersonResponse*/
 
 
 
