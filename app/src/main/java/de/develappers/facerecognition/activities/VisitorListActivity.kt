@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.develappers.facerecognition.*
+import de.develappers.facerecognition.TTS.TTS
 import de.develappers.facerecognition.adapter.VisitorListAdapter
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.listeners.OnVisitorItemClickedListener
@@ -25,6 +26,8 @@ class VisitorListActivity : AppCompatActivity(), OnVisitorItemClickedListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_visitor_list)
+
+        speak(getString(R.string.not_recognised))
         showAlertDialog()
 
 
@@ -63,22 +66,15 @@ class VisitorListActivity : AppCompatActivity(), OnVisitorItemClickedListener {
 
 
         btnNoMatch.setOnClickListener {
-            intent = Intent(this@VisitorListActivity, RegistrationActivity::class.java)
-            startActivity(intent)
+            navigateToRegistartion()
         }
 
     }
 
 
     override fun onVisitorItemClicked(candidate: RecognisedCandidate){
-        intent = Intent(this@VisitorListActivity, GreetingActivity::class.java)
-        //if the visitor is not new, but was not recognised, add new photo to his entity in database in the next actiivty
-        intent.putExtra(RECOGNISED_CANDIDATE_EXTRA, candidate as Serializable);
-        intent.putExtra(NEW_IMAGE_PATH_EXTRA, imgPath)
-        startActivity(intent)
+        navigateToGreeting(candidate)
     }
-
-
 
     private fun showAlertDialog(){
         // build alert dialog
@@ -99,5 +95,23 @@ class VisitorListActivity : AppCompatActivity(), OnVisitorItemClickedListener {
         alert.setTitle(R.string.oops)
         // show alert dialog
         alert.show()
+    }
+
+    fun speak(text: String){
+        TTS().initialize(applicationContext, text)
+    }
+
+    fun navigateToRegistartion(){
+        intent = Intent(this@VisitorListActivity, RegistrationActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    fun navigateToGreeting(candidate: RecognisedCandidate){
+        intent = Intent(this@VisitorListActivity, GreetingActivity::class.java)
+        //if the visitor is not new, but was not recognised, add new photo to his entity in database in the next actiivty
+        intent.putExtra(RECOGNISED_CANDIDATE_EXTRA, candidate as Serializable);
+        intent.putExtra(NEW_IMAGE_PATH_EXTRA, imgPath)
+        startActivity(intent)
     }
 }

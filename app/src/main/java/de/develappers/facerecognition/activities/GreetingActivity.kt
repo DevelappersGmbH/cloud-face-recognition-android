@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
 import de.develappers.facerecognition.*
+import de.develappers.facerecognition.TTS.TTS
 import de.develappers.facerecognition.database.FRdb
 import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.database.model.entities.LogEntry
@@ -14,6 +15,7 @@ import de.develappers.facerecognition.database.model.entities.Visitor
 import de.develappers.facerecognition.serviceAI.RecognitionService
 import de.develappers.facerecognition.serviceAI.ServiceFactory
 import kotlinx.android.synthetic.main.activity_greeting.*
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.Serializable
@@ -47,7 +49,10 @@ class GreetingActivity : AppCompatActivity() {
 
             if (intent.hasExtra(VISITOR_EXTRA)) {
                 val visitor = intent.getSerializableExtra(VISITOR_EXTRA) as Visitor
-                tvGreeting.text = getString(R.string.greeting, visitor.lastName)
+                getString(R.string.greeting, visitor.lastName).apply {
+                    tvGreeting.text = this
+                    speak(this)
+                }
 
                 //register the visitor within AI services and set visitor service ID in the database
                 dbJob = lifecycleScope.launch {
@@ -66,7 +71,10 @@ class GreetingActivity : AppCompatActivity() {
 
             if (intent.hasExtra(RECOGNISED_CANDIDATE_EXTRA)) {
                 val recognisedCandidate = intent.getSerializableExtra(RECOGNISED_CANDIDATE_EXTRA) as RecognisedCandidate
-                tvGreeting.text = getString(R.string.greeting, recognisedCandidate.visitor.lastName)
+                getString(R.string.greeting, recognisedCandidate.visitor.lastName).apply {
+                    tvGreeting.text = this
+                    speak(this)
+                }
 
                 aiJob = lifecycleScope.launch {
                     addNewPhotoToAIServices(imgPath, recognisedCandidate.visitor)
@@ -138,4 +146,7 @@ class GreetingActivity : AppCompatActivity() {
         }
     }
 
+    fun speak(text: String){
+        TTS().initialize(applicationContext, text)
+    }
 }
