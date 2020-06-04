@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.*
 import android.hardware.camera2.*
 import android.os.Bundle
+import android.speech.tts.UtteranceProgressListener
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View.GONE
@@ -13,16 +14,20 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import de.develappers.facerecognition.R
+import de.develappers.facerecognition.TTS.TTS
 import de.develappers.facerecognition.VISITOR_EXTRA
 import de.develappers.facerecognition.database.FRdb
 import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.listeners.OnSignedCaptureListener
 import de.develappers.facerecognition.database.model.entities.Visitor
 import de.develappers.facerecognition.database.model.entities.Company
+import de.develappers.facerecognition.listeners.SpeechListener
 import de.develappers.facerecognition.utils.signatureView.SignatureView
 import kotlinx.android.synthetic.main.activity_registration.*
 import kotlinx.android.synthetic.main.activity_registration.progressBar
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -30,7 +35,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, OnSignedCaptureListener {
+class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, OnSignedCaptureListener, SpeechListener {
 
     private var signed: Boolean = false
     private var visitor = Visitor(
@@ -39,10 +44,14 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
     )
     private lateinit var currentPhotoPath: String
     private lateinit var visitorDao: VisitorDao
+    private lateinit var tts: TTS
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registration)
+
+        tts = setTTS(getString(R.string.have_to_register))
+        tts.setSpeechListener(this)
 
         lifecycleScope.launch {
             visitorDao = FRdb.getDatabase(application, this).visitorDao()
@@ -54,7 +63,7 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
         etLastName.addTextChangedListener(textWatcher)
         etCompany.addTextChangedListener(textWatcher)
 
-        checkBoxPrivacy.setOnCheckedChangeListener{ _, isChecked ->
+        checkBoxPrivacy.setOnCheckedChangeListener { _, isChecked ->
             visitor.privacyAccepted = isChecked
         }
 
@@ -63,9 +72,8 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
         btnOk.setOnClickListener {
             currentPhotoPath = createImageFile()
             saveVisitorData()
-            if (verifyForm()){
-                setProgressBar()
-                lockFocus()
+            if (verifyForm()) {
+                tts.speak(getString(R.string.take_picture), getString(R.string.take_picture))
             }
         }
 
@@ -84,12 +92,12 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
     }
 
     private fun saveSignatureImage(bitmap: Bitmap) {
-        var outputStream:FileOutputStream? = null
+        var outputStream: FileOutputStream? = null
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val imageFileName = "signature_" + timeStamp + "_"
         try {
 
-            val signatureFile = File(galleryFolder,"$imageFileName.jpg")
+            val signatureFile = File(galleryFolder, "$imageFileName.jpg")
             signatureFile.createNewFile()
             outputStream = FileOutputStream(signatureFile)
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
@@ -105,7 +113,7 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
         }
     }
 
-    private fun saveVisitorData(){
+    private fun saveVisitorData() {
         visitor.imgPaths.add(currentPhotoPath)
         visitor.firstName = etFirstName.text.toString();
         visitor.lastName = etLastName.text.toString();
@@ -165,48 +173,58 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
         outState.clear()
     }
 
-    private fun verifyForm(): Boolean{
-        if (visitor.firstName.isNullOrBlank()){
+    private fun verifyForm(): Boolean {
+        if (visitor.firstName.isNullOrBlank()) {
             showAlertDialog(R.string.first_name)
             return false
         }
-        if (visitor.lastName.isNullOrBlank()){
+        if (visitor.lastName.isNullOrBlank()) {
             showAlertDialog(R.string.last_name)
             return false
         }
-        if (visitor.company?.companyName.isNullOrBlank()){
+        if (visitor.company?.companyName.isNullOrBlank()) {
             showAlertDialog(R.string.company_name)
             return false
         }
 
-        if(!signed){
+        if (!signed) {
             showAlertDialog(R.string.signature)
             return false
         }
 
-        if (!visitor.privacyAccepted){
+        if (!visitor.privacyAccepted) {
             showAlertDialog(R.string.privacy_policy)
             return false
         }
 
         return true
     }
-    private fun showAlertDialog(field:Int){
+
+    private fun showAlertDialog(field: Int) {
         // build alert dialog
         val dialogBuilder = AlertDialog.Builder(this)
 
         // set message of alert dialog
-        when (field){
-            R.string.privacy_policy -> dialogBuilder.setMessage(getString(
-                R.string.pp_required
-            ))
-            else -> dialogBuilder.setMessage(getString(R.string.field_required, getString(field)))
+
+        when (field) {
+            R.string.privacy_policy -> {
+                getString(R.string.pp_required).apply {
+                    tts.speak(this)
+                    dialogBuilder.setMessage(this)
+                }
+            }
+            else -> {
+                getString(R.string.field_required, getString(field)).apply {
+                    tts.speak(this)
+                    dialogBuilder.setMessage(this)
+                }
+            }
         }
-            // if the dialog is cancelable
-            .setCancelable(false)
+        // if the dialog is cancelable
+        dialogBuilder.setCancelable(false)
             // positive button text and action
-            .setPositiveButton(R.string.ok, DialogInterface.OnClickListener {
-                    dialog, id -> dialog.cancel()
+            .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { dialog, id ->
+                dialog.cancel()
             })
 
         // create dialog box
@@ -215,18 +233,20 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
         alert.setTitle(getString(R.string.oops))
         // show alert dialog
         alert.show()
+
     }
 
 
-    private fun setProgressBar(){
+    private fun setProgressBar() {
         btnOk.isClickable = false
         progressBar.visibility = VISIBLE
     }
 
-    private fun navigateToGreeting(){
+    private fun navigateToGreeting() {
         intent = Intent(this@RegistrationActivity, GreetingActivity::class.java)
         intent.putExtra(VISITOR_EXTRA, visitor)
         startActivity(intent)
+        finish()
     }
 
     override fun onResume() {
@@ -248,6 +268,19 @@ class RegistrationActivity : CameraActivity(), SignatureView.OnSignedListener, O
         closeCamera()
         stopBackgroundThread()
         super.onPause()
+    }
+
+    fun setTTS(text: String): TTS {
+        val tts = TTS()
+        tts.initialize(applicationContext, text)
+        return tts
+    }
+
+    override fun onSpeechFinished() {
+        lifecycleScope.launch{
+            setProgressBar()
+            lockFocus()
+        }
     }
 
 

@@ -1,25 +1,28 @@
 package de.develappers.facerecognition.activities
 
+import android.R.attr.data
 import android.content.Intent
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.net.Uri
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.OnInitListener
 import android.util.Log
 import android.view.View.VISIBLE
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import de.develappers.facerecognition.*
+import de.develappers.facerecognition.TTS.TTS
 import de.develappers.facerecognition.database.FRdb
 import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.database.model.ServiceResult
 import de.develappers.facerecognition.database.model.entities.Visitor
 import de.develappers.facerecognition.serviceAI.*
-import de.develappers.facerecognition.serviceAI.FaceServiceAI
 import de.develappers.facerecognition.utils.ImageHelper
-import de.develappers.facerecognition.serviceAI.ServiceFactory
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,11 +30,14 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.Serializable
+import java.util.*
 import kotlin.system.measureTimeMillis
+
 
 class MainActivity : CameraActivity() {
 
     private lateinit var fromCameraPath: String
+    private lateinit var tts: TTS
     @PublishedApi
     internal lateinit var visitorDao: VisitorDao
     private lateinit var ivNewVisitor: ImageView
@@ -41,9 +47,12 @@ class MainActivity : CameraActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
         textureView = findViewById(R.id.textureView)
         ivNewVisitor = findViewById(R.id.ivNewVisitor)
+
+        speak(tvFirstTime.text.toString())
 
         //AI services
         serviceProviders = ServiceFactory.createAIServices(
@@ -228,6 +237,7 @@ class MainActivity : CameraActivity() {
     private fun navigateToRegistration() {
         intent = Intent(this@MainActivity, RegistrationActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
 
@@ -237,6 +247,7 @@ class MainActivity : CameraActivity() {
         intent.putExtra(RECOGNISED_CANDIDATE_EXTRA, match)
         intent.putExtra(NEW_IMAGE_PATH_EXTRA, fromCameraPath)
         startActivity(intent)
+        finish()
     }
 
     @PublishedApi
@@ -245,6 +256,11 @@ class MainActivity : CameraActivity() {
         intent.putExtra(CANDIDATES_EXTRA, possibleVisitors as Serializable)
         intent.putExtra(NEW_IMAGE_PATH_EXTRA, fromCameraPath)
         startActivity(intent)
+        finish()
+    }
+
+    fun speak(text: String){
+        TTS().initialize(applicationContext, text)
     }
 
 }
