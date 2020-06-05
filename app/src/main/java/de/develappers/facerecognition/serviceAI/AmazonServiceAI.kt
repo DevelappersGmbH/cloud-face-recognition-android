@@ -72,6 +72,7 @@ class AmazonServiceAI(
                 val image = Image().withBytes(imgBytes)
 
                 val searchFacesByImageRequest = SearchFacesByImageRequest()
+                    .withMaxFaces(RETURN_RESULT_COUNT)
                     .withCollectionId(personGroupId)
                     .withImage(image)
                     .withFaceMatchThreshold(confidenceThreshold)
