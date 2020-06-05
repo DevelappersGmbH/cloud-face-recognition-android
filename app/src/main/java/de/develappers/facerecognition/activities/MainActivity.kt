@@ -37,7 +37,7 @@ import kotlin.system.measureTimeMillis
 class MainActivity : CameraActivity() {
 
 
-    private var known = false
+    private var trueId = 777L
     private var runCount = 0
     private lateinit var fromCameraPath: String
     @PublishedApi
@@ -118,15 +118,15 @@ class MainActivity : CameraActivity() {
         //randomly decide between testing a person from the prepopulated database or a person from testbase
         if (nextBoolean()) {
             //only familiar
-            known = true
             runBlocking {
                 Toast.makeText(applicationContext, "Known person", LENGTH_LONG).show()
                 val randomVisitor = getRandomVisitor()
+                trueId = randomVisitor.visitorId
                 fromCameraPath = getAssetsPhotoUri(randomVisitor.lastName!!, resFolder)
             }
         } else {
-            known = false
             //unfamiliar faces
+            trueId = 777L
             Toast.makeText(applicationContext, "Unknown person", LENGTH_LONG).show()
             resFolder = "testbase"
             fromCameraPath = getAssetsPhotoUri(assets.list(resFolder)!!.random().toString(), resFolder)
@@ -150,22 +150,17 @@ class MainActivity : CameraActivity() {
                         it.visitor.visitorId,
                         it.visitor.firstName,
                         it.visitor.lastName,
-                        it.visitor.microsoftId,
-                        it.visitor.amazonId,
-                        it.visitor.luxandId,
-                        it.visitor.faceId,
-                        it.visitor.kairosId,
                         it.serviceResults[0].provider,
                         it.serviceResults[0].confidence,
                         it.serviceResults[0].identificationTime,
-                        known,
+                        trueId,
                         runCount
                         )
                 )
             }
             //instead of merging candidates for testing purposes run chooseTrialperson again until run_count is 50
             runCount++
-            if (runCount < 50) {
+            if (runCount < 5) {
                 chooseTrialPerson()
             }
             //
