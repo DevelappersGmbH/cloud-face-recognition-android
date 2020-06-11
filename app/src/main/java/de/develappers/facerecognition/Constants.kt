@@ -18,8 +18,8 @@ const val CANDIDATES_EXTRA: String = "extra_candidates"
 
 const val MICROSOFT: Boolean = false
 const val AMAZON: Boolean = false
-const val KAIROS: Boolean = false
-const val FACE: Boolean = true
+const val KAIROS: Boolean = true
+const val FACE: Boolean = false
 const val LUXAND: Boolean = false
 
 const val TYPE_PHOTO: String = "image_type_photo"
