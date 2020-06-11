@@ -109,7 +109,7 @@ class LuxandServiceAI(
     override fun setServiceId(visitor: Visitor, id: String) {
         //should be an array, not used
         //user defined id in the service is set to the last imgPath, look up in the local db in imgpaths[]
-        visitor.faceId = id
+        visitor.luxandId = id
     }
 
     override fun defineLocalIdPath(candidate: Any): String {
