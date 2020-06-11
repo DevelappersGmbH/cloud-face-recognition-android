@@ -20,7 +20,7 @@ const val CANDIDATES_EXTRA: String = "extra_candidates"
 
 const val MICROSOFT: Boolean = false
 const val AMAZON: Boolean = false
-const val KAIROS: Boolean = false
+const val KAIROS: Boolean = true
 const val FACE: Boolean = true
 const val LUXAND: Boolean = false
 

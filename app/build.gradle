@@ -22,7 +22,7 @@ android {
         buildConfigField("String", "FACE_KEY", apikeyProperties['FACE_KEY'])
         buildConfigField("String", "FACE_SECRET", apikeyProperties['FACE_SECRET'])
         buildConfigField("String", "KAIROS_KEY", apikeyProperties['KAIROS_KEY'])
-        buildConfigField("String", "KAIROS_SECRET", apikeyProperties['KAIROS_SECRET'])
+        buildConfigField("String", "KAIROS_APP_ID", apikeyProperties['KAIROS_APP_ID'])
     }
     buildTypes {
         release {
