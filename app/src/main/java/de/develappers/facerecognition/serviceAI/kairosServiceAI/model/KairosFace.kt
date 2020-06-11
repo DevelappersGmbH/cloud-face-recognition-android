@@ -28,6 +28,6 @@ class KairosFace(
         val quality: Double,
         val confidence: Double,
         val subject_id: String,
-        val face_id: Int
+        val face_id: String
     )
 }

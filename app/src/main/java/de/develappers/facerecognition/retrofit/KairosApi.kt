@@ -33,8 +33,8 @@ interface KairosApi {
     }
 //TODO: https://square.github.io/okhttp/interceptors/
     @Headers( "Content-type:application/json",
-        "api_key: ${BuildConfig.KAIROS_KEY}",
-        "api_secret: ${BuildConfig.KAIROS_SECRET}"
+        "app_key: ${BuildConfig.KAIROS_KEY}",
+        "app_id: ${BuildConfig.KAIROS_APP_ID}"
         )
     @POST("gallery/remove")
     suspend fun removeGallery(
@@ -42,8 +42,8 @@ interface KairosApi {
     ): GalleryRemoveResponse
 
     @Headers( "Content-type:application/json",
-        "api_key: ${BuildConfig.KAIROS_KEY}",
-        "api_secret: ${BuildConfig.KAIROS_SECRET}"
+        "app_key: ${BuildConfig.KAIROS_KEY}",
+        "app_id: ${BuildConfig.KAIROS_APP_ID}"
     )
     @POST("enroll")
     suspend fun enroll(
@@ -51,8 +51,8 @@ interface KairosApi {
     ): EnrollResponse
 
     @Headers( "Content-type:application/json",
-        "api_key: ${BuildConfig.KAIROS_KEY}",
-        "api_secret: ${BuildConfig.KAIROS_SECRET}"
+        "app_key: ${BuildConfig.KAIROS_KEY}",
+        "app_id: ${BuildConfig.KAIROS_APP_ID}"
     )
     @POST("recognize")
     suspend fun recognise(
