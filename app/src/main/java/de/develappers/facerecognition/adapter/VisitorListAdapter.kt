@@ -39,10 +39,12 @@ class VisitorListAdapter internal constructor(
         //set the confidence results in the columns according to predefined order in FaceApp
         FaceApp.values.keys.map { context.getString(it) }.forEach { title ->
             val textView = TextView(context)
+            //set default value = 0.0
+            textView.text = context.getString(R.string.confidence, 0.0)
+            // if there are results from the service, set accordingly
             candidate.serviceResults.find { it.provider == title }?.confidence?.times(100.0)?.let{
                 textView.text = context.getString(R.string.confidence, it)
             }
-
             val params = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.MATCH_PARENT,
