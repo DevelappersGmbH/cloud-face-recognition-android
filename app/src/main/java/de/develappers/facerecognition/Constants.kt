@@ -6,6 +6,7 @@ import android.hardware.camera2.CameraCharacteristics
 const val FACE_URL: String = "https://api-us.faceplusplus.com/facepp/v3/"
 const val KAIROS_URL: String = "https://api.kairos.com/"
 //TODO: https://stackoverflow.com/questions/32605711/adding-header-to-all-request-with-retrofit-2
+const val LUXAND_URL: String = "https://api.luxand.cloud/"
 
 const val VISITORS_GROUP_ID: String = "1"
 const val VISITORS_GROUP_DESCRIPTION: String = "all visitors"

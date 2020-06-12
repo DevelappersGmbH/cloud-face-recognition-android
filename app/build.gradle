@@ -23,6 +23,7 @@ android {
         buildConfigField("String", "FACE_SECRET", apikeyProperties['FACE_SECRET'])
         buildConfigField("String", "KAIROS_KEY", apikeyProperties['KAIROS_KEY'])
         buildConfigField("String", "KAIROS_APP_ID", apikeyProperties['KAIROS_APP_ID'])
+        buildConfigField("String", "LUXAND_KEY", apikeyProperties['LUXAND_KEY'])
     }
     buildTypes {
         release {
@@ -78,6 +79,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
     implementation 'com.squareup.retrofit2:retrofit:2.6.0'
     implementation 'com.squareup.retrofit2:converter-moshi:2.6.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
 
     //AI Services
 
