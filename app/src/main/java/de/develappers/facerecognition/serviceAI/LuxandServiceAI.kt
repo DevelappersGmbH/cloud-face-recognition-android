@@ -1,8 +1,8 @@
 package de.develappers.facerecognition.serviceAI
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
+import de.develappers.facerecognition.CONFIDENCE_CANDIDATE
 import de.develappers.facerecognition.FaceApp
 import de.develappers.facerecognition.FaceApp.Companion.galleryFolder
 import de.develappers.facerecognition.R
@@ -10,7 +10,6 @@ import de.develappers.facerecognition.database.model.entities.Visitor
 import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.AddFaceToPersonResponse
 import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.CreatePersonResponse
 import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.LuxandFace
-import de.develappers.facerecognition.utils.ImageHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType
@@ -32,7 +31,10 @@ class LuxandServiceAI(
     }
 
     override suspend fun deletePersonGroup(personGroupId: String) {
-        // does not have face sets
+        val persons = luxandApi.listPersons()
+        persons.forEach{
+            luxandApi.deletePerson(it.id)
+        }
     }
 
     //step 1
@@ -42,7 +44,7 @@ class LuxandServiceAI(
 
     override suspend fun addNewVisitorToDatabase(personGroupId: String, imgUri: String, visitor: Visitor) {
         //step 2
-        val createPersonResponse = addPersonToGroup(personGroupId)
+        val createPersonResponse = addPersonToGroup(visitor.visitorId.toString())
         setServiceId(visitor, createPersonResponse.id.toString())
         addNewImage(personGroupId, imgUri, visitor)
 
@@ -66,8 +68,11 @@ class LuxandServiceAI(
     }
 
     override suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Any> {
-        val body = createBodyPart(imgUri)
-        val searchFaceResponse = luxandFaceSearch(body) as List<Any>
+        val imageBody = createBodyPart(imgUri)
+        val requestThreshold: RequestBody = RequestBody.create(
+            MediaType.parse("multipart/form-data"), CONFIDENCE_CANDIDATE.toString()
+        )
+        val searchFaceResponse = luxandFaceSearch(imageBody, requestThreshold) as List<Any>
 
         return searchFaceResponse
 
@@ -94,11 +99,11 @@ class LuxandServiceAI(
             }
         }
 
-    suspend fun luxandFaceSearch(photoFile: MultipartBody.Part): Any =
+    suspend fun luxandFaceSearch(photoFile: MultipartBody.Part, requestThreshold: RequestBody): Any =
         withContext(Dispatchers.IO) {
             var result: List<LuxandFace> = mutableListOf()
             try {
-                result = luxandApi.search(photoFile)
+                result = luxandApi.search(photoFile, requestThreshold)
                 result
             } catch (e: Exception) {
                 Log.d("Luxand search: ", e.toString())
