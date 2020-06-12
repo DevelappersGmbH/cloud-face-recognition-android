@@ -2,12 +2,10 @@ package de.develappers.facerecognition.retrofit
 
 import de.develappers.facerecognition.BuildConfig
 import de.develappers.facerecognition.LUXAND_URL
-import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.AddFaceToPersonResponse
-import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.CreatePersonRequest
-import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.CreatePersonResponse
-import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.LuxandFace
+import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.*
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -56,18 +54,19 @@ interface LuxandApi {
     @Multipart
     @POST("photo/search")
     suspend fun search(
-        @Part photoFile: MultipartBody.Part
+        @Part photoFile: MultipartBody.Part,
+        @Part("threshold") requestThreshold : RequestBody
     ): List<LuxandFace>
 
-    /*@Headers ("token: ${BuildConfig.LUXAND_KEY}")
-    @FormUrlEncoded
-    @Multipart
-    @POST("/subject/{id}")
-    suspend fun addFaceToPerson(
-        @Path("id") luxandId: Int?,
-        @Field("photo") photoFile: MultipartBody.Part
-    ): AddFaceToPersonResponse*/
+    @Headers ("token: ${BuildConfig.LUXAND_KEY}")
+    @GET("/subject")
+    suspend fun listPersons(
+    ): List<LuxandPerson>
 
-
+    @Headers ("token: ${BuildConfig.LUXAND_KEY}")
+    @DELETE("/subject/{id}")
+    suspend fun deletePerson(
+        @Path("id") luxandId: Int
+    )
 
 }
