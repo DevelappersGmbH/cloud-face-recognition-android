@@ -20,17 +20,17 @@ const val NEW_IMAGE_PATH_EXTRA: String = "extra_new_image"
 const val CANDIDATES_EXTRA: String = "extra_candidates"
 
 const val MICROSOFT: Boolean = true
-const val AMAZON: Boolean = true
-const val KAIROS: Boolean = true
-const val FACE: Boolean = true
-const val LUXAND: Boolean = true
+const val AMAZON: Boolean = false
+const val KAIROS: Boolean = false
+const val FACE: Boolean = false
+const val LUXAND: Boolean = false
 
 const val TYPE_PHOTO: String = "image_type_photo"
 const val TYPE_SIGNATURE: String = "image_type_signature"
 
 const val APP_MODE_REALTIME: String = "realtime"
 const val APP_MODE_DATABASE: String = "database_testing"
-const val APP_MODE: String = APP_MODE_DATABASE
+const val APP_MODE: String = APP_MODE_REALTIME
 
 const val CONFIDENCE_MATCH: Double = 0.9
 const val CONFIDENCE_CANDIDATE: Double = 0.0

@@ -51,10 +51,11 @@ class GreetingActivity : AppCompatActivity() {
 
                 //register the visitor within AI services and set visitor service ID in the database
                 dbJob = lifecycleScope.launch {
-                    registerVisitorInAIServices(visitor)
                     //save new visitor in database, get visitor id
-                    val newVisitorId = visitorDao.insert(visitor)
-                    registerNewVisitor(newVisitorId.toString())
+                    visitor.visitorId = visitorDao.insert(visitor)
+                    registerVisitorInAIServices(visitor)
+                    visitorDao.updateVisitor(visitor)
+                    registerNewVisitor(visitor.visitorId.toString())
                 }
 
                 //train the database with the new image, if needed
