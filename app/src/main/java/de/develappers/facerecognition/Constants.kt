@@ -4,6 +4,9 @@ import android.Manifest
 import android.hardware.camera2.CameraCharacteristics
 
 const val FACE_URL: String = "https://api-us.faceplusplus.com/facepp/v3/"
+const val KAIROS_URL: String = "https://api.kairos.com/"
+//TODO: https://stackoverflow.com/questions/32605711/adding-header-to-all-request-with-retrofit-2
+const val LUXAND_URL: String = "https://api.luxand.cloud/"
 
 const val VISITORS_GROUP_ID: String = "1"
 const val VISITORS_GROUP_DESCRIPTION: String = "all visitors"
@@ -27,7 +30,7 @@ const val TYPE_SIGNATURE: String = "image_type_signature"
 
 const val APP_MODE_REALTIME: String = "realtime"
 const val APP_MODE_DATABASE: String = "database_testing"
-const val APP_MODE: String = APP_MODE_DATABASE
+const val APP_MODE: String = APP_MODE_REALTIME
 
 const val CONFIDENCE_MATCH: Double = 0.9
 const val CONFIDENCE_CANDIDATE: Double = 0.0
