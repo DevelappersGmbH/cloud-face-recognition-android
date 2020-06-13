@@ -100,6 +100,7 @@ abstract class FRdb : RoomDatabase() {
                 TimeUnit.SECONDS.sleep(2L)
                 Log.d("IMG to retrieve", file.path)
 
+
                 //register face in the services database
                 val visitor = Visitor(
                     "Visitor",
@@ -107,6 +108,8 @@ abstract class FRdb : RoomDatabase() {
                     company,
                     true
                 )
+                val visitorId = visitorDao.insert(visitor)
+                visitor.visitorId = visitorId
 
                 serviceProviders.forEach{
                     if (it.isActive){
@@ -114,7 +117,7 @@ abstract class FRdb : RoomDatabase() {
                     }
                 }
                 visitor.imgPaths.add(file.path)
-                visitorDao.insert(visitor)
+                visitorDao.updateVisitor(visitor)
             }
             Log.d("Database", "populated")
 

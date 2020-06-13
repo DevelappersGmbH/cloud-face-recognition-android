@@ -1,158 +1,129 @@
 package de.develappers.facerecognition.serviceAI
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Log
-import com.amazonaws.AmazonClientException
-import com.amazonaws.services.rekognition.model.*
-import com.amazonaws.util.IOUtils
+import de.develappers.facerecognition.CONFIDENCE_CANDIDATE
 import de.develappers.facerecognition.FaceApp
+import de.develappers.facerecognition.FaceApp.Companion.galleryFolder
 import de.develappers.facerecognition.R
 import de.develappers.facerecognition.database.model.entities.Visitor
-import de.develappers.facerecognition.VISITORS_GROUP_DESCRIPTION
-import de.develappers.facerecognition.VISITORS_GROUP_ID
-import de.develappers.facerecognition.VISITORS_GROUP_NAME
-import de.develappers.facerecognition.utils.ImageHelper
+import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.AddFaceToPersonResponse
+import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.CreatePersonResponse
+import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.LuxandFace
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
-import java.io.Serializable
-import java.nio.ByteBuffer
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.File
 
 
 class LuxandServiceAI(
     val context: Context,
     override var provider: String,
-    override var isActive: Boolean): RecognitionService {
+    override var isActive: Boolean
+) : RecognitionService {
 
-    val amazonServiceClient = FaceApp.amazonServiceClient
-    val personGroupId = VISITORS_GROUP_ID
-    val personGroupName = VISITORS_GROUP_NAME
-    val personGroupDescription = VISITORS_GROUP_DESCRIPTION
+    val luxandApi = FaceApp.luxandApi
 
     override suspend fun train() {
         // does not need to be trained manually
     }
 
     override suspend fun deletePersonGroup(personGroupId: String) {
-       amazonDeletePersonGroup(personGroupId)
+        val persons = luxandApi.listPersons()
+        persons.forEach{
+            luxandApi.deletePerson(it.id)
+        }
     }
 
     //step 1
     override suspend fun addPersonGroup(personGroupId: String) {
-        amazonAddGroup(personGroupId)
+        // does not have face sets
     }
 
     override suspend fun addNewVisitorToDatabase(personGroupId: String, imgUri: String, visitor: Visitor) {
         //step 2
-        val imageInputStream: InputStream = convertBitmapToStream(imgUri)
-        val indexFacesResult = amazonIndexFaces(imageInputStream, imgUri) as IndexFacesResult
-        val faceIds = mutableListOf<String>()
-        indexFacesResult.faceRecords.forEach{
-            faceIds.add(it.face.faceId)
-        }
-        //add faceIds to amazonIds
+        val createPersonResponse = addPersonToGroup(visitor.visitorId.toString())
+        setServiceId(visitor, createPersonResponse.id.toString())
+        addNewImage(personGroupId, imgUri, visitor)
+
     }
 
     override suspend fun addNewImage(personGroupId: String, imgUri: String, visitor: Visitor) {
-        addNewVisitorToDatabase(personGroupId, imgUri, visitor)
+        val body = createBodyPart(imgUri)
+        luxandAddFaceToPerson(visitor.luxandId.toInt(), body)
+    }
+
+    fun createBodyPart(imgUri: String): MultipartBody.Part{
+        val photoFile = File(galleryFolder, imgUri.substringAfter("${context.getString(R.string.app_name)}/"))
+
+        val body = MultipartBody.Part.createFormData(
+            "photo", photoFile.name, RequestBody.create(
+                MediaType.parse("multipart/form-data"),
+                photoFile
+            )
+        )
+        return body
     }
 
     override suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Any> {
-        val imageInputStream: InputStream = convertBitmapToStream(imgUri)
-        val faceSearchResult = amazonIdentifyVisitor(imageInputStream, 0.0f) as SearchFacesByImageResult
-        return faceSearchResult.faceMatches;
+        val imageBody = createBodyPart(imgUri)
+        val requestThreshold: RequestBody = RequestBody.create(
+            MediaType.parse("multipart/form-data"), CONFIDENCE_CANDIDATE.toString()
+        )
+        val searchFaceResponse = luxandFaceSearch(imageBody, requestThreshold) as List<Any>
+
+        return searchFaceResponse
 
     }
 
-
-    suspend fun amazonIdentifyVisitor(imageInputStream: InputStream, confidenceThreshold: Float): Serializable? =
-        withContext(Dispatchers.IO) {
-            try {
-                val imgBytes = ByteBuffer.wrap(IOUtils.toByteArray(imageInputStream))
-                val image = Image().withBytes(imgBytes)
-
-                val searchFacesByImageRequest = SearchFacesByImageRequest()
-                    .withCollectionId(personGroupId)
-                    .withImage(image)
-                    .withFaceMatchThreshold(confidenceThreshold)
-
-                amazonServiceClient?.searchFacesByImage(searchFacesByImageRequest)
-            } catch (e: AmazonClientException) {
-                Log.d("Amazon", e.message!!)
-            }
-        }
-
-    suspend fun amazonAddGroup(personGroupId: String): Serializable? =
-        withContext(Dispatchers.IO) {
-            try {
-                val request = CreateCollectionRequest().withCollectionId(personGroupId)
-                amazonServiceClient?.createCollection(request)
-            } catch (e: AmazonClientException) {
-                Log.d("Amazon", e.message!!)
-            }
-        }
-
-
-    suspend fun amazonIndexFaces(imageInputStream: InputStream, imgUri: String): Serializable? =
-        withContext(Dispatchers.IO) {
-            try {
-                val imgBytes = ByteBuffer.wrap(IOUtils.toByteArray(imageInputStream))
-                val image = Image().withBytes(imgBytes)
-
-                val indexFacesRequest = IndexFacesRequest()
-                    .withImage(image).withCollectionId(personGroupId).withExternalImageId(imgUri.substringAfter("${context.getString(
-                        R.string.app_name)}/"))
-                val indexFacesResult = amazonServiceClient?.indexFaces(indexFacesRequest)
-                val unindexedFaces = indexFacesResult?.getUnindexedFaces()
-                println("Faces not indexed:")
-                unindexedFaces?.forEach {face->
-                    println("  Location:" + face.faceDetail.boundingBox.toString())
-                    println("  Reasons:")
-                    face.reasons.forEach {reason->
-                        println(reason)
-                    }
-                }
-                indexFacesResult
-            } catch (e: AmazonClientException) {
-                Log.d("Amazon", e.message!!)
-            }
-        }
-
-    suspend fun amazonDeletePersonGroup(personGroupId: String) =
-        withContext(Dispatchers.IO) {
-            try {
-                val request = DeleteCollectionRequest()
-                    .withCollectionId(personGroupId)
-                amazonServiceClient?.deleteCollection(request)
-            } catch (e: AmazonClientException) {
-                Log.d("Amazon", e.message!!)
-            }
-        }
-
-    fun convertBitmapToStream(imgUri: String): InputStream{
-        var imageUri = Uri.parse(imgUri)
-        val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(imageUri, context)
-        val stream = ByteArrayOutputStream()
-        imgBitmap?.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-        return ByteArrayInputStream(stream.toByteArray())
+    suspend fun addPersonToGroup(personName: String): CreatePersonResponse {
+        return luxandCreatePerson(personName)
     }
 
-    override fun setServiceId(visitor: Visitor, id: String){
-        visitor.amazonId = id
-    }
+    suspend fun luxandCreatePerson(personName: String): CreatePersonResponse =
+        withContext(Dispatchers.IO) {
+            luxandApi.createPerson(personName)
+        }
 
+
+    suspend fun luxandAddFaceToPerson(luxandId: Int?, photoFile: MultipartBody.Part): Any? =
+        withContext(Dispatchers.IO) {
+            var result: AddFaceToPersonResponse? = null
+            try {
+                result = luxandApi.addFaceToPerson(luxandId, photoFile)
+                result
+            } catch (e: Exception) {
+                Log.d("Luxand addFaceToPerson: ", e.toString())
+            }
+        }
+
+    suspend fun luxandFaceSearch(photoFile: MultipartBody.Part, requestThreshold: RequestBody): Any =
+        withContext(Dispatchers.IO) {
+            var result: List<LuxandFace> = mutableListOf()
+            try {
+                result = luxandApi.search(photoFile, requestThreshold)
+                result
+            } catch (e: Exception) {
+                Log.d("Luxand search: ", e.toString())
+            }
+        }
+
+
+    override fun setServiceId(visitor: Visitor, id: String) {
+        //should be an array, not used
+        //user defined id in the service is set to the last imgPath, look up in the local db in imgpaths[]
+        visitor.luxandId = id
+    }
 
     override fun defineLocalIdPath(candidate: Any): String {
-        candidate as FaceMatch
-        return "${FaceApp.galleryFolder}/${candidate.face.externalImageId}"
+        candidate as LuxandFace
+        return candidate.id.toString()
     }
 
     override fun defineConfidenceLevel(candidate: Any): Double {
-        candidate as FaceMatch
-        return candidate.similarity / 100.0
+        candidate as LuxandFace
+        return candidate.probability
     }
 }
