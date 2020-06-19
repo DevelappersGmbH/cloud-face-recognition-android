@@ -69,9 +69,9 @@ abstract class FRdb : RoomDatabase() {
 
         suspend fun populateDatabase(visitorDao: VisitorDao) {
             val innerClient = OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.MINUTES) // connect timeout
-                .writeTimeout(5, TimeUnit.MINUTES) // write timeout
-                .readTimeout(5, TimeUnit.MINUTES) // read timeout
+                .connectTimeout(30, TimeUnit.MINUTES) // connect timeout
+                .writeTimeout(30, TimeUnit.MINUTES) // write timeout
+                .readTimeout(30, TimeUnit.MINUTES) // read timeout
                 .build()
 
             // delete all content here

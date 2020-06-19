@@ -160,7 +160,7 @@ class MainActivity : CameraActivity() {
             }
             //instead of merging candidates for testing purposes run chooseTrialperson again until run_count is 50
             runCount++
-            if (runCount < 5) {
+            if (runCount < 50) {
                 chooseTrialPerson()
             }
             //
