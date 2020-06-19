@@ -74,8 +74,8 @@ abstract class FRdb : RoomDatabase() {
                 .readTimeout(30, TimeUnit.MINUTES) // read timeout
                 .build()
 
-            // delete all content here
-            visitorDao.deleteAll()
+            /*// delete all content here
+            visitorDao.deleteAll()*/
 
             // add sample company
             val company = Company("apple")
@@ -86,8 +86,8 @@ abstract class FRdb : RoomDatabase() {
 
             serviceProviders.forEach{
                 if (it.isActive){
-                    it.deletePersonGroup(VISITORS_GROUP_ID)
-                    it.addPersonGroup(VISITORS_GROUP_ID)
+                    /*it.deletePersonGroup(VISITORS_GROUP_ID)
+                    it.addPersonGroup(VISITORS_GROUP_ID)*/
                 }
             }
 
