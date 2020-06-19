@@ -55,7 +55,8 @@ interface LuxandApi {
     @POST("photo/search")
     suspend fun search(
         @Part photoFile: MultipartBody.Part,
-        @Part("threshold") requestThreshold : RequestBody
+        @Part("threshold") requestThreshold : RequestBody,
+        @Part("all") allCandidates : RequestBody
     ): List<LuxandFace>
 
     @Headers ("token: ${BuildConfig.LUXAND_KEY}")
