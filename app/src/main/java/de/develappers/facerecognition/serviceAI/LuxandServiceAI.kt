@@ -72,7 +72,10 @@ class LuxandServiceAI(
         val requestThreshold: RequestBody = RequestBody.create(
             MediaType.parse("multipart/form-data"), CONFIDENCE_CANDIDATE.toString()
         )
-        val searchFaceResponse = luxandFaceSearch(imageBody, requestThreshold) as List<Any>
+        val allCandidates: RequestBody = RequestBody.create(
+            MediaType.parse("multipart/form-data"), true.toString()
+        )
+        val searchFaceResponse = luxandFaceSearch(imageBody, requestThreshold, allCandidates) as List<Any>
 
         return searchFaceResponse
 
@@ -99,11 +102,11 @@ class LuxandServiceAI(
             }
         }
 
-    suspend fun luxandFaceSearch(photoFile: MultipartBody.Part, requestThreshold: RequestBody): Any =
+    suspend fun luxandFaceSearch(photoFile: MultipartBody.Part, requestThreshold: RequestBody, allCandidates: RequestBody): Any =
         withContext(Dispatchers.IO) {
             var result: List<LuxandFace> = mutableListOf()
             try {
-                result = luxandApi.search(photoFile, requestThreshold)
+                result = luxandApi.search(photoFile, requestThreshold, allCandidates)
                 result
             } catch (e: Exception) {
                 Log.d("Luxand search: ", e.toString())
