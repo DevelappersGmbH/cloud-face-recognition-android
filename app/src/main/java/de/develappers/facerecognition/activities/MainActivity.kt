@@ -24,6 +24,7 @@ import de.develappers.facerecognition.serviceAI.*
 import de.develappers.facerecognition.serviceAI.FaceServiceAI
 import de.develappers.facerecognition.utils.ImageHelper
 import de.develappers.facerecognition.serviceAI.ServiceFactory
+import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.LuxandFace
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -192,19 +193,25 @@ class MainActivity : CameraActivity() {
             candidates = service.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
         }
         // unite possible visitors from all services
-        candidates.forEach { candidate ->
-            val localIdPath = service.defineLocalIdPath(candidate)
-            val newCandidate = RecognisedCandidate().apply {
-                this.visitor = findVisitor(localIdPath, service)
-                this.serviceResults.add(
-                    ServiceResult(
-                        service.provider,
-                        identificationResponseTime,
-                        service.defineConfidenceLevel(candidate)
+
+        if (service is LuxandServiceAI){
+            candidates = candidates.sortedByDescending { (it as LuxandFace).probability }
+        }
+        candidates.forEachIndexed { index, candidate ->
+            if (index < RETURN_RESULT_COUNT){
+                val localIdPath = service.defineLocalIdPath(candidate)
+                val newCandidate = RecognisedCandidate().apply {
+                    this.visitor = findVisitor(localIdPath, service)
+                    this.serviceResults.add(
+                        ServiceResult(
+                            service.provider,
+                            identificationResponseTime,
+                            service.defineConfidenceLevel(candidate)
+                        )
                     )
-                )
+                }
+                possibleVisitors.add(newCandidate)
             }
-            possibleVisitors.add(newCandidate)
         }
     }
 
