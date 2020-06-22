@@ -37,6 +37,7 @@ class VisitorListAdapter internal constructor(
         holder.fullNameView?.text =
             context.resources.getString(R.string.full_name, candidate.visitor.firstName, candidate.visitor.lastName);
         //set the confidence results in the columns according to predefined order in FaceApp
+        holder.probabilityView.removeAllViews()
         FaceApp.values.keys.map { context.getString(it) }.forEach { title ->
             val textView = TextView(context)
             //set default value = 0.0
