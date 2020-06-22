@@ -162,7 +162,7 @@ class MainActivity : CameraActivity() {
             }
             //instead of merging candidates for testing purposes run chooseTrialperson again until run_count is 50
             runCount++
-            if (runCount < 50) {
+            if (runCount < 100) {
                 TimeUnit.SECONDS.sleep(15L)
                 possibleVisitors.clear()
                 chooseTrialPerson()
@@ -201,7 +201,7 @@ class MainActivity : CameraActivity() {
             candidates = candidates.sortedByDescending { (it as LuxandFace).probability }
         }
         candidates.forEachIndexed { index, candidate ->
-            if (index<5){
+            if (index<100){
                 val localIdPath = service.defineLocalIdPath(candidate)
                 val newCandidate = RecognisedCandidate().apply {
                     this.visitor = findVisitor(localIdPath, service)

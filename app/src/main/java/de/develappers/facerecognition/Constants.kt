@@ -22,7 +22,7 @@ const val CANDIDATES_EXTRA: String = "extra_candidates"
 const val MICROSOFT: Boolean = true
 const val AMAZON: Boolean = true
 const val KAIROS: Boolean = true
-const val FACE: Boolean = true
+const val FACE: Boolean = false
 const val LUXAND: Boolean = true
 
 const val TYPE_PHOTO: String = "image_type_photo"
@@ -34,7 +34,7 @@ const val APP_MODE: String = APP_MODE_DATABASE
 
 const val CONFIDENCE_MATCH: Double = 0.9
 const val CONFIDENCE_CANDIDATE: Double = 0.0
-const val RETURN_RESULT_COUNT: Int = 5 //for Face++ from 1 to max 5 returned candidates
+const val RETURN_RESULT_COUNT: Int = 100 //for Face++ from 1 to max 5 returned candidates
 const val REMOVE_ALL_TOKENS: String = "RemoveAllFaceTokens" //remove all tokens from face++ before deleting FaceSet
 
 const val REQUEST_CAMERA_PERMISSION = 0
