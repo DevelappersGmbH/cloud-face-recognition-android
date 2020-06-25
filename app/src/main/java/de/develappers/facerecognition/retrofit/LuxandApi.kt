@@ -2,7 +2,11 @@ package de.develappers.facerecognition.retrofit
 
 import de.develappers.facerecognition.BuildConfig
 import de.develappers.facerecognition.LUXAND_URL
-import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.*
+import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.AddFaceToPersonResponse
+import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.CreatePersonResponse
+import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.LuxandFace
+import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.LuxandPerson
+import okhttp3.Interceptor
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
@@ -17,31 +21,37 @@ interface LuxandApi {
 
     companion object {
         fun create(): LuxandApi {
+            val builder = OkHttpClient().newBuilder()
 
-            val logging = HttpLoggingInterceptor()
-            logging.level = HttpLoggingInterceptor.Level.BODY
-            val httpClient = OkHttpClient.Builder()
-            httpClient.addInterceptor(logging) // <-- this is the important line!
+            if (BuildConfig.DEBUG) {
+                val interceptor = HttpLoggingInterceptor()
+                interceptor.level = HttpLoggingInterceptor.Level.BODY
+                builder.addInterceptor(interceptor)
+            }
+
+            builder.addInterceptor { chain: Interceptor.Chain ->
+                val request =
+                    chain.request().newBuilder().addHeader("token", BuildConfig.LUXAND_KEY).build()
+                chain.proceed(request)
+            }
 
             val retrofit = Retrofit.Builder()
                 .addConverterFactory(MoshiConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .baseUrl(LUXAND_URL)
-                .client(httpClient.build())
+                .client(builder.build())
                 .build()
 
             return retrofit.create(LuxandApi::class.java)
         }
     }
 
-    @Headers ("token: ${BuildConfig.LUXAND_KEY}")
     @FormUrlEncoded
     @POST("/subject")
     suspend fun createPerson(
         @Field("name") personName: String?
     ): CreatePersonResponse
 
-    @Headers ("token: ${BuildConfig.LUXAND_KEY}")
     @Multipart
     @POST("/subject/{id}")
     suspend fun addFaceToPerson(
@@ -49,8 +59,6 @@ interface LuxandApi {
         @Part photoFile: MultipartBody.Part
     ): AddFaceToPersonResponse
 
-
-    @Headers ("token: ${BuildConfig.LUXAND_KEY}")
     @Multipart
     @POST("photo/search")
     suspend fun search(
@@ -59,12 +67,10 @@ interface LuxandApi {
         @Part("all") allCandidates : RequestBody
     ): List<LuxandFace>
 
-    @Headers ("token: ${BuildConfig.LUXAND_KEY}")
     @GET("/subject")
     suspend fun listPersons(
     ): List<LuxandPerson>
 
-    @Headers ("token: ${BuildConfig.LUXAND_KEY}")
     @DELETE("/subject/{id}")
     suspend fun deletePerson(
         @Path("id") luxandId: Int
