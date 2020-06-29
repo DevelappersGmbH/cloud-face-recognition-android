@@ -110,7 +110,7 @@ class FaceServiceAI(
         withContext(Dispatchers.IO) {
             try {
                 val response = faceApi.createFaceSet(apiKey, apiSecret, personGroupId)
-                Log.d("Face++", response.faceset_token.toString())
+                Log.d("Face++ create faceset ", response.faceset_token.toString())
             } catch (e: Exception) {
                 Log.d("Face++ create fs: ", e.toString())
             }
@@ -123,7 +123,7 @@ class FaceServiceAI(
             try {
                 faceApi.removeFaceTokensFromSet(apiKey, apiSecret, personGroupId, REMOVE_ALL_TOKENS)
                 val response = faceApi.deleteFaceSet(apiKey, apiSecret, personGroupId)
-                Log.d("Face++", response.faceset_token.toString())
+                Log.d("Face++ delete faceset ", response.faceset_token.toString())
             } catch (e: Exception) {
                 Log.d("Face++ delete: ", e.toString())
             }
