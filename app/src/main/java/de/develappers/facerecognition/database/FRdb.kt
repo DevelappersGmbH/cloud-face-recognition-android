@@ -69,13 +69,13 @@ abstract class FRdb : RoomDatabase() {
 
         suspend fun populateDatabase(visitorDao: VisitorDao) {
             val innerClient = OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.MINUTES) // connect timeout
-                .writeTimeout(5, TimeUnit.MINUTES) // write timeout
-                .readTimeout(5, TimeUnit.MINUTES) // read timeout
+                .connectTimeout(30, TimeUnit.MINUTES) // connect timeout
+                .writeTimeout(30, TimeUnit.MINUTES) // write timeout
+                .readTimeout(30, TimeUnit.MINUTES) // read timeout
                 .build()
 
-            // delete all content here
-            visitorDao.deleteAll()
+            /*// delete all content here
+            visitorDao.deleteAll()*/
 
             // add sample company
             val company = Company("apple")
@@ -86,8 +86,8 @@ abstract class FRdb : RoomDatabase() {
 
             serviceProviders.forEach{
                 if (it.isActive){
-                    it.deletePersonGroup(VISITORS_GROUP_ID)
-                    it.addPersonGroup(VISITORS_GROUP_ID)
+                   /* it.deletePersonGroup(VISITORS_GROUP_ID)
+                    it.addPersonGroup(VISITORS_GROUP_ID)*/
                 }
             }
 
@@ -100,6 +100,7 @@ abstract class FRdb : RoomDatabase() {
                 TimeUnit.SECONDS.sleep(2L)
                 Log.d("IMG to retrieve", file.path)
 
+
                 //register face in the services database
                 val visitor = Visitor(
                     "Visitor",
@@ -107,6 +108,8 @@ abstract class FRdb : RoomDatabase() {
                     company,
                     true
                 )
+                val visitorId = visitorDao.insert(visitor)
+                visitor.visitorId = visitorId
 
                 serviceProviders.forEach{
                     if (it.isActive){
@@ -114,7 +117,7 @@ abstract class FRdb : RoomDatabase() {
                     }
                 }
                 visitor.imgPaths.add(file.path)
-                visitorDao.insert(visitor)
+                visitorDao.updateVisitor(visitor)
             }
             Log.d("Database", "populated")
 

@@ -56,15 +56,16 @@ class GreetingActivity : AppCompatActivity() {
 
                 //register the visitor within AI services and set visitor service ID in the database
                 dbJob = lifecycleScope.launch {
-                    registerVisitorInAIServices(visitor)
                     //save new visitor in database, get visitor id
-                    val newVisitorId = visitorDao.insert(visitor)
-                    registerNewVisitor(newVisitorId.toString())
+                    visitor.visitorId = visitorDao.insert(visitor)
+                    registerVisitorInAIServices(visitor)
+                    visitorDao.updateVisitor(visitor)
+                    registerNewVisitor(visitor.visitorId.toString())
                 }
 
                 //train the database with the new image, if needed
-                serviceProviders.forEach {
-                    it.train()
+                aiJob = lifecycleScope.launch {
+                    trainServices()
                 }
 
             }
@@ -78,16 +79,16 @@ class GreetingActivity : AppCompatActivity() {
 
                 aiJob = lifecycleScope.launch {
                     addNewPhotoToAIServices(imgPath, recognisedCandidate.visitor)
+                    trainServices()
                 }
                 dbJob = lifecycleScope.launch {
                     addNewPhotoPathToDatabase(imgPath, recognisedCandidate.visitor)
 
                 }
                 registerRepeatingVisitor(recognisedCandidate)
-                aiJob.join()
             }
 
-
+            aiJob.join()
             dbJob.join()
             navigateToStart()
 
@@ -125,6 +126,17 @@ class GreetingActivity : AppCompatActivity() {
             if (service.isActive) {
                 launch {
                     imgPath?.let { service.addNewImage(VISITORS_GROUP_ID, it, visitor) }
+                }
+            }
+        }
+    }
+
+    private suspend fun trainServices() = withContext(Dispatchers.IO) {
+        // withContext waits for all children coroutines
+        serviceProviders.forEach { service ->
+            if (service.isActive) {
+                launch {
+                    service.train()
                 }
             }
         }

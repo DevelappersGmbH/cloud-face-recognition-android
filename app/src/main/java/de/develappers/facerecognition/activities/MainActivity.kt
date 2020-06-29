@@ -13,16 +13,21 @@ import android.util.Log
 import android.view.View.VISIBLE
 import android.widget.ImageView
 import android.widget.Toast
+import android.widget.Toast.LENGTH_LONG
 import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
 import de.develappers.facerecognition.*
 import de.develappers.facerecognition.TTS.TTS
 import de.develappers.facerecognition.database.FRdb
 import de.develappers.facerecognition.database.dao.VisitorDao
 import de.develappers.facerecognition.database.model.RecognisedCandidate
 import de.develappers.facerecognition.database.model.ServiceResult
+import de.develappers.facerecognition.database.model.entities.AnalysisData
 import de.develappers.facerecognition.database.model.entities.Visitor
 import de.develappers.facerecognition.serviceAI.*
 import de.develappers.facerecognition.utils.ImageHelper
+import de.develappers.facerecognition.serviceAI.ServiceFactory
+import de.develappers.facerecognition.serviceAI.luxandServiceAI.model.LuxandFace
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,12 +35,15 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.Serializable
-import java.util.*
+import kotlin.random.Random.Default.nextBoolean
 import kotlin.system.measureTimeMillis
 
 
 class MainActivity : CameraActivity() {
 
+
+    private var trueId = 777L
+    private var runCount = 0
     private lateinit var fromCameraPath: String
     private lateinit var tts: TTS
     @PublishedApi
@@ -117,14 +125,18 @@ class MainActivity : CameraActivity() {
     private fun chooseTrialPerson() {
         var resFolder = "database"
         //randomly decide between testing a person from the prepopulated database or a person from testbase
-        if (false) {
+        if (nextBoolean()) {
             //only familiar
             runBlocking {
+                Toast.makeText(applicationContext, "Known person", LENGTH_LONG).show()
                 val randomVisitor = getRandomVisitor()
+                trueId = randomVisitor.visitorId
                 fromCameraPath = getAssetsPhotoUri(randomVisitor.lastName!!, resFolder)
             }
         } else {
             //unfamiliar faces
+            trueId = 777L
+            Toast.makeText(applicationContext, "Unknown person", LENGTH_LONG).show()
             resFolder = "testbase"
             fromCameraPath = getAssetsPhotoUri(assets.list(resFolder)!!.random().toString(), resFolder)
 
@@ -135,8 +147,35 @@ class MainActivity : CameraActivity() {
         setNewVisitorToPreview(fromCameraPath)
         lifecycleScope.launch {
             sendPhotoToServicesAndEvaluate(fromCameraPath)
-            mergeCandidates()
-            //findSingleMatchOrSuggestList()
+            //
+            //
+            // after getting all the results for merged candidates, we can save them to analyse further
+            //also save "known" or "unknown" person and the run count
+            //
+            //
+            possibleVisitors.forEach {
+                writeToLogbook(
+                    AnalysisData(
+                        it.visitor.visitorId,
+                        it.visitor.firstName,
+                        it.visitor.lastName,
+                        it.serviceResults[0].provider,
+                        it.serviceResults[0].confidence,
+                        it.serviceResults[0].identificationTime,
+                        trueId,
+                        runCount
+                        )
+                )
+            }
+            //instead of merging candidates for testing purposes run chooseTrialperson again until run_count is 50
+            runCount++
+            if (runCount < 50) {
+                chooseTrialPerson()
+            }
+            //
+            //
+            //
+            //mergeCandidates()
         }
     }
 
@@ -162,19 +201,25 @@ class MainActivity : CameraActivity() {
             candidates = service.identifyVisitor(VISITORS_GROUP_ID, newImageUri)
         }
         // unite possible visitors from all services
-        candidates.forEach { candidate ->
-            val localIdPath = service.defineLocalIdPath(candidate)
-            val newCandidate = RecognisedCandidate().apply {
-                this.visitor = findVisitor(localIdPath, service)
-                this.serviceResults.add(
-                    ServiceResult(
-                        service.provider,
-                        identificationResponseTime,
-                        service.defineConfidenceLevel(candidate)
+
+        if (service is LuxandServiceAI){
+            candidates = candidates.sortedByDescending { (it as LuxandFace).probability }
+        }
+        candidates.forEachIndexed { index, candidate ->
+            if (index < RETURN_RESULT_COUNT){
+                val localIdPath = service.defineLocalIdPath(candidate)
+                val newCandidate = RecognisedCandidate().apply {
+                    this.visitor = findVisitor(localIdPath, service)
+                    this.serviceResults.add(
+                        ServiceResult(
+                            service.provider,
+                            identificationResponseTime,
+                            service.defineConfidenceLevel(candidate)
+                        )
                     )
-                )
+                }
+                possibleVisitors.add(newCandidate)
             }
-            possibleVisitors.add(newCandidate)
         }
     }
 
@@ -222,6 +267,8 @@ class MainActivity : CameraActivity() {
             is AmazonServiceAI -> visitorDao.findByAmazonFaceId(localIdPath)
             is MicrosoftServiceAI -> visitorDao.findByMicrosoftId(localIdPath)
             is FaceServiceAI -> visitorDao.findByFaceId(localIdPath)
+            is KairosServiceAI -> visitorDao.findByKairosId(localIdPath)
+            is LuxandServiceAI -> visitorDao.findByLuxandId(localIdPath)
             else -> Visitor(null, null, null)
         }
     }
@@ -261,6 +308,10 @@ class MainActivity : CameraActivity() {
 
     fun speak(text: String){
         TTS().initialize(applicationContext, text)
+    }
+
+    private fun writeToLogbook(data: AnalysisData) {
+        File(FaceApp.storageDirectory, "AnalysisData.txt").appendText("${Gson().toJson(data)}\n")
     }
 
 }
