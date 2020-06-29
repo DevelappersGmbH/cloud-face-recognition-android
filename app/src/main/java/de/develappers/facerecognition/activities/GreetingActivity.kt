@@ -60,14 +60,10 @@ class GreetingActivity : AppCompatActivity() {
                     visitor.visitorId = visitorDao.insert(visitor)
                     registerVisitorInAIServices(visitor)
                     visitorDao.updateVisitor(visitor)
-                    registerNewVisitor(visitor.visitorId.toString())
-                }
-
-                //train the database with the new image, if needed
-                aiJob = lifecycleScope.launch {
                     trainServices()
                 }
 
+                logNewVisitor(visitor.visitorId.toString())
             }
 
             if (intent.hasExtra(RECOGNISED_CANDIDATE_EXTRA)) {
@@ -85,10 +81,11 @@ class GreetingActivity : AppCompatActivity() {
                     addNewPhotoPathToDatabase(imgPath, recognisedCandidate.visitor)
 
                 }
-                registerRepeatingVisitor(recognisedCandidate)
+
+                logRepeatingVisitor(recognisedCandidate)
+                aiJob.join()
             }
 
-            aiJob.join()
             dbJob.join()
             navigateToStart()
 
@@ -101,14 +98,14 @@ class GreetingActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun registerNewVisitor(visitorId: String) {
+    private fun logNewVisitor(visitorId: String) {
         log.timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         log.trueVisitorId = visitorId
         writeToLogbook()
 
     }
 
-    private fun registerRepeatingVisitor(candidate: RecognisedCandidate) {
+    private fun logRepeatingVisitor(candidate: RecognisedCandidate) {
         log.timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         log.serviceResults = candidate.serviceResults
         log.trueVisitorId = candidate.visitor.visitorId.toString()
