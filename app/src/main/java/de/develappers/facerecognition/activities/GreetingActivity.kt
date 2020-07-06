@@ -49,9 +49,10 @@ class GreetingActivity : AppCompatActivity() {
 
             if (intent.hasExtra(VISITOR_EXTRA)) {
                 val visitor = intent.getSerializableExtra(VISITOR_EXTRA) as Visitor
-                getString(R.string.greeting, visitor.lastName).apply {
-                    tvGreeting.text = this
-                    speak(this)
+                visitor.apply {
+                    val text = getString(R.string.greeting, this.firstName, this.lastName)
+                    tvGreeting.text = text
+                    speak(text)
                 }
 
                 //register the visitor within AI services and set visitor service ID in the database
