@@ -147,12 +147,9 @@ class MainActivity : CameraActivity() {
         setNewVisitorToPreview(fromCameraPath)
         lifecycleScope.launch {
             sendPhotoToServicesAndEvaluate(fromCameraPath)
-            //
-            //
-            // after getting all the results for merged candidates, we can save them to analyse further
+
+            /*// after getting all the results for merged candidates, we can save them to analyse further
             //also save "known" or "unknown" person and the run count
-            //
-            //
             possibleVisitors.forEach {
                 writeToLogbook(
                     AnalysisData(
@@ -171,11 +168,9 @@ class MainActivity : CameraActivity() {
             runCount++
             if (runCount < 50) {
                 chooseTrialPerson()
-            }
-            //
-            //
-            //
-            //mergeCandidates()
+            }*/
+
+            mergeCandidates()
         }
     }
 
@@ -208,8 +203,8 @@ class MainActivity : CameraActivity() {
         candidates.forEachIndexed { index, candidate ->
             if (index < RETURN_RESULT_COUNT){
                 val localIdPath = service.defineLocalIdPath(candidate)
-                val newCandidate = RecognisedCandidate().apply {
-                    this.visitor = findVisitor(localIdPath, service)
+                findVisitor(localIdPath, service)?.let { val newCandidate = RecognisedCandidate().apply {
+                    this.visitor = it
                     this.serviceResults.add(
                         ServiceResult(
                             service.provider,
@@ -218,7 +213,7 @@ class MainActivity : CameraActivity() {
                         )
                     )
                 }
-                possibleVisitors.add(newCandidate)
+                    possibleVisitors.add(newCandidate) }
             }
         }
     }
@@ -262,7 +257,7 @@ class MainActivity : CameraActivity() {
     }
 
 
-    suspend fun findVisitor(localIdPath: String, service: RecognitionService): Visitor {
+    suspend fun findVisitor(localIdPath: String, service: RecognitionService): Visitor? {
         return when (service) {
             is AmazonServiceAI -> visitorDao.findByAmazonFaceId(localIdPath)
             is MicrosoftServiceAI -> visitorDao.findByMicrosoftId(localIdPath)

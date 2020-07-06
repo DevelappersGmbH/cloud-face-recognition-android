@@ -20,21 +20,21 @@ interface VisitorDao {
 
     @Query("SELECT * FROM visitor WHERE first_name LIKE :first AND " +
             "last_name LIKE :last LIMIT 1")
-    suspend fun findByName(first: String, last: String): Visitor
+    suspend fun findByName(first: String, last: String): Visitor?
 
     @Query("SELECT * FROM visitor WHERE microsoft_id = :id")
-    suspend fun findByMicrosoftId(id: String): Visitor
+    suspend fun findByMicrosoftId(id: String): Visitor?
 
     @Query("SELECT * FROM visitor WHERE img_path LIKE '%' || :id || '%' ")
-    suspend fun findByAmazonFaceId(id: String): Visitor
+    suspend fun findByAmazonFaceId(id: String): Visitor?
 
     @Query("SELECT * FROM visitor WHERE img_path LIKE '%' || :id || '%' ")
-    suspend fun findByFaceId(id: String): Visitor
+    suspend fun findByFaceId(id: String): Visitor?
 
     @Query("SELECT * FROM visitor WHERE img_path LIKE '%' || :id || '%' ")
-    suspend fun findByKairosId(id: String): Visitor
+    suspend fun findByKairosId(id: String): Visitor?
     @Query("SELECT * FROM visitor WHERE luxand_id = :id")
-    suspend fun findByLuxandId(id: String): Visitor
+    suspend fun findByLuxandId(id: String): Visitor?
 
     @Insert
     suspend fun insertAll(vararg visitors: Visitor)
