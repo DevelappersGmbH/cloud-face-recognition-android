@@ -69,9 +69,10 @@ class GreetingActivity : AppCompatActivity() {
 
             if (intent.hasExtra(RECOGNISED_CANDIDATE_EXTRA)) {
                 val recognisedCandidate = intent.getSerializableExtra(RECOGNISED_CANDIDATE_EXTRA) as RecognisedCandidate
-                getString(R.string.greeting, recognisedCandidate.visitor.lastName).apply {
-                    tvGreeting.text = this
-                    speak(this)
+                recognisedCandidate.visitor.apply {
+                    val text = getString(R.string.greeting, this.firstName, this.lastName)
+                    tvGreeting.text = text
+                    speak(text)
                 }
 
                 aiJob = lifecycleScope.launch {
