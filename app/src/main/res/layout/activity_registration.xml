@@ -1,141 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".activities.RegistrationActivity">
 
-    <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:visibility="gone"/>
+            android:paddingBottom="@dimen/padding_scroll">
 
-    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="0dp"
-                                                       android:layout_height="match_parent"
-                                                       android:id="@+id/dataLayout"
-                                                       app:layout_constraintStart_toStartOf="parent"
-                                                       app:layout_constraintHorizontal_bias="0.3"
-                                                       app:layout_constraintEnd_toStartOf="@+id/cameraLayout">
+        <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/dataLayout"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/cameraLayout"
+                app:layout_constraintHorizontal_bias="0.3"
+                app:layout_constraintEnd_toStartOf="@+id/cameraLayout">
 
 
-        <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:hint="@string/first_name"
-                android:selectAllOnFocus="true"
-                android:ems="10"
-                android:paddingLeft="@dimen/padding_default"
-                android:id="@+id/etFirstName"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toTopOf="@+id/etLastName"/>
-        <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:hint="@string/last_name"
-                android:selectAllOnFocus="true"
-                android:ems="10"
-                android:paddingLeft="@dimen/padding_default"
-                android:id="@+id/etLastName"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etFirstName"
-                app:layout_constraintBottom_toTopOf="@+id/etCompany"/>
-        <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:hint="@string/company_name"
-                android:selectAllOnFocus="true"
-                android:ems="10"
-                android:paddingLeft="@dimen/padding_default"
-                android:id="@+id/etCompany"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etLastName"
-                app:layout_constraintBottom_toTopOf="@+id/ppLayout"/>
+            <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:hint="@string/first_name"
+                    android:selectAllOnFocus="true"
+                    android:ems="10"
+                    android:paddingStart="@dimen/padding_default"
+                    android:id="@+id/etFirstName"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/etLastName"/>
+            <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:hint="@string/last_name"
+                    android:selectAllOnFocus="true"
+                    android:ems="10"
+                    android:paddingStart="@dimen/padding_default"
+                    android:id="@+id/etLastName"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/etFirstName"
+                    app:layout_constraintBottom_toTopOf="@+id/etCompany"/>
+
+            <EditText
+                    android:id="@+id/etCompany"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="@string/company_name"
+                    android:inputType="textPersonName"
+                    android:paddingStart="@dimen/padding_default"
+                    android:selectAllOnFocus="true"
+                    app:layout_constraintBottom_toTopOf="@+id/ppLayout"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/etLastName" />
+
+            <LinearLayout
+                    android:id="@+id/ppLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/etCompany">
+
+                <CheckBox
+                        android:id="@+id/checkBoxPrivacy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                <TextView
+                        android:id="@+id/tvPrivacy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/privacy_policy"
+                        android:layout_marginBottom="@dimen/padding_default"/>
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
-                android:id="@+id/ppLayout"
-                android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="horizontal"
-                      app:layout_constraintStart_toStartOf="parent"
-                      app:layout_constraintBottom_toBottomOf="parent"
-                      app:layout_constraintTop_toBottomOf="@+id/etCompany">
-            <CheckBox
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/checkBoxPrivacy"/>
-            <TextView
-                    android:text="@string/privacy_policy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/tvPrivacy"/>
+                android:id="@+id/cameraLayout"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="@dimen/padding_default"
+                android:weightSum="7"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/dataLayout"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+            <de.develappers.facerecognition.utils.signatureView.AutoFitTextureView
+                    android:id="@+id/cameraSurface"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="end"
+                    android:layout_weight="1" />
+
+            <RelativeLayout
+                    android:id="@+id/signatureLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="bottom"
+                    android:layout_weight="6"
+                    android:layout_marginStart="@dimen/padding_scroll">
+
+                <RelativeLayout
+                        android:id="@+id/signatureField"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_above="@id/btnOk"
+                        android:orientation="vertical">
+
+                    <de.develappers.facerecognition.utils.signatureView.SignatureView
+                            android:id="@+id/signatureView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    <TextView
+                            android:id="@+id/tvSignature"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentBottom="true"
+                            android:layout_centerInParent="true"
+                            android:text="@string/signature" />
+                </RelativeLayout>
+
+                <Button
+                        android:id="@+id/btnOk"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:text="@string/ok"
+                        android:textSize="@dimen/text_large"/>
+
+            </RelativeLayout>
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-    <LinearLayout android:id="@+id/cameraLayout"
-                  android:layout_width="0dp"
-                  android:layout_height="match_parent"
-                  android:orientation="vertical"
-                  android:weightSum="3"
-                  android:padding="@dimen/padding_default"
-                  app:layout_constraintStart_toEndOf="@+id/dataLayout"
-                  app:layout_constraintHorizontal_bias="0.5"
-                  app:layout_constraintEnd_toEndOf="parent">
-
-        <de.develappers.facerecognition.utils.signatureView.AutoFitTextureView
-                android:id="@+id/cameraSurface"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-
-        <RelativeLayout android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        android:layout_weight="2"
-                        android:id="@+id/signatureLayout">
-
-            <RelativeLayout android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:orientation="vertical"
-                          android:layout_alignParentStart="true"
-                          android:layout_alignParentLeft="true"
-                          android:layout_toLeftOf="@id/btnOk"
-                          android:layout_toStartOf="@id/btnOk">
-                <de.develappers.facerecognition.utils.signatureView.SignatureView
-                        android:id="@+id/signatureView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                <TextView
-                        android:text="@string/signature"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_centerInParent="true"
-                        android:id="@+id/tvSignature"/>
-            </RelativeLayout>
-
-            <Button
-                    android:text="@string/ok"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="@dimen/text_large"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:id="@+id/btnOk"/>
-
-        </RelativeLayout>
-
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
