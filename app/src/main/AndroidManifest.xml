@@ -16,13 +16,17 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <activity android:name=".activities.GreetingActivity">
+        <activity android:name=".activities.GreetingActivity"
+                android:screenOrientation="landscape">
         </activity>
-        <activity android:name=".activities.RegistrationActivity">
+        <activity android:name=".activities.RegistrationActivity"
+                android:screenOrientation="landscape">
         </activity>
-        <activity android:name=".activities.VisitorListActivity">
+        <activity android:name=".activities.VisitorListActivity"
+                android:screenOrientation="landscape">
         </activity>
-        <activity android:name=".activities.MainActivity">
+        <activity android:name=".activities.MainActivity"
+                android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
