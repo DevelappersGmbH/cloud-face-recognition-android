@@ -63,7 +63,7 @@ abstract class FRdb : RoomDatabase() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
             INSTANCE?.let { database ->
-                scope.launch { populateDatabase(database.visitorDao()) }
+                /*scope.launch { populateDatabase(database.visitorDao()) }*/
             }
         }
 

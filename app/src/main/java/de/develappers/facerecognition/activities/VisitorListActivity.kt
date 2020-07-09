@@ -27,7 +27,7 @@ class VisitorListActivity : AppCompatActivity(), OnVisitorItemClickedListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_visitor_list)
 
-        speak(getString(R.string.not_recognised))
+        speak(getString(R.string.are_you_one_of_these))
         showAlertDialog()
 
 
@@ -81,7 +81,7 @@ class VisitorListActivity : AppCompatActivity(), OnVisitorItemClickedListener {
         val dialogBuilder = AlertDialog.Builder(this)
 
         // set message of alert dialog
-        dialogBuilder.setMessage(R.string.not_recognised)
+        dialogBuilder.setMessage(R.string.are_you_one_of_these)
             // if the dialog is cancelable
             .setCancelable(false)
             // positive button text and action

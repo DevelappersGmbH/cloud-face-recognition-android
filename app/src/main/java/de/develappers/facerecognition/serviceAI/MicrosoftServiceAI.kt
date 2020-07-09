@@ -81,12 +81,16 @@ class MicrosoftServiceAI(
         }
         faces.forEach { faceIds.add(it.faceId) }
         val faceIdsArray = faceIds.toTypedArray()
-        val identifyResults =  microsoftIdentifyFace(personGroupId, faceIdsArray, CONFIDENCE_CANDIDATE.toFloat(), RETURN_RESULT_COUNT)
-        return mutableListOf<Candidate>().apply {
-            identifyResults.forEach {
-                this.addAll(it.candidates)
+        val candidates = mutableListOf<Candidate>()
+            if (faceIdsArray.isNotEmpty()){
+                val identifyResults = microsoftIdentifyFace(personGroupId, faceIdsArray, CONFIDENCE_CANDIDATE.toFloat(), RETURN_RESULT_COUNT)
+                candidates.apply {
+                    identifyResults.forEach {
+                        this.addAll(it.candidates)
+                    }
             }
         }
+        return candidates
     }
 
 

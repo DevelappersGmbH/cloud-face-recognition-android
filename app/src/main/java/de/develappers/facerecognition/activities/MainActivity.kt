@@ -252,6 +252,12 @@ class MainActivity : CameraActivity() {
             navigateToGreeting(sureMatches[0])
             return
         }
+        //if the visitor could not be recognised at all, go directly to registration
+        if (mergedVisitors.isEmpty()) {
+            speak(getString(R.string.not_recognised))
+            navigateToRegistration()
+            return
+        }
         //otherwise show a list of options
         navigateToVisitorList(mergedVisitors)
     }

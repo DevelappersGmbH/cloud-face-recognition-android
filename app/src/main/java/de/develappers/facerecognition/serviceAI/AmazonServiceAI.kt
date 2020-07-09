@@ -60,7 +60,7 @@ class AmazonServiceAI(
     override suspend fun identifyVisitor(personGroupId: String, imgUri: String): List<Any> {
         val imageInputStream: InputStream = convertBitmapToStream(imgUri)
         val faceSearchResult = amazonIdentifyVisitor(imageInputStream, CONFIDENCE_CANDIDATE.toFloat()) as SearchFacesByImageResult
-        return faceSearchResult.faceMatches;
+        return faceSearchResult.faceMatches ?: return emptyList();
 
     }
 

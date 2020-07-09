@@ -6,7 +6,8 @@
     <string name="ok">OK</string>
     <string name="oops">Oops&#8230;</string>
     <string name="confidence">%.2f%%</string>
-    <string name="not_recognised">Unfortunately, I cannot recognise you. Are you one of these people?</string>
+    <string name="not_recognised">Unfortunately, I cannot recognise you.</string>
+    <string name="are_you_one_of_these">Are you one of these people?</string>
     <string name="have_to_register">Looks like we will have to register you. Please fill in the form. </string>
     <string name="take_picture">I am going to take a photo. Do not smile. </string>
     <string name="field_required">Please, fill in the %s</string>

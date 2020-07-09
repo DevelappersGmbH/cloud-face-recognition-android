@@ -64,8 +64,7 @@ class FaceServiceAI(
         val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(imageUri, context)
         val imgString = ImageHelper.encodeImage(imgBitmap)
         val searchFaceResponse = faceSearch(imgString, personGroupId) as SearchResponse
-        return searchFaceResponse.results as List<Any>;
-
+        return searchFaceResponse.results ?: return emptyList();
     }
 
     suspend fun faceSetUserId(faceToken: String?, localPathId: String?) =

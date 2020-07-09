@@ -60,9 +60,9 @@ class KairosServiceAI(
         val imageUri = Uri.parse(imgUri)
         val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(imageUri, context)
         val imgString = ImageHelper.encodeImage(imgBitmap)
-        val recogniseResponse = recognise(imgString!!, personGroupId) as RecogniseResponse
+        val recogniseResponse = recognise(imgString!!, personGroupId) as RecogniseResponse?
         val candidates: MutableList<KairosResult.KairosCandidate>  = mutableListOf()
-        recogniseResponse.images.forEach{
+        recogniseResponse?.images?.forEach{
             candidates.addAll(it.candidates)
         }
         return candidates
