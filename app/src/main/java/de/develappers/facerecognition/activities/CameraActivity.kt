@@ -105,6 +105,12 @@ open class CameraActivity: AppCompatActivity(), ActivityCompat.OnRequestPermissi
             try {
                 if (cameraDevice == null) return
                 val rotation = windowManager.defaultDisplay.rotation
+                var angle: Int = 0
+                if (sensorOrientation == 270){
+                    angle = 90
+                } else if (sensorOrientation == 0) {
+                    angle = 270
+                }
 
                 // This is the CaptureRequest.Builder that we use to take a picture.
                 val captureBuilder = cameraDevice?.createCaptureRequest(
@@ -116,9 +122,10 @@ open class CameraActivity: AppCompatActivity(), ActivityCompat.OnRequestPermissi
                     // We have to take that into account and rotate JPEG properly.
                     // For devices with orientation of 90, we return our mapping from ORIENTATIONS.
                     // For devices with orientation of 270, we need to rotate the JPEG 180 degrees.
+
                     set(
                         CaptureRequest.JPEG_ORIENTATION,
-                        (ORIENTATIONS.get(rotation) + sensorOrientation + 90) % 360
+                        (ORIENTATIONS.get(rotation) + sensorOrientation + angle) % 360
                     )
 
                     // Use the same AE and AF modes as the preview.
