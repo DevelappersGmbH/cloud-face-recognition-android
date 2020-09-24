@@ -11,6 +11,7 @@ import de.develappers.facerecognition.utils.ImageHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.Serializable
+import java.util.concurrent.TimeUnit
 
 
 class FaceServiceAI(
@@ -63,13 +64,18 @@ class FaceServiceAI(
         var imageUri = Uri.parse(imgUri)
         val imgBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(imageUri, context)
         val imgString = ImageHelper.encodeImage(imgBitmap)
-        val searchFaceResponse = faceSearch(imgString, personGroupId) as SearchResponse
-        return searchFaceResponse.results ?: return emptyList();
+        return try {
+            val searchFaceResponse = faceSearch(imgString, personGroupId) as SearchResponse
+            searchFaceResponse.results as List<Any>
+        } catch (e:Exception){
+            emptyList();
+        }
     }
 
     suspend fun faceSetUserId(faceToken: String?, localPathId: String?) =
         withContext(Dispatchers.IO) {
             try {
+                TimeUnit.SECONDS.sleep(1L)
                  faceApi.setUserId(apiKey, apiSecret, faceToken, localPathId)
             } catch (e: Exception) {
                 Log.d("Face++ setuserid: ", e.toString())
@@ -80,6 +86,7 @@ class FaceServiceAI(
         withContext(Dispatchers.IO) {
             var result : FaceSetCreateResponse? = null
             try {
+                TimeUnit.SECONDS.sleep(1L)
                 result = faceApi.addFaceToFaceSet(apiKey, apiSecret, personGroupId, faceToken)
             } catch (e: Exception) {
                 Log.d("Face++ addfacetofs: ", e.toString())
@@ -89,6 +96,7 @@ class FaceServiceAI(
     suspend fun faceSearch(imgBase64:String?, personGroupId: String?): Serializable? =
         withContext(Dispatchers.IO) {
             try {
+                TimeUnit.SECONDS.sleep(1L)
                 faceApi.search(apiKey, apiSecret, imgBase64, personGroupId, RETURN_RESULT_COUNT)
             } catch (e: Exception) {
                 Log.d("Face++ search: ", e.toString())
@@ -98,6 +106,7 @@ class FaceServiceAI(
     suspend fun faceDetect(imgBase64: String?): Serializable? =
         withContext(Dispatchers.IO) {
             try {
+                TimeUnit.SECONDS.sleep(1L)
                 val detectFacesResult = faceApi.detect(apiKey, apiSecret, imgBase64)
                 detectFacesResult
             } catch (e: Exception) {
@@ -108,6 +117,7 @@ class FaceServiceAI(
     suspend fun faceCreateFaceSet(personGroupId: String?): Serializable? =
         withContext(Dispatchers.IO) {
             try {
+                TimeUnit.SECONDS.sleep(1L)
                 val response = faceApi.createFaceSet(apiKey, apiSecret, personGroupId)
                 Log.d("Face++ create faceset ", response.faceset_token.toString())
             } catch (e: Exception) {
@@ -120,6 +130,7 @@ class FaceServiceAI(
     suspend fun faceDeleteFaceSet(personGroupId: String?) =
         withContext(Dispatchers.IO) {
             try {
+                TimeUnit.SECONDS.sleep(1L)
                 faceApi.removeFaceTokensFromSet(apiKey, apiSecret, personGroupId, REMOVE_ALL_TOKENS)
                 val response = faceApi.deleteFaceSet(apiKey, apiSecret, personGroupId)
                 Log.d("Face++ delete faceset ", response.faceset_token.toString())
