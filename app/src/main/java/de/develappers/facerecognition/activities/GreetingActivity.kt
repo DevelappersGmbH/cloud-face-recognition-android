@@ -157,6 +157,10 @@ class GreetingActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        //do nothing
+    }
+
     fun speak(text: String){
         TTS().initialize(applicationContext, text)
     }
