@@ -45,8 +45,12 @@ class FaceServiceAI(
         var faces: List<Face>? = listOf()
         if (imgString != null) {
             //step 3
-            val result = faceDetect(imgString) as DetectResponse
-            faces = result.faces
+            try {
+                val result = faceDetect(imgString) as DetectResponse
+                faces = result.faces
+            } catch (e:Exception){
+                e.printStackTrace()
+            }
         }
         faces?.forEach {
             //step 4 (given there is only one person/face in the captured photo and we can add all detected faces to this person)
