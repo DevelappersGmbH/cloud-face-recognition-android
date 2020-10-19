@@ -29,7 +29,7 @@
     <string name="luxand">Luxand</string>
     <string name="response_time">Response (ms)</string>
     <string name="na">N/A</string>
-    <string name="microsoft_subscription_key">24a9a48fd1b64e80adfb6aedc2768f15</string>
+    <string name="microsoft_subscription_key">***REMOVED***</string>
     <string name="microsoft_endpoint">https://eastus.api.cognitive.microsoft.com/face/v1.0</string>
 
     <string name="region">us-east-1</string>
